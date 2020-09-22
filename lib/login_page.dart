@@ -71,6 +71,7 @@ class _LoginPageState extends State<LoginPage> {
 
     return LoadingModal(
       child: Scaffold(
+          backgroundColor: Colors.white,
           body: SingleChildScrollView(
             child: Stack(
               children: [
