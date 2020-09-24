@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'main_page.dart';
-import 'main_page.dart';
 import 'login_UI.dart';
 import 'dart:math' as Math;
 

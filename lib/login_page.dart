@@ -231,8 +231,9 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildDivisionLine() {
     return Container(
-      margin: EdgeInsets.fromLTRB(10, 30, 10, 30),
+      margin: EdgeInsets.only(top: 30, bottom: 30),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Container(
             width: 142,
