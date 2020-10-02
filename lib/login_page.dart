@@ -168,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                         goMainPage();
 
                       }else{
-                        goKakaoRegisterPage();
+
                       }
                     },
                   ),
