@@ -162,7 +162,14 @@ class _LoginPageState extends State<LoginPage> {
                       UserStatus userStatus = Provider.of<UserStatus>(context);
                       bool loginResult = await userStatus.loginDefault(_idController.text, _passwordController.text);
                       print(loginResult);
+                      if(loginResult == true){
+//                      userStatus.loginWithKakao();
+                        print('성공');
+                        goMainPage();
 
+                      }else{
+                        goKakaoRegisterPage();
+                      }
                     },
                   ),
                 ),
