@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:meal_flutter/UIs/meal_detail.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:math'; // 그냥 api 가져오기 전에 이모티콘 다양하게 하려 랜덤쓰려고 함. 나중에 지울 것
 
@@ -14,10 +15,19 @@ class MealCalendar extends State<MealCalState> {
   CalendarController _controller;
 
   final List<String> emojiList = ['cold', 'good', 'spice', 'umji', 'love']; // 랜덤 돌리려 만들어둔거, 삭제될 예정.
+  List<int> dayList = new List(31);
+
   @override
   void initState() {
     super.initState();
     _controller = CalendarController();
+
+    // final now = DateTime.now();
+    // final dif = now.difference(date);
+    // for (int i in dayList) {
+    //   if (DateTime.now().difference(date).inMilliseconds <= 0) dayList[i] = 1;
+    //   else dayList[i] = 0;
+    // }
   }
 
   @override
@@ -54,12 +64,19 @@ class MealCalendar extends State<MealCalState> {
           );
         },
         dayBuilder: (context, date, _) {
-          return Container(
-            child: Column(
-              children: <Widget>[
-                Text(date.day.toString()),
-                Image.asset('assets/${emojiList[randomNum()]}.png', width: 35,)
-              ],
+          return GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => MealDetailUI(date))
+              );
+            },
+            child: Container(
+              child: Column(
+                children: <Widget>[
+                  Text(date.day.toString()),
+                  Image.asset(DateTime.now().difference(date).inMilliseconds <= 0 ? 'assets/dishes.png' : 'assets/${emojiList[randomNum()]}.png', width: 35,),
+                ],
+              ),
             ),
           );
         },

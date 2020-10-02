@@ -11,6 +11,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 
 import './common/provider/userProvider.dart';
+import 'UIs/main_page.dart';
 import 'common/route_transition.dart';
 
 import 'login_page.dart';

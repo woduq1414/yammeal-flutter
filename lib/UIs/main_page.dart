@@ -4,6 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
 import 'dart:math' as math;
 import 'meal_calendar.dart';
+import 'package:date_format/date_format.dart';
 
 class MealMainUI extends StatelessWidget {
   @override
@@ -111,7 +112,7 @@ class MealUI extends State<MealState> {
                                   ],
                                 ),
                                 Text('점심', style: TextStyle(fontSize: 25, color: Colors.white)),
-                                Text('2020.9.10', style: TextStyle(fontSize: 20, color: Colors.white)),
+                                Text(formatDate(DateTime.now(), [yyyy, '.', mm, '.', dd]), style: TextStyle(fontSize: 20, color: Colors.white)),
                                 Container(
                                   margin: EdgeInsets.only(top: 5),
                                   width: 200,
