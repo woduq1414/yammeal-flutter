@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
 import 'dart:math' as math;
 import 'meal_calendar.dart';
 import 'package:date_format/date_format.dart';
+import 'package:http/http.dart' as http;
 
 class MealMainUI extends StatelessWidget {
   @override
@@ -28,9 +32,18 @@ class MealUI extends State<MealState> {
   double _selectedTop = 0;
   bool _openInfo = false;
   int _nowTab = 0;
+  var mealList;
+
+  @override
+  void initState() {
+    super.initState();
+    mealList = getNowMealMenu();
+
+  }
 
   @override
   Widget build(BuildContext context) {
+    print(mealList);
     return Scaffold(
       backgroundColor: Color(0xffFF5454),
       body: _buildBody(),
@@ -43,6 +56,20 @@ class MealUI extends State<MealState> {
         return SafeArea(
             child: Stack(
               children: <Widget>[
+                Container(
+                  child: Stack(
+                    children: <Widget>[
+                      CustomPaint(
+                        painter: CurvePainter1(),
+                        size: MediaQuery.of(context).size
+                      ),
+                      CustomPaint(
+                        painter: CurvePainter2(),
+                        size: MediaQuery.of(context).size,
+                      )
+                    ],
+                  ),
+                ),
                 Container(
                   child: Stack(
                     children: <Widget>[
@@ -107,7 +134,7 @@ class MealUI extends State<MealState> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
                                     Image.asset('assets/soup.png', width: 50,),
-                                    Text('오늘의 점심', style: TextStyle(fontSize: 32, color: Colors.white)),
+                                    Text('오늘의 메뉴', style: TextStyle(fontSize: 32, color: Colors.white)),
                                     Image.asset('assets/soup.png', width: 50,),
                                   ],
                                 ),
@@ -148,30 +175,41 @@ class MealUI extends State<MealState> {
                             child: Stack(
                               alignment: Alignment.center,
                               children: <Widget>[
-                                Positioned(
-                                  child: _buildMealItem('치킨 가라아게덮밥', 0),
-                                  top: 60,
-                                ),
-                                Positioned(
-                                  child: _buildMealItem('건새우시래기된장국', 1),
-                                  top: 120,
-                                ),
-                                Positioned(
-                                  child: _buildMealItem('쫄면야채무침', 2),
-                                  top: 180,
-                                ),
-                                Positioned(
-                                  child: _buildMealItem('콘치즈버터구이', 3),
-                                  top: 240,
-                                ),
-                                Positioned(
-                                  child: _buildMealItem('배추김치', 4),
-                                  top: 300,
-                                ),
-                                Positioned(
-                                  child: _buildMealItem('요구르트', 5),
-                                  top: 360,
-                                ),
+                                // Column(
+                                //   children: mealList.map(
+                                //       (menu) {
+                                //         return _buildMealItem('치킨 가라아게덮밥', 0);
+                                //       }
+                                //
+                                //   ),
+                                // ),
+
+
+
+                                // Positioned(
+                                //   child: _buildMealItem('치킨 가라아게덮밥', 0),
+                                //   top: 60,
+                                // ),
+                                // Positioned(
+                                //   child: _buildMealItem('건새우시래기된장국', 1),
+                                //   top: 120,
+                                // ),
+                                // Positioned(
+                                //   child: _buildMealItem('쫄면야채무침', 2),
+                                //   top: 180,
+                                // ),
+                                // Positioned(
+                                //   child: _buildMealItem('콘치즈버터구이', 3),
+                                //   top: 240,
+                                // ),
+                                // Positioned(
+                                //   child: _buildMealItem('배추김치', 4),
+                                //   top: 300,
+                                // ),
+                                // Positioned(
+                                //   child: _buildMealItem('요구르트', 5),
+                                //   top: 360,
+                                // ),
                                 Positioned(
                                   child: _buildBelowItemInfo(_selectedIndex),
                                   top: _selectedTop,
@@ -222,6 +260,7 @@ class MealUI extends State<MealState> {
               _selectedTop = index.toDouble() * 60 + 105;
               _selectedIndex = index;
             });
+
           },
           onLongPressUp: () {
             setState(() {
@@ -275,7 +314,6 @@ class MealUI extends State<MealState> {
   }
 
   Widget _buildUpperItemInfo(int index) {
-
     return AnimatedOpacity(
       child: AnimatedContainer(
         duration: Duration(milliseconds: 200),
@@ -310,7 +348,37 @@ class MealUI extends State<MealState> {
       duration: Duration(milliseconds: 300),
     );
   }
+
+  // api 가져오는 지역
+  Future<List<String>> getNowMealMenu() async {
+    print('재엽이를 찬양하라');
+    var client = new http.Client();
+    try {
+      http.Response res = await http.get('http://meal-backend.herokuapp.com/api/meals/menu?menuDate=20201006',
+          headers: {"Authorization" : await getToken(),}
+      );
+      print(res.statusCode);
+      if (res.statusCode == 200) {
+        print('안녕');
+        final jsonBody = jsonDecode(res.body);
+        print(jsonBody);
+
+        return jsonBody["data"];
+      } else {
+        return [];
+      }
+    } catch (e) {
+      Exception(e);
+    } finally {
+      client.close();
+    }
+    // return false;
+  }
+
+
 }
+
+// CustompPainter 지역
 
 class HalfCirclePainter extends CustomPainter {
   @override
@@ -388,6 +456,62 @@ class InnerHalfCirclePainter extends CustomPainter {
   }
 
   num degToRad(num deg) => deg * (math.pi / 180.0);
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false;
+  }
+
+}
+
+class CurvePainter1 extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = new Paint()
+      ..color = Color(0xffFF4600)
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 8.0;
+
+    final x = size.width;
+    final y = size.height;
+    Path path = new Path();
+    path.moveTo(-50, 0);
+    path.lineTo(-50, y*0.15);
+    path.cubicTo(x*0.15, y*0.1, x*0.25, y*0.1, x*0.45, y*0.2);
+    path.cubicTo(x*0.7, y*0.17, x*0.8, y*0.17, x, y*0.1);
+    path.lineTo(x, 0);
+    path.lineTo(-50, 0);
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false;
+  }
+
+}
+
+class CurvePainter2 extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = new Paint()
+      ..color = Color(0xffFFBB00)
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 8.0;
+
+    final x = size.width;
+    final y = size.height;
+    Path path = new Path();
+    path.moveTo(-50, 0);
+    path.lineTo(-50, y*0.23);
+    path.cubicTo(x*0.15, y*0.08, x*0.4, y*0.05, x*0.6, y*0.12);
+    path.cubicTo(x*0.75, y*0.23, x*0.92, y*0.23, x, y*0.1);
+    path.lineTo(x, 0);
+    path.lineTo(-50, 0);
+
+    canvas.drawPath(path, paint);
+  }
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {

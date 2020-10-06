@@ -18,6 +18,7 @@ import 'package:provider/provider.dart';
 import './common/provider/userProvider.dart';
 import './common/route_transition.dart';
 import './kakao_register_page.dart';
+import 'UIs/main_page.dart';
 import 'common/color.dart';
 
 import 'test_page.dart';
@@ -55,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
   void goMainPage() {
     Navigator.push(
       context,
-      FadeRoute(page: TestPage()),
+      FadeRoute(page: MealMainUI()),
     );
   }
 
@@ -162,7 +163,9 @@ class _LoginPageState extends State<LoginPage> {
                       UserStatus userStatus = Provider.of<UserStatus>(context);
                       bool loginResult = await userStatus.loginDefault(_idController.text, _passwordController.text);
                       print(loginResult);
-
+                      if(loginResult == true){
+                        goMainPage();
+                      }
                     },
                   ),
                 ),
