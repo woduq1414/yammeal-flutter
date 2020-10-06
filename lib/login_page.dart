@@ -34,8 +34,8 @@ class LoginPage extends StatefulWidget {
 
 
 class _LoginPageState extends State<LoginPage> {
-  final _idController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _idController = TextEditingController(text:"qaz123@naver.com");
+  final _passwordController = TextEditingController(text:"qwe123");
 
   void goKakaoRegisterPage() {
     Navigator.push(
