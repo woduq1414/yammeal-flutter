@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:date_format/date_format.dart';
+import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
+import 'package:http/http.dart' as http;
 
 class MealDetailUI extends StatelessWidget {
   DateTime d;
@@ -14,16 +18,37 @@ class MealDetailUI extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'meal',
-      home: MealDetail(d),
+      home: MealDetailState(d),
     );
   }
 }
 
-class MealDetail extends StatelessWidget {
+class MealDetailState extends StatefulWidget {
+
+  DateTime d;
+  MealDetailState(DateTime d) {
+    this.d = d;
+  }
+
+  @override
+  MealDetail createState() => MealDetail(d);
+
+}
+
+class MealDetail extends State<MealDetailState> {
   DateTime d;
   MealDetail(DateTime d) {
     this.d = d;
   }
+
+  var _mealList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getDayMealMenu();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,18 +68,25 @@ class MealDetail extends StatelessWidget {
               Center(
                 child: Text(formatDate(d, [yyyy, '.', mm, '.', dd]), style: TextStyle(fontSize: 35, color: Colors.white),),
               ),
-              SizedBox(height: 60,),
-              _buildMenuItem('치킨 가라아게 덮밥', true),
               SizedBox(height: 15,),
-              _buildMenuItem('건새우시래기된장국', false),
-              SizedBox(height: 15,),
-              _buildMenuItem('쫄면아채무침', false),
-              SizedBox(height: 15,),
-              _buildMenuItem('콘치즈버터구이', false),
-              SizedBox(height: 15,),
-              _buildMenuItem('배추김치', false),
-              SizedBox(height: 15,),
-              _buildMenuItem('요구르트', false),
+              Column(
+                children: _mealList.map<Widget>((menu) {
+                  print(_mealList.indexOf(menu));
+                  return _buildMenuItem(menu, true);
+                }).toList(),
+              ),
+              // SizedBox(height: 60,),
+              // _buildMenuItem('치킨 가라아게 덮밥', true),
+              // SizedBox(height: 15,),
+              // _buildMenuItem('건새우시래기된장국', false),
+              // SizedBox(height: 15,),
+              // _buildMenuItem('쫄면아채무침', false),
+              // SizedBox(height: 15,),
+              // _buildMenuItem('콘치즈버터구이', false),
+              // SizedBox(height: 15,),
+              // _buildMenuItem('배추김치', false),
+              // SizedBox(height: 15,),
+              // _buildMenuItem('요구르트', false),
             ],
           ),
         );
@@ -63,25 +95,52 @@ class MealDetail extends StatelessWidget {
   }
 
   Widget _buildMenuItem(String menu, bool dd) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
       children: <Widget>[
-        Container(
-          width: 40,
-          height: 40,
-          child: dd ? Image.asset('assets/meat.png', width: 40,) : Container(),
-        ),
-        SizedBox(width: 10,),
-        Text(menu, style: TextStyle(color: Colors.white, fontSize: 25),),
-        SizedBox(width: 15,),
-        SpeechBubble(
-          width: 50,
-          nipLocation: NipLocation.LEFT,
-          color: Colors.white,
-          borderRadius: 50,
-          child: Image.asset('assets/good.png', width: 40,),
+        SizedBox(height: 15,),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+          Container(
+            width: 40,
+            height: 40,
+            child: dd ? Image.asset('assets/meat.png', width: 40,) : Container(),
+          ),
+          SizedBox(width: 10,),
+          Text(menu, style: TextStyle(color: Colors.white, fontSize: 25),),
+          SizedBox(width: 15,),
+          SpeechBubble(
+              width: 50,
+              nipLocation: NipLocation.LEFT,
+              color: Colors.white,
+              borderRadius: 50,
+              child: Image.asset('assets/good.png', width: 40,),
+            ),
+          ],
         ),
       ],
     );
+  }
+
+  Future getDayMealMenu() async {
+    http.Response res = await http.get('http://meal-backend.herokuapp.com/api/meals/menu?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}', headers: {
+      "Authorization": await getToken(),
+    });
+    print(res.statusCode);
+    if (res.statusCode == 200) {
+      print('안녕');
+      print(jsonDecode(res.body));
+      List<dynamic> jsonBody = jsonDecode(res.body)["data"];
+      print("ss");
+      print(jsonBody);
+
+      setState(() {
+        _mealList = jsonBody;
+      });
+
+      return;
+    } else {
+      return;
+    }
   }
 }

@@ -206,12 +206,16 @@ class MealUI extends State<MealState> {
                       child: Stack(
                         alignment: Alignment.center,
                         children: <Widget>[
-                          Column(
-                            children: _mealList.map<Widget>((menu) {
-                              print(_mealList.indexOf(menu));
-                              return _buildMealItem(menu, _mealList.indexOf(menu));
-                            }).toList(),
+                          Positioned(
+                            child: Column(
+                              children: _mealList.map<Widget>((menu) {
+                                print(_mealList.indexOf(menu));
+                                return _buildMealItem(menu, _mealList.indexOf(menu));
+                              }).toList(),
+                            ),
+                            top: 40,
                           ),
+
 
                           // Positioned(
                           //   child: _buildMealItem('치킨 가라아게덮밥', 0),
@@ -525,33 +529,44 @@ class MealUI extends State<MealState> {
     GlobalKey _key = GlobalKey();
     return Container(
       key: _key,
-      height: 40,
+      //height: 40,
       child: Column(
         children: <Widget>[
+          SizedBox(height: 7,),
           GestureDetector(
+            // onLongPressUp: () {
+            //   print("!@@@@@@@@@@@@@@@@@@@@@@@@@@@이거 됨?");
+            //   setState(() {
+            //     _openInfo = false;
+            //     //_selectedIndex = 0;
+            //     //_selectedTop = 0;
+            //   });
+            // },
             onLongPress: () {
-              print(_key.currentContext.size);
-              RenderBox b = _key.currentContext.findRenderObject();
-              print(getWidgetPos(_containerKey));
               setState(() {
                 _openInfo = true;
-                _selectedTop = getWidgetPos(_key).dy - getWidgetPos(_containerKey).dy + 40;
+                _selectedTop = getWidgetPos(_key).dy - getWidgetPos(_containerKey).dy + 47;
                 _selectedIndex = index;
               });
+              // print(_key.currentContext.size);
+              // RenderBox b = _key.currentContext.findRenderObject();
+              // print(getWidgetPos(_containerKey));
+              print('keypress');
             },
-
             onLongPressUp: () {
-              print("!@@@@@@@@@@@@@@@@@@@@@@@@@@@이거 됨?");
+              print('lpUp');
+            },
+            onTapUp: (TapUpDetails t) {
+              print('tapup');
               setState(() {
                 _openInfo = false;
-                //_selectedIndex = 0;
-                //_selectedTop = 0;
               });
             },
             child: Text(mealName, style: TextStyle(fontSize: 25, color: Colors.white)),
           ),
+          SizedBox(height: 7,),
         ],
-      ),
+      )
     );
   }
 
@@ -647,7 +662,7 @@ class MealUI extends State<MealState> {
 
   // api 가져오는 지역
   Future getNowMealMenu() async {
-    http.Response res = await http.get('http://meal-backend.herokuapp.com/api/meals/menu?menuDate=20201006', headers: {
+    http.Response res = await http.get('http://meal-backend.herokuapp.com/api/meals/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}', headers: {
       "Authorization": await getToken(),
     });
     print(res.statusCode);
