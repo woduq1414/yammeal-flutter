@@ -63,11 +63,11 @@ class MealCalendar extends State<MealCalState> {
             ),
           );
         },
-        dayBuilder: (context, date, _) {
+        dayBuilder: (_context, date, _) {
           return GestureDetector(
             onTap: () {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => MealDetailUI(date))
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => MealDetailState(date))
               );
             },
             child: Container(
@@ -107,3 +107,6 @@ class MealCalendar extends State<MealCalState> {
     return rnd.nextInt(4);
   }
 }
+
+
+

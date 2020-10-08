@@ -23,6 +23,22 @@ class MealDetailUI extends StatelessWidget {
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class MealDetailState extends StatefulWidget {
 
   DateTime d;
@@ -51,9 +67,16 @@ class MealDetail extends State<MealDetailState> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xffFFBB00),
-      body: _buildBody(),
+    print("@@@@");
+    return WillPopScope(
+      onWillPop: () async{
+        print("hello?");
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: Color(0xffFFBB00),
+        body: _buildBody(),
+      ),
     );
   }
 

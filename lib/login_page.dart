@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
   void goMainPage() {
     Navigator.push(
       context,
-      FadeRoute(page: MealMainUI()),
+      FadeRoute(page: MealState()),
     );
   }
 
