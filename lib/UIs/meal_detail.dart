@@ -135,7 +135,11 @@ class MealDetail extends State<MealDetailState> {
       print(jsonBody);
 
       setState(() {
-        _mealList = jsonBody;
+        if (jsonBody != null) {
+          _mealList = jsonBody;
+        } else {
+          _mealList = ['급식 데이터가 없음', '이건 영양사 잘못'];
+        }
       });
 
       return;
