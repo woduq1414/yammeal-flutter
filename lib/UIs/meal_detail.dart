@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:date_format/date_format.dart';
+import 'package:meal_flutter/common/asset_path.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
 import 'package:http/http.dart' as http;
@@ -121,7 +122,7 @@ class MealDetail extends State<MealDetailState> {
                 Container(
                   width: 40,
                   height: 40,
-                  child: dd ? Image.asset('assets/meat.png', width: 40,) : Container(),
+                  child: dd ? Image.asset(getEmoji("meat"), width: 40,) : Container(),
                 ),
                 SizedBox(width: 10,),
                 GestureDetector(
@@ -141,7 +142,7 @@ class MealDetail extends State<MealDetailState> {
                   nipLocation: NipLocation.LEFT,
                   color: Colors.white,
                   borderRadius: 50,
-                  child: Image.asset('assets/good.png', width: 40,),
+                  child: Image.asset(getEmoji("good"), width: 40,),
                 ),
               ],
             ),

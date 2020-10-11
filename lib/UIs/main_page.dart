@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:meal_flutter/UIs/servey_page.dart';
+import 'package:meal_flutter/common/asset_path.dart';
 import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +17,7 @@ import 'package:date_format/date_format.dart';
 import 'package:http/http.dart' as http;
 
 GlobalKey _containerKey = GlobalKey();
+GlobalKey _underMenuKey = GlobalKey();
 
 class MealMainUI extends StatelessWidget {
   @override
@@ -35,6 +37,12 @@ class MealState extends StatefulWidget {
 Offset getWidgetPos(GlobalKey key) {
   RenderBox b = key.currentContext.findRenderObject();
   return b.localToGlobal(Offset.zero);
+}
+
+Size getWidgetSize(GlobalKey key) {
+  final RenderBox renderBoxRed = key.currentContext.findRenderObject();
+  final size = renderBoxRed.size;
+  return size;
 }
 
 class MealUI extends State<MealState> {
@@ -58,6 +66,9 @@ class MealUI extends State<MealState> {
   Widget build(BuildContext context) {
     print("!!!!!!!!1");
     print(_mealList);
+
+//    print(getWidgetSize(_underMenuKey));
+
     _mealList.map((menu) {
       print(menu);
     });
@@ -78,6 +89,7 @@ class MealUI extends State<MealState> {
             ),
           ),
           Container(
+            key: _underMenuKey,
             child: Stack(
               children: <Widget>[
                 Container(
@@ -100,7 +112,7 @@ class MealUI extends State<MealState> {
                 ),
                 AnimatedPositioned(
                   child: Image.asset(
-                    'assets/soup.png',
+                    getEmoji("soup"),
                     width: _nowTab == 0 ? 70 : 50,
                   ),
                   bottom:
@@ -113,7 +125,7 @@ class MealUI extends State<MealState> {
                 ),
                 AnimatedPositioned(
                   child: Image.asset(
-                    'assets/calendar.png',
+                    getEmoji("calendar"),
                     width: _nowTab == 0 ? 50 : 70,
                   ),
                   bottom:
@@ -162,18 +174,16 @@ class MealUI extends State<MealState> {
                             children: <Widget>[
                               GestureDetector(
                                 onLongPress: () {
-                                  Navigator.push(context,
-                                      MaterialPageRoute(builder: (context) => EasterEgg())
-                                  );
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => EasterEgg()));
                                 },
                                 child: Image.asset(
-                                  'assets/soup.png',
+                                  getEmoji("soup"),
                                   width: 50,
                                 ),
                               ),
                               Text('오늘의 메뉴', style: TextStyle(fontSize: 32, color: Colors.white)),
                               Image.asset(
-                                'assets/soup.png',
+                                getEmoji("soup"),
                                 width: 50,
                               ),
                             ],
@@ -188,23 +198,23 @@ class MealUI extends State<MealState> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Image.asset(
-                                  'assets/spice.png',
+                                  getEmoji("spice"),
                                   width: 35,
                                 ),
                                 Image.asset(
-                                  'assets/cold.png',
+                                  getEmoji("cold"),
                                   width: 35,
                                 ),
                                 Image.asset(
-                                  'assets/soso.png',
+                                  getEmoji("soso"),
                                   width: 35,
                                 ),
                                 Image.asset(
-                                  'assets/good.png',
+                                  getEmoji("good"),
                                   width: 35,
                                 ),
                                 Image.asset(
-                                  'assets/love.png',
+                                  getEmoji("love"),
                                   width: 35,
                                 ),
                               ],
@@ -231,11 +241,13 @@ class MealUI extends State<MealState> {
                         children: <Widget>[
                           Positioned(
                             child: Column(
-                              children: _getMealDataSuccess ? _mealList.map<Widget>((menu) {
-                                //print(_mealList.indexOf(menu));
-                                print('덩기덕 쿵덕');
-                                return _buildMealItem(menu, _mealList.indexOf(menu));
-                              }).toList() : <Widget>[Text('급식 데이터 없음')],
+                              children: _getMealDataSuccess
+                                  ? _mealList.map<Widget>((menu) {
+                                      //print(_mealList.indexOf(menu));
+                                      print('덩기덕 쿵덕');
+                                      return _buildMealItem(menu, _mealList.indexOf(menu));
+                                    }).toList()
+                                  : <Widget>[Text('급식 데이터 없음')],
                             ),
                             top: 40,
                           ),
@@ -264,12 +276,12 @@ class MealUI extends State<MealState> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Image.asset(
-                            'assets/calendar.png',
+                            getEmoji("calendar"),
                             width: 50,
                           ),
                           Text('내 급식표', style: TextStyle(fontSize: 32, color: Colors.white)),
                           Image.asset(
-                            'assets/calendar.png',
+                            getEmoji("calendar"),
                             width: 50,
                           ),
                         ],
@@ -288,40 +300,43 @@ class MealUI extends State<MealState> {
   Widget _buildMealItem(String mealName, int index) {
     GlobalKey _key = GlobalKey();
     return Container(
-      key: _key,
-      //height: 40,
-      child: Column(
-        children: <Widget>[
-          SizedBox(height: 7,),
-          GestureDetector(
-            onLongPressStart: (LongPressStartDetails d) {
-              setState(() {
-                _openInfo = true;
-                _selectedTop = getWidgetPos(_key).dy - getWidgetPos(_containerKey).dy + 47;
-                _selectedIndex = index;
-              });
-              print('keypressStart');
-            },
-            onLongPressMoveUpdate: (LongPressMoveUpdateDetails d) {
-              print('update');
-              print(d);
-            },
-            onPanUpdate: (DragUpdateDetails d) {
-              print('update');
-              print(d);
-            },
-            onTapUp: (TapUpDetails t) {
-              print('tapup');
-              setState(() {
-                _openInfo = false;
-              });
-            },
-            child: Text(mealName, style: TextStyle(fontSize: 25, color: Colors.white)),
-          ),
-          SizedBox(height: 7,),
-        ],
-      )
-    );
+        key: _key,
+        //height: 40,
+        child: Column(
+          children: <Widget>[
+            SizedBox(
+              height: 7,
+            ),
+            GestureDetector(
+              onLongPressStart: (LongPressStartDetails d) {
+                setState(() {
+                  _openInfo = true;
+                  _selectedTop = getWidgetPos(_key).dy - getWidgetPos(_containerKey).dy + 47;
+                  _selectedIndex = index;
+                });
+                print('keypressStart');
+              },
+              onLongPressMoveUpdate: (LongPressMoveUpdateDetails d) {
+                print('update');
+                print(d);
+              },
+              onPanUpdate: (DragUpdateDetails d) {
+                print('update');
+                print(d);
+              },
+              onTapUp: (TapUpDetails t) {
+                print('tapup');
+                setState(() {
+                  _openInfo = false;
+                });
+              },
+              child: Text(mealName, style: TextStyle(fontSize: 25, color: Colors.white)),
+            ),
+            SizedBox(
+              height: 7,
+            ),
+          ],
+        ));
   }
 
   Widget _buildBelowItemInfo(int index) {
@@ -338,20 +353,20 @@ class MealUI extends State<MealState> {
           )
         ]),
         child: SpeechBubble(
-          height: _openInfo ? 50 : 0,
-          nipLocation: NipLocation.TOP,
-          color: Colors.grey,
-          borderRadius: 50,
-          child: FlatButton(
-            child: Text('메뉴 ㄱㅊ?', style: TextStyle(fontSize: 15),),
+            height: _openInfo ? 50 : 0,
+            nipLocation: NipLocation.TOP,
             color: Colors.grey,
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => MealSurvey())
-              );
-            },
-          )
-        ),
+            borderRadius: 50,
+            child: FlatButton(
+              child: Text(
+                '메뉴 ㄱㅊ?',
+                style: TextStyle(fontSize: 15),
+              ),
+              color: Colors.grey,
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MealSurvey()));
+              },
+            )),
       ),
       opacity: _openInfo ? 1.0 : 0.0,
       duration: Duration(milliseconds: 300),
@@ -379,23 +394,23 @@ class MealUI extends State<MealState> {
           child: Row(
             children: <Widget>[
               Image.asset(
-                'assets/spice.png',
+                getEmoji("spice"),
                 width: 35,
               ),
               Image.asset(
-                'assets/cold.png',
+                getEmoji("cold"),
                 width: 35,
               ),
               Image.asset(
-                'assets/soso.png',
+                getEmoji("soso"),
                 width: 35,
               ),
               Image.asset(
-                'assets/good.png',
+                getEmoji("good"),
                 width: 35,
               ),
               Image.asset(
-                'assets/love.png',
+                getEmoji("love"),
                 width: 35,
               ),
             ],
@@ -410,47 +425,48 @@ class MealUI extends State<MealState> {
   Widget _buildDDayList() {
     MealStatus mealStatus = Provider.of<MealStatus>(context);
     var keys = mealStatus.dayList.keys.toList();
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Container(
-        height: 120,
-        child: ListView.builder(
-          itemCount: mealStatus.dayList.length,
-          itemBuilder: (context, index) {
-            return _buildDDayListItem(keys[index], mealStatus.dayList[keys[index]], index);
-          },
-        ),
-      ),
+
+    int i = 0;
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: 150),
+      child: ListView(
+          children: keys.map((x) {
+        return _buildDDayListItem(x, mealStatus.dayList[x], i++);
+        ;
+      }).toList()),
     );
-
-
   }
 
   Widget _buildDDayListItem(String date, List menus, index) {
     DateTime dParsed = DateTime.parse(date);
     int dday = dParsed.day - DateTime.now().day;
-    if (dday < 0) return Container(width: 0, height: 0,); // 개선 여지 매우 큼.
+    if (dday < 0)
+      return Container(
+        width: 0,
+        height: 0,
+      ); // 개선 여지 매우 큼.
     return Builder(
       builder: (context) {
         return Row(
           children: <Widget>[
             Container(
-              width: MediaQuery.of(context).size.width*0.18,
-              height: MediaQuery.of(context).size.width*0.1,
+              width: MediaQuery.of(context).size.width * 0.18,
+              height: MediaQuery.of(context).size.width * 0.1,
               child: Center(
-                child: Text('D-${dday == 0 ? 'Day' : dday}', style: TextStyle(fontSize: 20, color: Colors.white),),
+                child: Text(
+                  'D-${dday == 0 ? 'Day' : dday}',
+                  style: TextStyle(fontSize: 20, color: Colors.white),
+                ),
               ),
-              decoration: BoxDecoration(
-                  color: index % 2 == 0 ? Color(0xffFFBB00): Color(0xffFF5454)
-              ),
+              decoration: BoxDecoration(color: index % 2 == 0 ? Color(0xffFFBB00) : Color(0xffFF5454)),
             ),
-            SizedBox(width: 20,),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                  children: menus.map<Widget>((menu) {
-                    return Text(menu+", ", style: TextStyle(fontSize: 20, color: Colors.white),);
-                  }).toList()
+            SizedBox(
+              width: 20,
+            ),
+            Flexible(
+              child: Text(
+                menus.join(", "),
+                style: TextStyle(fontSize: 20, color: Colors.white),  softWrap: true
               ),
             )
           ],
@@ -492,7 +508,8 @@ class MealUI extends State<MealState> {
   }
 
   Future getSelectedMealMenu() async {
-    http.Response res = await http.get('http://meal-backend.herokuapp.com/api/meals/rating/favorite?year=2020&month=10', headers: {
+    http.Response res =
+        await http.get('http://meal-backend.herokuapp.com/api/meals/rating/favorite?year=2020&month=10', headers: {
       "Authorization": await getToken(),
     });
     print(res.statusCode);
@@ -504,9 +521,7 @@ class MealUI extends State<MealState> {
           setState(() {
             dayList = jsonBody;
           });
-        } else {
-
-        }
+        } else {}
       });
       return;
     } else {
