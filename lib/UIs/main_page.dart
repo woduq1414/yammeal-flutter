@@ -421,7 +421,7 @@ class MealUI extends State<MealState> {
   Widget _buildDDayListItem(String date, List menus, index) {
     DateTime dParsed = DateTime.parse(date);
     int dday = dParsed.day - DateTime.now().day;
-    if (dday < 0) return Container(width: 0, height: 0,);
+    if (dday < 0) return Container(width: 0, height: 0,); // 개선 여지 매우 큼.
     return Builder(
       builder: (context) {
         return Row(
