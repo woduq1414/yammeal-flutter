@@ -7,7 +7,8 @@ import 'package:date_format/date_format.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
 import 'package:http/http.dart' as http;
-
+import '../common/provider/mealProvider.dart';
+import 'package:provider/provider.dart';
 class MealDetailUI extends StatelessWidget {
   DateTime d;
   MealDetailUI(DateTime d) {
@@ -75,14 +76,17 @@ class MealDetail extends State<MealDetailState> {
       },
       child: Scaffold(
         backgroundColor: Color(0xffFFBB00),
-        body: _buildBody(),
+        body: _buildBody(d),
       ),
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(DateTime date) {
+    DateTime d = date;
+
     return Builder(
       builder: (context) {
+        MealStatus mealStatus = Provider.of<MealStatus>(context);
         return Container(
           child: Column(
             //crossAxisAlignment: CrossAxisAlignment.center,
@@ -95,21 +99,9 @@ class MealDetail extends State<MealDetailState> {
               Column(
                 children: _mealList.map<Widget>((menu) {
                   print(_mealList.indexOf(menu));
-                  return _buildMenuItem(menu, true);
+                  return _buildMenuItem(menu, mealStatus.dayList.containsKey(formatDate(d, [yyyy, '', mm, '', dd])) && mealStatus.dayList[formatDate(d, [yyyy, '', mm, '', dd])].contains(menu), d, _mealList.indexOf(menu));
                 }).toList(),
               ),
-              // SizedBox(height: 60,),
-              // _buildMenuItem('치킨 가라아게 덮밥', true),
-              // SizedBox(height: 15,),
-              // _buildMenuItem('건새우시래기된장국', false),
-              // SizedBox(height: 15,),
-              // _buildMenuItem('쫄면아채무침', false),
-              // SizedBox(height: 15,),
-              // _buildMenuItem('콘치즈버터구이', false),
-              // SizedBox(height: 15,),
-              // _buildMenuItem('배추김치', false),
-              // SizedBox(height: 15,),
-              // _buildMenuItem('요구르트', false),
             ],
           ),
         );
@@ -117,31 +109,42 @@ class MealDetail extends State<MealDetailState> {
     );
   }
 
-  Widget _buildMenuItem(String menu, bool dd) {
-    return Column(
-      children: <Widget>[
-        SizedBox(height: 15,),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildMenuItem(String menu, bool dd, DateTime d, int index) {
+    return Builder(
+      builder: (context) {
+        MealStatus mealStatus = Provider.of<MealStatus>(context);
+        return Column(
           children: <Widget>[
-          Container(
-            width: 40,
-            height: 40,
-            child: dd ? Image.asset('assets/meat.png', width: 40,) : Container(),
-          ),
-          SizedBox(width: 10,),
-          Text(menu, style: TextStyle(color: Colors.white, fontSize: 25),),
-          SizedBox(width: 15,),
-          SpeechBubble(
-              width: 50,
-              nipLocation: NipLocation.LEFT,
-              color: Colors.white,
-              borderRadius: 50,
-              child: Image.asset('assets/good.png', width: 40,),
+            SizedBox(height: 15,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  width: 40,
+                  height: 40,
+                  child: dd ? Image.asset('assets/meat.png', width: 40,) : Container(),
+                ),
+                SizedBox(width: 10,),
+                GestureDetector(
+                  onTap: () {
+                    mealStatus.addSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), menu);
+                    postSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
+                  },
+                  child: Text(menu, style: TextStyle(color: Colors.white, fontSize: 25),),
+                ),
+                SizedBox(width: 15,),
+                SpeechBubble(
+                  width: 50,
+                  nipLocation: NipLocation.LEFT,
+                  color: Colors.white,
+                  borderRadius: 50,
+                  child: Image.asset('assets/good.png', width: 40,),
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -169,5 +172,28 @@ class MealDetail extends State<MealDetailState> {
     } else {
       return;
     }
+  }
+
+  Future postSelectedDay(String date, int menuSeq) async {
+    print(date);
+    http.Response res = await http.post('http://meal-backend.herokuapp.com/api/meals/rating/favorite',
+      body: jsonEncode({
+        "menuDate": date,
+        "menuSeq": menuSeq
+      }, ), headers: {
+          "Authorization": await getToken(),
+          "Content-Type": "application/json "
+        }
+    );
+    print('포스트');
+    print(res.statusCode);
+    if (res.statusCode == 200) {
+      print('포스트 성공');
+
+      return;
+    } else {
+      return;
+    }
+
   }
 }

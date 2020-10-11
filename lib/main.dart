@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:kakao_flutter_sdk/auth.dart';
 import 'package:kakao_flutter_sdk/user.dart';
 import 'package:http/http.dart' as http;
+import 'package:meal_flutter/common/provider/mealProvider.dart';
 
 
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -32,6 +33,7 @@ class KakaoLoginTest extends StatelessWidget {
 
         providers: [
           ChangeNotifierProvider<UserStatus>(create: (_) => UserStatus()),
+          ChangeNotifierProvider<MealStatus>(create: (_) => MealStatus()),
         ],
         child: MaterialApp(
           title: 'Flutter Demo',

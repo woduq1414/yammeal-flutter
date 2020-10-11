@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:meal_flutter/UIs/servey_page.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
 import 'dart:math' as math;
@@ -38,6 +40,7 @@ class MealUI extends State<MealState> {
   bool _openInfo = false;
   int _nowTab = 0;
   var _mealList = [];
+  bool _getMealDataSuccess = false;
 
   @override
   void initState() {
@@ -208,39 +211,14 @@ class MealUI extends State<MealState> {
                         children: <Widget>[
                           Positioned(
                             child: Column(
-                              children: _mealList.map<Widget>((menu) {
-                                print(_mealList.indexOf(menu));
+                              children: _getMealDataSuccess ? _mealList.map<Widget>((menu) {
+                                //print(_mealList.indexOf(menu));
+                                print('덩기덕 쿵덕');
                                 return _buildMealItem(menu, _mealList.indexOf(menu));
-                              }).toList(),
+                              }).toList() : <Widget>[Text('급식 데이터 없음')],
                             ),
                             top: 40,
                           ),
-
-
-                          // Positioned(
-                          //   child: _buildMealItem('치킨 가라아게덮밥', 0),
-                          //   top: 60,
-                          // ),
-                          // Positioned(
-                          //   child: _buildMealItem('건새우시래기된장국', 1),
-                          //   top: 120,
-                          // ),
-                          // Positioned(
-                          //   child: _buildMealItem('쫄면야채무침', 2),
-                          //   top: 180,
-                          // ),
-                          // Positioned(
-                          //   child: _buildMealItem('콘치즈버터구이', 3),
-                          //   top: 240,
-                          // ),
-                          // Positioned(
-                          //   child: _buildMealItem('배추김치', 4),
-                          //   top: 300,
-                          // ),
-                          // Positioned(
-                          //   child: _buildMealItem('요구르트', 5),
-                          //   top: 360,
-                          // ),
                           Positioned(
                             child: _buildBelowItemInfo(_selectedIndex),
                             top: _selectedTop,
@@ -295,16 +273,29 @@ class MealUI extends State<MealState> {
         children: <Widget>[
           SizedBox(height: 7,),
           GestureDetector(
-            onLongPress: () {
+            onLongPressStart: (LongPressStartDetails d) {
               setState(() {
                 _openInfo = true;
                 _selectedTop = getWidgetPos(_key).dy - getWidgetPos(_containerKey).dy + 47;
                 _selectedIndex = index;
               });
-              print('keypress');
+              print('keypressStart');
             },
-            onLongPressUp: () {
-              print('lpUp');
+            // onLongPress: () {
+            //   setState(() {
+            //     _openInfo = true;
+            //     _selectedTop = getWidgetPos(_key).dy - getWidgetPos(_containerKey).dy + 47;
+            //     _selectedIndex = index;
+            //   });
+            //   print('keypress');
+            // },
+            onLongPressMoveUpdate: (LongPressMoveUpdateDetails d) {
+              print('update');
+              print(d);
+            },
+            onPanUpdate: (DragUpdateDetails d) {
+              print('update');
+              print(d);
             },
             onTapUp: (TapUpDetails t) {
               print('tapup');
@@ -338,22 +329,15 @@ class MealUI extends State<MealState> {
           nipLocation: NipLocation.TOP,
           color: Colors.grey,
           borderRadius: 50,
-          child: Row(
-            children: <Widget>[
-              Image.asset(
-                'assets/cup.png',
-                width: 35,
-              ),
-              Image.asset(
-                'assets/umji.png',
-                width: 35,
-              ),
-              Image.asset(
-                'assets/salty.png',
-                width: 35,
-              ),
-            ],
-          ),
+          child: FlatButton(
+            child: Text('메뉴 ㄱㅊ?', style: TextStyle(fontSize: 15),),
+            color: Colors.grey,
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => MealSurvey())
+              );
+            },
+          )
         ),
       ),
       opacity: _openInfo ? 1.0 : 0.0,
@@ -410,9 +394,26 @@ class MealUI extends State<MealState> {
     );
   }
 
+  Widget _buildDDayContent(DateTime d) {
+    return Container(
+      child: Row(
+        children: <Widget>[
+          Container(
+            child: Text(''),
+          )
+        ],
+      ),
+    );
+  }
+
   // api 가져오는 지역
-  Future getNowMealMenu() async {
+  /*
     http.Response res = await http.get('http://meal-backend.herokuapp.com/api/meals/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}', headers: {
+      "Authorization": await getToken(),
+    });
+  */
+  Future getNowMealMenu() async {
+    http.Response res = await http.get('http://meal-backend.herokuapp.com/api/meals/menu?menuDate=20201008', headers: {
       "Authorization": await getToken(),
     });
     print(res.statusCode);
@@ -422,9 +423,13 @@ class MealUI extends State<MealState> {
       List<dynamic> jsonBody = jsonDecode(res.body)["data"];
       print("ss");
       print(jsonBody);
-
       setState(() {
-        _mealList = jsonBody;
+        if (jsonBody != null) {
+          _getMealDataSuccess = true;
+          _mealList = jsonBody;
+        } else {
+          _getMealDataSuccess = false;
+        }
       });
 
       return;
