@@ -10,6 +10,7 @@ import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
 import 'dart:math' as math;
+import 'esteregg.dart';
 import 'meal_calendar.dart';
 import 'package:date_format/date_format.dart';
 import 'package:http/http.dart' as http;
@@ -159,9 +160,16 @@ class MealUI extends State<MealState> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              Image.asset(
-                                'assets/soup.png',
-                                width: 50,
+                              GestureDetector(
+                                onLongPress: () {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) => EasterEgg())
+                                  );
+                                },
+                                child: Image.asset(
+                                  'assets/soup.png',
+                                  width: 50,
+                                ),
                               ),
                               Text('오늘의 메뉴', style: TextStyle(fontSize: 32, color: Colors.white)),
                               Image.asset(
