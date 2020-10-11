@@ -5,7 +5,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:meal_flutter/UIs/servey_page.dart';
+import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:provider/provider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
 import 'dart:math' as math;
 import 'meal_calendar.dart';
@@ -41,11 +43,14 @@ class MealUI extends State<MealState> {
   int _nowTab = 0;
   var _mealList = [];
   bool _getMealDataSuccess = false;
+  var dayList = {};
+  bool _iscalled = false;
 
   @override
   void initState() {
     super.initState();
     getNowMealMenu();
+    getSelectedMealMenu();
   }
 
   @override
@@ -128,8 +133,15 @@ class MealUI extends State<MealState> {
                 height: MediaQuery.of(context).size.height,
                 viewportFraction: 1,
                 onPageChanged: (index, CarouselPageChangedReason c) {
+                  MealStatus mealStatus = Provider.of<MealStatus>(context);
                   setState(() {
                     _nowTab = index;
+                    if (_nowTab == 1 && !_iscalled) {
+                      mealStatus.setDayList(dayList);
+                      setState(() {
+                        _iscalled = true;
+                      });
+                    }
                   });
                 }),
             items: <Widget>[
@@ -255,6 +267,7 @@ class MealUI extends State<MealState> {
                         ],
                       ),
                       MealCalState(),
+                      _buildDDayList()
                     ],
                   ))
             ],
@@ -281,14 +294,6 @@ class MealUI extends State<MealState> {
               });
               print('keypressStart');
             },
-            // onLongPress: () {
-            //   setState(() {
-            //     _openInfo = true;
-            //     _selectedTop = getWidgetPos(_key).dy - getWidgetPos(_containerKey).dy + 47;
-            //     _selectedIndex = index;
-            //   });
-            //   print('keypress');
-            // },
             onLongPressMoveUpdate: (LongPressMoveUpdateDetails d) {
               print('update');
               print(d);
@@ -394,15 +399,55 @@ class MealUI extends State<MealState> {
     );
   }
 
-  Widget _buildDDayContent(DateTime d) {
-    return Container(
-      child: Row(
-        children: <Widget>[
-          Container(
-            child: Text(''),
-          )
-        ],
+  Widget _buildDDayList() {
+    MealStatus mealStatus = Provider.of<MealStatus>(context);
+    var keys = mealStatus.dayList.keys.toList();
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Container(
+        height: 120,
+        child: ListView.builder(
+          itemCount: mealStatus.dayList.length,
+          itemBuilder: (context, index) {
+            return _buildDDayListItem(keys[index], mealStatus.dayList[keys[index]], index);
+          },
+        ),
       ),
+    );
+
+
+  }
+
+  Widget _buildDDayListItem(String date, List menus, index) {
+    DateTime dParsed = DateTime.parse(date);
+    int dday = dParsed.day - DateTime.now().day;
+    if (dday < 0) return Container(width: 0, height: 0,);
+    return Builder(
+      builder: (context) {
+        return Row(
+          children: <Widget>[
+            Container(
+              width: MediaQuery.of(context).size.width*0.18,
+              height: MediaQuery.of(context).size.width*0.1,
+              child: Center(
+                child: Text('D-${dday == 0 ? 'Day' : dday}', style: TextStyle(fontSize: 20, color: Colors.white),),
+              ),
+              decoration: BoxDecoration(
+                  color: index % 2 == 0 ? Color(0xffFFBB00): Color(0xffFF5454)
+              ),
+            ),
+            SizedBox(width: 20,),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                  children: menus.map<Widget>((menu) {
+                    return Text(menu+", ", style: TextStyle(fontSize: 20, color: Colors.white),);
+                  }).toList()
+              ),
+            )
+          ],
+        );
+      },
     );
   }
 
@@ -432,6 +477,29 @@ class MealUI extends State<MealState> {
         }
       });
 
+      return;
+    } else {
+      return;
+    }
+  }
+
+  Future getSelectedMealMenu() async {
+    http.Response res = await http.get('http://meal-backend.herokuapp.com/api/meals/rating/favorite?year=2020&month=10', headers: {
+      "Authorization": await getToken(),
+    });
+    print(res.statusCode);
+    if (res.statusCode == 200) {
+      print(jsonDecode(res.body));
+      Map<dynamic, dynamic> jsonBody = jsonDecode(res.body)["data"];
+      setState(() {
+        if (jsonBody != null) {
+          setState(() {
+            dayList = jsonBody;
+          });
+        } else {
+
+        }
+      });
       return;
     } else {
       return;

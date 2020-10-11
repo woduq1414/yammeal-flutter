@@ -28,9 +28,14 @@ class MealCalendar extends State<MealCalState> {
   void initState() {
     super.initState();
     _controller = CalendarController();
-    print('dkdkdkkkkkkkkkkkkkkkkkkkkk');
-    getSelectedMealMenu();
   }
+
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   MealStatus mealStatus = Provider.of<MealStatus>(context);
+  //   mealStatus.setDayList(dayList);
+  // }
 
   @override
   void dispose() {
@@ -48,7 +53,7 @@ class MealCalendar extends State<MealCalState> {
 
   CalendarBuilders _calendarBuilders() {
     MealStatus mealStatus = Provider.of<MealStatus>(context);
-    mealStatus.dayList = dayList;
+
     return CalendarBuilders(
         selectedDayBuilder: (context, date, _) {
           return Container(
@@ -109,33 +114,6 @@ class MealCalendar extends State<MealCalState> {
   int randomNum() {//api로 이모지 제대로 받으면 사라질 것
     Random rnd = new Random();
     return rnd.nextInt(4);
-  }
-
-  Future getSelectedMealMenu() async {
-    print('더익덕 쿵더러러러러러러ㅓ러러러러러러ㅓ러러러러러러러러ㅓㅓ러러러');
-    http.Response res = await http.get('http://meal-backend.herokuapp.com/api/meals/rating/favorite?year=2020&month=10', headers: {
-      "Authorization": await getToken(),
-    });
-    print(res.statusCode);
-    if (res.statusCode == 200) {
-      print(jsonDecode(res.body));
-      Map<dynamic, dynamic> jsonBody = jsonDecode(res.body)["data"];
-      print(jsonBody);
-      setState(() {
-        if (jsonBody != null) {
-          print(jsonBody);
-          setState(() {
-            dayList = jsonBody;
-          });
-        } else {
-
-        }
-      });
-
-      return;
-    } else {
-      return;
-    }
   }
 }
 

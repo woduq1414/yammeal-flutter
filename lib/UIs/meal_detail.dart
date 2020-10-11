@@ -98,7 +98,6 @@ class MealDetail extends State<MealDetailState> {
               SizedBox(height: 15,),
               Column(
                 children: _mealList.map<Widget>((menu) {
-                  print(_mealList.indexOf(menu));
                   return _buildMenuItem(menu, mealStatus.dayList.containsKey(formatDate(d, [yyyy, '', mm, '', dd])) && mealStatus.dayList[formatDate(d, [yyyy, '', mm, '', dd])].contains(menu), d, _mealList.indexOf(menu));
                 }).toList(),
               ),
@@ -127,8 +126,12 @@ class MealDetail extends State<MealDetailState> {
                 SizedBox(width: 10,),
                 GestureDetector(
                   onTap: () {
-                    mealStatus.addSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), menu);
-                    postSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
+                    if (mealStatus.updateSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), menu)) {
+                      postSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
+                    } else {
+                      print('딜리딜리딜리트');
+                      deleteSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
+                    }
                   },
                   child: Text(menu, style: TextStyle(color: Colors.white, fontSize: 25),),
                 ),
@@ -194,6 +197,24 @@ class MealDetail extends State<MealDetailState> {
     } else {
       return;
     }
+  }
 
+  Future deleteSelectedDay(String date, int menuSeq) async {
+    print(date);
+    print(menuSeq);
+    http.Response res = await http.delete('http://meal-backend.herokuapp.com/api/meals/rating/favorite?menuDate=${date}&menuSeq=${menuSeq}', headers: {
+          "Authorization": await getToken(),
+          "Content-Type": "application/json "
+        }
+    );
+    print('딜리트');
+    print(res.statusCode);
+    if (res.statusCode == 200) {
+      print('딜리트 성공');
+
+      return;
+    } else {
+      return;
+    }
   }
 }
