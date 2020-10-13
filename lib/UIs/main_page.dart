@@ -17,10 +17,13 @@ import 'package:date_format/date_format.dart';
 import 'package:http/http.dart' as http;
 import "package:meal_flutter/common/font.dart";
 
+import "package:meal_flutter/main.dart";
+
+
 GlobalKey _containerKey = GlobalKey();
+
+
 FontSize fs;
-
-
 //GlobalKey _underMenuKey = GlobalKey();
 
 class MealMainUI extends StatelessWidget {
@@ -69,9 +72,9 @@ class MealUI extends State<MealState> {
   @override
   Widget build(BuildContext context) {
 
-    fs = FontSize(context);
-//    print(fs.s1());
 
+//    print(fs.s1());
+    fs = FontSize(context);
 
     print("!!!!!!!!1");
     print(_mealList);

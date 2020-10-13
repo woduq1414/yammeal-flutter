@@ -20,12 +20,18 @@ import 'first_page.dart';
 import 'kakao_register_page.dart';
 
 
+
+
 void main() => runApp(KakaoLoginTest());
 
 class KakaoLoginTest extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
+//    fs = FontSize(context);
+
+
     KakaoContext.clientId = '39d6c43a0a346cca6ebc7b2dbb8e4353';
 
     return MultiProvider(
