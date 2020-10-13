@@ -15,9 +15,13 @@ import 'esteregg.dart';
 import 'meal_calendar.dart';
 import 'package:date_format/date_format.dart';
 import 'package:http/http.dart' as http;
+import "package:meal_flutter/common/font.dart";
 
 GlobalKey _containerKey = GlobalKey();
-GlobalKey _underMenuKey = GlobalKey();
+FontSize fs;
+
+
+//GlobalKey _underMenuKey = GlobalKey();
 
 class MealMainUI extends StatelessWidget {
   @override
@@ -64,6 +68,11 @@ class MealUI extends State<MealState> {
 
   @override
   Widget build(BuildContext context) {
+
+    fs = FontSize(context);
+//    print(fs.s1());
+
+
     print("!!!!!!!!1");
     print(_mealList);
 
@@ -89,7 +98,7 @@ class MealUI extends State<MealState> {
             ),
           ),
           Container(
-            key: _underMenuKey,
+//            key: _underMenuKey,
             child: Stack(
               children: <Widget>[
                 Container(
@@ -158,138 +167,162 @@ class MealUI extends State<MealState> {
                   });
                 }),
             items: <Widget>[
-              Container(
-                width: MediaQuery.of(context).size.width,
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      margin: EdgeInsets.only(
-                        top: 40,
-                      ), //left: 40, right: 40),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Row(
+              FractionallySizedBox(
+                alignment: Alignment.topCenter,
+                heightFactor: 0.8,
+                child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  child: Container(
+//                    color: Colors.blue,
+                    width: MediaQuery.of(context).size.width,
+                    child: Column(
+                      children: <Widget>[
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.035,
+                        ),
+                        Container(
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              GestureDetector(
-                                onLongPress: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => EasterEgg()));
-                                },
-                                child: Image.asset(
-                                  getEmoji("soup"),
-                                  width: 50,
-                                ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  GestureDetector(
+                                    onLongPress: () {
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => EasterEgg()));
+                                    },
+                                    child: Image.asset(
+                                      getEmoji("soup"),
+                                      width: 50,
+                                    ),
+                                  ),
+                                  Text('오늘의 메뉴', style: TextStyle(fontSize: fs.s3, color: Colors.white)),
+                                  Image.asset(
+                                    getEmoji("soup"),
+                                    width: 50,
+                                  ),
+                                ],
                               ),
-                              Text('오늘의 메뉴', style: TextStyle(fontSize: 32, color: Colors.white)),
-                              Image.asset(
-                                getEmoji("soup"),
-                                width: 50,
+                              Text('점심', style: TextStyle(fontSize: 25, color: Colors.white)),
+                              Text(formatDate(DateTime.now(), [yyyy, '.', mm, '.', dd]),
+                                  style: TextStyle(fontSize: 20, color: Colors.white)),
+                              Container(
+                                margin: EdgeInsets.only(top: 5),
+                                width: 200,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Image.asset(
+                                      getEmoji("spice"),
+                                      width: 35,
+                                    ),
+                                    Image.asset(
+                                      getEmoji("cold"),
+                                      width: 35,
+                                    ),
+                                    Image.asset(
+                                      getEmoji("soso"),
+                                      width: 35,
+                                    ),
+                                    Image.asset(
+                                      getEmoji("good"),
+                                      width: 35,
+                                    ),
+                                    Image.asset(
+                                      getEmoji("love"),
+                                      width: 35,
+                                    ),
+                                  ],
+                                ),
+                                decoration:
+                                    BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(50), boxShadow: [
+                                  new BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    offset: Offset(1, 4),
+                                    blurRadius: 3,
+                                    spreadRadius: 1,
+                                  )
+                                ]),
+                              )
+                            ],
+                          ),
+                        ),
+                        Container(
+//                      key: _containerKey,
+                          width: MediaQuery.of(context).size.width,
+//                          height: 500,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: <Widget>[
+                              _getMealDataSuccess
+                                  ? Column(
+                                      children: <Widget>[
+                                            SizedBox(
+                                              height: 15,
+                                            )
+                                          ] +
+                                          _mealList.map<Widget>((menu) {
+                                            //print(_mealList.indexOf(menu));
+                                            print('덩기덕 쿵덕');
+                                            return _buildMealItem(menu, _mealList.indexOf(menu));
+                                          }).toList(),
+                                    )
+                                  : Container(
+                                  margin: EdgeInsets.all(40),
+                                  child: CircularProgressIndicator()),
+                              Positioned(
+                                child: _buildBelowItemInfo(_selectedIndex),
+                                top: _selectedTop,
+                              ),
+                              Positioned(
+                                child: _buildUpperItemInfo(_selectedIndex),
+                                top: _selectedTop - 100,
                               ),
                             ],
                           ),
-                          Text('점심', style: TextStyle(fontSize: 25, color: Colors.white)),
-                          Text(formatDate(DateTime.now(), [yyyy, '.', mm, '.', dd]),
-                              style: TextStyle(fontSize: 20, color: Colors.white)),
-                          Container(
-                            margin: EdgeInsets.only(top: 5),
-                            width: 200,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Image.asset(
-                                  getEmoji("spice"),
-                                  width: 35,
-                                ),
-                                Image.asset(
-                                  getEmoji("cold"),
-                                  width: 35,
-                                ),
-                                Image.asset(
-                                  getEmoji("soso"),
-                                  width: 35,
-                                ),
-                                Image.asset(
-                                  getEmoji("good"),
-                                  width: 35,
-                                ),
-                                Image.asset(
-                                  getEmoji("love"),
-                                  width: 35,
-                                ),
-                              ],
-                            ),
-                            decoration:
-                                BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(50), boxShadow: [
-                              new BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                offset: Offset(1, 4),
-                                blurRadius: 3,
-                                spreadRadius: 1,
-                              )
-                            ]),
-                          )
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    Container(
-                      key: _containerKey,
-                      width: MediaQuery.of(context).size.width,
-                      height: 500,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: <Widget>[
-                          Positioned(
-                            child: Column(
-                              children: _getMealDataSuccess
-                                  ? _mealList.map<Widget>((menu) {
-                                      //print(_mealList.indexOf(menu));
-                                      print('덩기덕 쿵덕');
-                                      return _buildMealItem(menu, _mealList.indexOf(menu));
-                                    }).toList()
-                                  : <Widget>[Text('급식 데이터 없음')],
-                            ),
-                            top: 40,
-                          ),
-                          Positioned(
-                            child: _buildBelowItemInfo(_selectedIndex),
-                            top: _selectedTop,
-                          ),
-                          Positioned(
-                            child: _buildUpperItemInfo(_selectedIndex),
-                            top: _selectedTop - 100,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
               Container(
-                  width: MediaQuery.of(context).size.width,
-                  child: Column(
-                    children: <Widget>[
-                      SizedBox(
-                        height: 50,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            getEmoji("calendar"),
-                            width: 50,
-                          ),
-                          Text('내 급식표', style: TextStyle(fontSize: 32, color: Colors.white)),
-                          Image.asset(
-                            getEmoji("calendar"),
-                            width: 50,
-                          ),
-                        ],
-                      ),
-                      MealCalState(),
-                      _buildDDayList()
-                    ],
-                  ))
+//                height : MediaQuery.of(context).size.height,
+                child: FractionallySizedBox(
+                  heightFactor: 0.8,
+                  alignment: Alignment.topCenter,
+                  child: SingleChildScrollView(
+                    physics: BouncingScrollPhysics(),
+                    child: Container(
+                        width: MediaQuery.of(context).size.width,
+//                  color: Colors.blue,
+//                  height: 150,
+                        child: Column(
+                          children: <Widget>[
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.035,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  getEmoji("calendar"),
+                                  width: 50,
+                                ),
+                                Text('내 급식표', style: TextStyle(fontSize: 32, color: Colors.white)),
+                                Image.asset(
+                                  getEmoji("calendar"),
+                                  width: 50,
+                                ),
+                              ],
+                            ),
+                            MealCalState(),
+                            _buildDDayList()
+                          ],
+                        )),
+                  ),
+                ),
+              )
             ],
           ),
         ],
@@ -427,14 +460,17 @@ class MealUI extends State<MealState> {
     var keys = mealStatus.dayList.keys.toList();
 
     int i = 0;
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: 150),
-      child: ListView(
-          children: keys.map((x) {
-        return _buildDDayListItem(x, mealStatus.dayList[x], i++);
-        ;
-      }).toList()),
-    );
+    return Column(
+        children: keys.map((x) {
+      return _buildDDayListItem(x, mealStatus.dayList[x], i++);
+      ;
+    }).toList());
+
+    return ListView(
+        children: keys.map((x) {
+      return _buildDDayListItem(x, mealStatus.dayList[x], i++);
+      ;
+    }).toList());
   }
 
   Widget _buildDDayListItem(String date, List menus, index) {
@@ -464,10 +500,7 @@ class MealUI extends State<MealState> {
               width: 20,
             ),
             Flexible(
-              child: Text(
-                menus.join(", "),
-                style: TextStyle(fontSize: 20, color: Colors.white),  softWrap: true
-              ),
+              child: Text(menus.join(", "), style: TextStyle(fontSize: 20, color: Colors.white), softWrap: true),
             )
           ],
         );
