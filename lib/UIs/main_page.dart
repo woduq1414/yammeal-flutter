@@ -164,7 +164,7 @@ class MealUI extends State<MealState> {
                   children: <Widget>[
                     Container(
                       margin: EdgeInsets.only(
-                        top: 40,
+                        top: MediaQuery.of(context).size.height*0.05,
                       ), //left: 40, right: 40),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -247,7 +247,7 @@ class MealUI extends State<MealState> {
                                       print('덩기덕 쿵덕');
                                       return _buildMealItem(menu, _mealList.indexOf(menu));
                                     }).toList()
-                                  : <Widget>[Text('급식 데이터 없음')],
+                                  : <Widget>[Text('급식 불러오는 중...')],
                             ),
                             top: 40,
                           ),
@@ -270,7 +270,7 @@ class MealUI extends State<MealState> {
                   child: Column(
                     children: <Widget>[
                       SizedBox(
-                        height: 50,
+                        height: MediaQuery.of(context).size.height*0.05,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -286,6 +286,7 @@ class MealUI extends State<MealState> {
                           ),
                         ],
                       ),
+                      SizedBox(height: MediaQuery.of(context).size.height*0.07,),
                       MealCalState(),
                       _buildDDayList()
                     ],
@@ -428,11 +429,10 @@ class MealUI extends State<MealState> {
 
     int i = 0;
     return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: 150),
+      constraints: BoxConstraints(maxHeight: 120),
       child: ListView(
           children: keys.map((x) {
         return _buildDDayListItem(x, mealStatus.dayList[x], i++);
-        ;
       }).toList()),
     );
   }
