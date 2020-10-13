@@ -1,27 +1,27 @@
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../ip.dart';
-import 'package:http/http.dart' as http;
-
-import 'package:kakao_flutter_sdk/auth.dart';
-import 'package:kakao_flutter_sdk/user.dart';
 
 import 'dart:convert';
 
 class MealStatus with ChangeNotifier {
-  Map<dynamic, dynamic> dayList = {};
+  Map<dynamic, dynamic> dayList = Map<dynamic, dynamic>();
 
   void setDayList(Map m) {
     dayList = m;
     print(dayList);
+    print('아이고...');
+    print(dayList[0]);
     notifyListeners();
   }
+
+  // void sortMapITem(Map m) {
+  //   for (int i = 0; i < m.length; i++) {
+  //     if (m)
+  //   }
+  // }
 
   bool updateSelectedDay(String date, String menu) { //true - 추가, false - 삭제
     if (!dayList.containsKey(date)) {

@@ -50,6 +50,7 @@ class MealCalendar extends State<MealCalState> {
       calendarController: _controller,
       locale: "ko_KR",
       builders: _calendarBuilders(),
+      headerVisible: false,
     );
   }
 

@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'HELP ME',
       theme: ThemeData(
         primaryColor: Colors.red,
+        fontFamily: 'GmarketSans'
       ),
       home: MainPage(),
     );
