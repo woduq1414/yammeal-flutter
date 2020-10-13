@@ -48,7 +48,9 @@ class FontSize{
 }
 
 class Font {
-
+  static const FontWeight normal = FontWeight.w500;
+  static const FontWeight bold = FontWeight.w700;
+  static const FontWeight light = FontWeight.w100;
 }
 
 

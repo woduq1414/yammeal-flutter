@@ -9,21 +9,10 @@ import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
 import 'package:http/http.dart' as http;
 import '../common/provider/mealProvider.dart';
+import '../common/font.dart';
+
+
 import 'package:provider/provider.dart';
-class MealDetailUI extends StatelessWidget {
-  DateTime d;
-  MealDetailUI(DateTime d) {
-    this.d = d;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'meal',
-      home: MealDetailState(d),
-    );
-  }
-}
 
 
 
@@ -33,7 +22,7 @@ class MealDetailUI extends StatelessWidget {
 
 
 
-
+FontSize fs;
 
 
 
@@ -69,6 +58,9 @@ class MealDetail extends State<MealDetailState> {
 
   @override
   Widget build(BuildContext context) {
+
+    fs = FontSize(context);
+
     print("@@@@");
     return WillPopScope(
       onWillPop: () async{
@@ -122,20 +114,26 @@ class MealDetail extends State<MealDetailState> {
                 Container(
                   width: 40,
                   height: 40,
-                  child: dd ? Image.asset(getEmoji("meat"), width: 40,) : Container(),
+                  child: dd ? Image.asset(getEmoji("meat"), width: 40,) : ColorFiltered(
+                    colorFilter: ColorFilter.mode(Colors.grey[600], BlendMode.modulate),
+                      child: Image.asset(getEmoji("meat"), width: 40,)),
                 ),
-                SizedBox(width: 10,),
-                GestureDetector(
-                  onTap: () {
-                    if (mealStatus.updateSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), menu)) {
-                      postSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
-                    } else {
-                      print('딜리딜리딜리트');
-                      deleteSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
-                    }
-                  },
-                  child: Text(menu, style: TextStyle(color: Colors.white, fontSize: 25),),
+                SizedBox(width: 10),
+                Flexible(
+                  child: GestureDetector(
+                    onTap: () {
+                      if (mealStatus.updateSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), menu)) {
+                        postSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
+                      } else {
+                        print('딜리딜리딜리트');
+                        deleteSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
+                      }
+                    },
+                    child: Text(menu, style: TextStyle(color: Colors.white, fontSize: 25,  ),textAlign: TextAlign.center,),
+                  ),
                 ),
+//                SizedBox(width: 50,),
+
                 SizedBox(width: 15,),
                 SpeechBubble(
                   width: 50,

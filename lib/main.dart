@@ -47,6 +47,7 @@ class KakaoLoginTest extends StatelessWidget {
             '/FirstPage': (BuildContext context) => new FirstPage(),
           },
           theme: ThemeData(
+            fontFamily: "GmarketSans",
 
             // This is the theme of your application.
             //
