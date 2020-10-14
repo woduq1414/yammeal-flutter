@@ -6,6 +6,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/rendering.dart';
+
+
+
 import 'package:meal_flutter/UIs/servey_page.dart';
 import 'package:meal_flutter/UIs/setting.dart';
 import 'package:meal_flutter/common/asset_path.dart';
@@ -113,6 +116,8 @@ class MealUI extends State<MealState> {
   AdMobManager adMob = AdMobManager();
   CarouselController btnController = CarouselController();
 
+  var tabList = ["soup", "calendar", "soso"];
+
   @override
   void initState() {
 //    adMob.init();
@@ -128,6 +133,11 @@ class MealUI extends State<MealState> {
     getSelectedMealMenu();
   }
 
+  double degreeToRadian(double f){
+    return f * math.pi / 180;
+  }
+
+
   @override
   Widget build(BuildContext context) {
 //    print(fs.s1());
@@ -135,6 +145,9 @@ class MealUI extends State<MealState> {
 
     print("!!!!!!!!1");
     print(_mealList);
+
+
+
 
 //    print(getWidgetSize(_underMenuKey));
 
@@ -180,57 +193,75 @@ class MealUI extends State<MealState> {
                       size: MediaQuery.of(context).size,
                     ),
                   ),
+//                  Positioned(
+//                    top: MediaQuery.of(context).size.height - 75 - 20,
+//                    left: MediaQuery.of(context).size.width / 2 - 75,
+//                    child: Image.asset(getEmoji("cold"), width: 150, height:150),
+//                  ),
                   Container(
                     child: CustomPaint(
                       painter: BuchaePainter(),
                       size: MediaQuery.of(context).size,
                     ),
-                  ),
-                  AnimatedContainer(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: (){
-                        btnController.animateToPage(0);
-                      },
-                      child: Container(
+                  )] +
+                  tabList.map<Widget>(
+                      (tab) {
+                        var t = 90 + (_nowTab - tabList.indexOf(tab)) * 40.0 ;
+                        var s = _nowTab == tabList.indexOf(tab) ? 70.0 : 50.0;
+//                        print(math.sin(degreeToRadian(t))* (s == 70 ? 230 : 210));
+
+//                        print(math.cos(30  * math.pi / 180));
+                        return AnimatedPositioned(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onTap: (){
+                              btnController.animateToPage(0);
+                            },
+                            child: Container(
 //                        color: Colors.blue,
-                        child: Image.asset(
-                          getEmoji("soup"),
-                          width: _nowTab == 0 ? 70 : 50,
-                        ),
-                      ),
-                    ),
-                    margin: EdgeInsets.only(
-                      top:
-                      _nowTab == 0 ? MediaQuery.of(context).size.height*0.79 : MediaQuery.of(context).size.height * 0.85,
-                      left: _nowTab == 0
-                          ? MediaQuery.of(context).size.width * 0.5 - 33
-                          : MediaQuery.of(context).size.width * 0.5 - 80,
-                    ),
-                    duration: Duration(milliseconds: 400),
-                    curve: Curves.ease,
-                  ),
-                  AnimatedContainer(
-                    child: GestureDetector(
-                      onTap: () {
-                        btnController.animateToPage(1);
-                      },
-                      child: Image.asset(
-                        getEmoji("calendar"),
-                        width: _nowTab == 0 ? 50 : 70,
-                      ),
-                    ),
-                    margin: EdgeInsets.only(
-                      top:
-                      _nowTab == 0 ? MediaQuery.of(context).size.height * 0.85 : MediaQuery.of(context).size.height * 0.78,
-                      left: _nowTab == 0
-                          ? MediaQuery.of(context).size.width * 0.5 + 30
-                          : MediaQuery.of(context).size.width * 0.5 - 33,
-                    ),
-                    duration: Duration(milliseconds: 400),
-                    curve: Curves.ease,
-                  ),
-                ],
+                              child: Image.asset(
+                                getEmoji(tab),
+
+                              ),
+                            ),
+                          ),
+//                    margin: EdgeInsets.only(
+//                      top:
+//                      _nowTab == 0 ? MediaQuery.of(context).size.height*0.79 : MediaQuery.of(context).size.height * 0.85,
+//                      left: _nowTab == 0
+//                          ? MediaQuery.of(context).size.width * 0.5 - 33
+//                          : MediaQuery.of(context).size.width * 0.5 - 80,
+//                    ),
+                          top: MediaQuery.of(context).size.height * 1 -  math.sin(degreeToRadian(t)) * 90 - s - 10,
+                          left: (MediaQuery.of(context).size.width / 2) + math.cos(degreeToRadian(t))* 90 - s / 2,
+                          width: s,
+                          height : s,
+                          duration: Duration(milliseconds: 400),
+                          curve: Curves.ease,
+                        );
+                      }
+                  ).toList(),
+//                  AnimatedContainer(
+//                    child: GestureDetector(
+//                      onTap: () {
+//                        btnController.animateToPage(1);
+//                      },
+//                      child: Image.asset(
+//                        getEmoji("calendar"),
+//                        width: _nowTab == 0 ? 50 : 70,
+//                      ),
+//                    ),
+//                    margin: EdgeInsets.only(
+//                      top:
+//                      _nowTab == 0 ? MediaQuery.of(context).size.height * 0.85 : MediaQuery.of(context).size.height * 0.78,
+//                      left: _nowTab == 0
+//                          ? MediaQuery.of(context).size.width * 0.5 + 30
+//                          : MediaQuery.of(context).size.width * 0.5 - 33,
+//                    ),
+//                    duration: Duration(milliseconds: 400),
+//                    curve: Curves.ease,
+//                  ),
+
               ),
             ),
             CarouselSlider(
