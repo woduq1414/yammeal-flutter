@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/rendering.dart';
 import 'package:meal_flutter/UIs/servey_page.dart';
 import 'package:meal_flutter/common/asset_path.dart';
 import 'package:meal_flutter/common/provider/mealProvider.dart';
@@ -29,6 +30,47 @@ FontSize fs;
 
 //FontSize fs;
 //GlobalKey _underMenuKey = GlobalKey();
+
+class CustomStack extends Stack {
+  CustomStack({children}) : super(children: children);
+  @override
+  CustomRenderStack createRenderObject(BuildContext context) {
+    return CustomRenderStack(
+      alignment: alignment,
+      textDirection: textDirection ?? Directionality.of(context),
+      fit: fit,
+      overflow: overflow,
+    );
+  }
+}
+class CustomRenderStack extends RenderStack {
+  CustomRenderStack({alignment, textDirection, fit, overflow})
+      : super(
+      alignment: alignment,
+      textDirection: textDirection,
+      fit: fit,
+      overflow: overflow);
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
+    var stackHit = false;
+    final children = getChildrenAsList();
+    for (var child in children) {
+      final StackParentData childParentData = child.parentData;
+      final childHit = result.addWithPaintOffset(
+        offset: childParentData.offset,
+        position: position,
+        hitTest: (BoxHitTestResult result, Offset transformed) {
+          assert(transformed == position - childParentData.offset);
+          return child.hitTest(result, position: transformed);
+        },
+      );
+      if (childHit) stackHit = true;
+    }
+    return stackHit;
+  }
+}
+
+
 
 class MealMainUI extends StatelessWidget {
   @override
@@ -69,8 +111,14 @@ class MealUI extends State<MealState> {
 
   @override
   void initState() {
-    adMob.init();
-
+//    adMob.init();
+    var _bannerAd = adMob.createBannerAd();
+    _bannerAd
+      ..load().then((loaded) {
+        if (loaded && this.mounted) {
+          _bannerAd..show();
+        }
+      });
     super.initState();
     getNowMealMenu();
     getSelectedMealMenu();
@@ -91,7 +139,6 @@ class MealUI extends State<MealState> {
     });
     return WillPopScope(
       onWillPop: () async {
-
 //        exit(1);
 
         return true;
@@ -99,9 +146,10 @@ class MealUI extends State<MealState> {
       child: Scaffold(
         backgroundColor: Color(0xffFF5454),
         body: SafeArea(
-            child: Stack(
+            child: CustomStack(
           children: <Widget>[
             Container(
+              color: Colors.transparent,
               child: Stack(
                 children: <Widget>[
                   CustomPaint(painter: CurvePainter1(), size: MediaQuery.of(context).size),
@@ -114,7 +162,7 @@ class MealUI extends State<MealState> {
             ),
             Container(
 //            key: _underMenuKey,
-              child: Stack(
+              child: CustomStack(
                 children: <Widget>[
                   Container(
                     child: CustomPaint(
@@ -135,9 +183,18 @@ class MealUI extends State<MealState> {
                     ),
                   ),
                   AnimatedPositioned(
-                    child: Image.asset(
-                      getEmoji("soup"),
-                      width: _nowTab == 0 ? 70 : 50,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: (){
+                        print("heeee");
+                      },
+                      child: Container(
+//                        color: Colors.blue,
+                        child: Image.asset(
+                          getEmoji("soup"),
+                          width: _nowTab == 0 ? 70 : 50,
+                        ),
+                      ),
                     ),
                     bottom:
                         _nowTab == 0 ? MediaQuery.of(context).size.height * 0.1 : MediaQuery.of(context).size.height * 0.05,

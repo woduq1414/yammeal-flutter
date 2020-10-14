@@ -18,6 +18,7 @@ import './kakao_register_page.dart';
 import 'UIs/main_page.dart';
 import 'common/color.dart';
 
+import 'firebase.dart';
 import 'test_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -28,6 +29,13 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _idController = TextEditingController(text: "qaz123@naver.com");
   final _passwordController = TextEditingController(text: "qwe123");
+  AdMobManager adMob = AdMobManager();
+  @override
+  void initState() {
+//    adMob.
+  }
+
+
 
   void goKakaoRegisterPage() {
     Navigator.push(
