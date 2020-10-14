@@ -20,7 +20,6 @@ import 'meal_calendar.dart';
 import 'package:date_format/date_format.dart';
 import 'package:http/http.dart' as http;
 import "package:meal_flutter/common/font.dart";
-
 import "package:meal_flutter/main.dart";
 
 import 'meal_detail.dart';
@@ -48,8 +47,7 @@ class CustomRenderStack extends RenderStack {
       : super(
       alignment: alignment,
       textDirection: textDirection,
-      fit: fit,
-      overflow: overflow);
+      fit: fit);
   @override
   bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
     var stackHit = false;
@@ -197,6 +195,7 @@ class MealUI extends State<MealState> {
                         ),
                       ),
                     ),
+                    duration: Duration(milliseconds: 400),
                   ),
                   AnimatedContainer(
                     child: Image.asset(
