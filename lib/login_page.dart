@@ -241,7 +241,7 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Container(
-            width: 142,
+            width: MediaQuery.of(context).size.width*0.3,
             height: 2,
             color: Colors.black,
           ),
@@ -250,7 +250,7 @@ class _LoginPageState extends State<LoginPage> {
             style: TextStyle(color: Colors.black),
           ),
           Container(
-            width: 142,
+            width: MediaQuery.of(context).size.width*0.3,
             height: 2,
             color: Colors.black,
           ),
