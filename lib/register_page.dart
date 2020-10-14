@@ -111,7 +111,7 @@ class IdRegisterPage extends StatelessWidget {
                           );
                         },
                         textColor: Colors.white,
-                        primeColor: primaryColor ,
+                        primeColor: primaryRedDark ,
                         disabled: () {
                           return !RegExp(
                                   r'^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$')
@@ -182,7 +182,7 @@ class PwRegisterPage extends StatelessWidget {
                         );
                       },
                       textColor: Colors.white,
-                      primeColor: primaryColor,
+                      primeColor: primaryRedDark,
                       disabled: () {
                         return !RegExp(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&-_])[A-Za-z\d$@$!%*#?&-_]{6,15}$')
                             .hasMatch(userStatus.inputData["password"]);
@@ -263,7 +263,7 @@ class NameRegisterPage extends StatelessWidget {
                           );
                         },
                         textColor: Colors.white,
-                        primeColor: primaryColor,
+                        primeColor: primaryRedDark,
                         disabled: () {
                           return !RegExp(r'^[가-힣0-9A-Za-z]{2,10}$').hasMatch(userStatus.inputData["nickname"]);
                         }),
@@ -377,7 +377,7 @@ class SchoolCodeRegisterPage extends StatelessWidget {
                               }
                             },
                             textColor: Colors.white,
-                            primeColor:primaryColor,
+                            primeColor:primaryRedDark,
                             disabled: () {
                               return !RegExp(r'^[a-zA-Z]{4,8}$').hasMatch(userStatus.inputData["schoolCode"]);
                             }),
@@ -654,7 +654,7 @@ class SchoolInfoRegisterPage extends StatelessWidget {
 //                            );
                             },
                             textColor: Colors.white,
-                            primeColor: primaryColor,
+                            primeColor: primaryRedDark,
                             disabled: () {
                               return userStatus.inputData["schoolName"] == "" ||
                                   userStatus.inputData["schoolGrade"] == null ||

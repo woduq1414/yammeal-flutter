@@ -155,7 +155,7 @@ class _LoginPageState extends State<LoginPage> {
                   minWidth: 320,
                   height: 40,
                   child: RaisedButton(
-                    color: primaryColor,
+                    color: primaryRedDark,
                     child: Text(
                       '로그인',
                       style: TextStyle(fontSize: 20, color: Colors.white),
@@ -180,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
                   minWidth: 320,
                   height: 40,
                   child: RaisedButton(
-                    color: primaryColor,
+                    color: primaryRedDark,
                     child: Text(
                       '회원가입',
                       style: TextStyle(fontSize: 20, color: Colors.white),

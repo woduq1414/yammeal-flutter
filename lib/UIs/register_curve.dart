@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import "../common/color.dart";
 class RegisterPageUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class Painter1 extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = new Paint()
-      ..color = Color(0xffFF5454)
+      ..color = primaryRed
       ..style = PaintingStyle.fill;
 
     final h = size.height;

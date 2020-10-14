@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'main_page.dart';
 import 'login_UI.dart';
 import 'dart:math' as Math;
-
+import "../common/color.dart";
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -249,7 +249,7 @@ class Painter2 extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = new Paint()
-      ..color = Color(0xffFF5454)
+      ..color = primaryRed
       ..style = PaintingStyle.fill
       ..strokeWidth = 8.0;
 
