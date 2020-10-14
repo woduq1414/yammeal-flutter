@@ -183,7 +183,7 @@ class MealUI extends State<MealState> {
                       size: MediaQuery.of(context).size,
                     ),
                   ),
-                  AnimatedPositioned(
+                  AnimatedContainer(
                     child: GestureDetector(
                       behavior: HitTestBehavior.translucent,
                       onTap: (){
@@ -197,6 +197,15 @@ class MealUI extends State<MealState> {
                         ),
                       ),
                     ),
+                    margin: EdgeInsets.only(
+                      top:
+                      _nowTab == 0 ? MediaQuery.of(context).size.height*0.79 : MediaQuery.of(context).size.height * 0.85,
+                      left: _nowTab == 0
+                          ? MediaQuery.of(context).size.width * 0.5 - 33
+                          : MediaQuery.of(context).size.width * 0.5 - 80,
+                    ),
+                    duration: Duration(milliseconds: 400),
+                    curve: Curves.ease,
                   ),
                   AnimatedContainer(
                     child: Image.asset(
