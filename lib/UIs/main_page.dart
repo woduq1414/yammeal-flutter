@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/rendering.dart';
 import 'package:meal_flutter/UIs/servey_page.dart';
+import 'package:meal_flutter/UIs/setting.dart';
 import 'package:meal_flutter/common/asset_path.dart';
 import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
@@ -414,6 +415,9 @@ class MealUI extends State<MealState> {
                           )),
                     ),
                   ),
+                ),
+                Container(
+                  child: Setting(),
                 )
               ],
             ),
@@ -629,7 +633,7 @@ class MealUI extends State<MealState> {
     });
   */
   Future getNowMealMenu() async {
-    http.Response res = await http.get('http://meal-backend.herokuapp.com/api/meals/menu?menuDate=20201008', headers: {
+    http.Response res = await http.get('http://meal-backend.herokuapp.com/api/meals/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}', headers: {
       "Authorization": await getToken(),
     });
     print(res.statusCode);
