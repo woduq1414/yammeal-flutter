@@ -21,6 +21,10 @@ import 'meal_calendar.dart';
 import 'package:date_format/date_format.dart';
 import 'package:http/http.dart' as http;
 import "package:meal_flutter/common/font.dart";
+
+import "../common/color.dart";
+
+
 import "package:meal_flutter/main.dart";
 
 import 'meal_detail.dart';
@@ -112,13 +116,13 @@ class MealUI extends State<MealState> {
   @override
   void initState() {
 //    adMob.init();
-    var _bannerAd = adMob.createBannerAd();
-    _bannerAd
-      ..load().then((loaded) {
-        if (loaded && this.mounted) {
-          _bannerAd..show();
-        }
-      });
+//    var _bannerAd = adMob.createBannerAd();
+//    _bannerAd
+//      ..load().then((loaded) {
+//        if (loaded && this.mounted) {
+//          _bannerAd..show();
+//        }
+//      });
     super.initState();
     getNowMealMenu();
     getSelectedMealMenu();
@@ -144,7 +148,7 @@ class MealUI extends State<MealState> {
         return true;
       },
       child: Scaffold(
-        backgroundColor: Color(0xffFF5454),
+        backgroundColor: primaryRed,
         body: SafeArea(
             child: CustomStack(
           children: <Widget>[
@@ -556,7 +560,7 @@ class MealUI extends State<MealState> {
     MealStatus mealStatus = Provider.of<MealStatus>(context);
     var keys = mealStatus.dayList.keys.toList();
 
-    int i = 0;
+    int i = 1;
     return Column(
         children: keys.map((x) {
       return _buildDDayListItem(x, mealStatus.dayList[x], i++);
@@ -586,7 +590,7 @@ class MealUI extends State<MealState> {
           child: Container(
             margin: EdgeInsets.symmetric(vertical: 2),
             decoration: BoxDecoration(
-              color: Color(0xffFF5454),
+              color: primaryRed,
               boxShadow: index % 2 == 0
                   ? <BoxShadow>[
                       BoxShadow(
@@ -610,7 +614,7 @@ class MealUI extends State<MealState> {
                     ),
                   ),
                   decoration: BoxDecoration(
-                    color: index % 2 == 0 ? Color(0xffFFBB00) : Color(0xffFF5454),
+                    color: index % 2 == 0 ? Color(0xffFFBB00) : primaryRed,
                   ),
                 ),
                 Flexible(
@@ -714,7 +718,7 @@ class BuchaePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = new Paint()
-      ..color = Color(0xffFF5454)
+      ..color = primaryRed
       ..style = PaintingStyle.stroke
       ..strokeWidth = 50.0;
 
@@ -741,7 +745,7 @@ class InnerHalfCirclePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = new Paint()
-      ..color = Color(0xffFF5454)
+      ..color = primaryRed
       ..style = PaintingStyle.fill
       ..strokeWidth = 8.0;
 
