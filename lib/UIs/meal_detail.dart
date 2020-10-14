@@ -11,39 +11,24 @@ import 'package:http/http.dart' as http;
 import '../common/provider/mealProvider.dart';
 import '../common/font.dart';
 
-
 import 'package:provider/provider.dart';
-
-
-
-
-
-
-
-
 
 FontSize fs;
 
-
-
-
-
-
-
 class MealDetailState extends StatefulWidget {
-
   DateTime d;
+
   MealDetailState(DateTime d) {
     this.d = d;
   }
 
   @override
   MealDetail createState() => MealDetail(d);
-
 }
 
 class MealDetail extends State<MealDetailState> {
   DateTime d;
+
   MealDetail(DateTime d) {
     this.d = d;
   }
@@ -60,12 +45,11 @@ class MealDetail extends State<MealDetailState> {
 
   @override
   Widget build(BuildContext context) {
-
     fs = FontSize(context);
 
     print("@@@@");
     return WillPopScope(
-      onWillPop: () async{
+      onWillPop: () async {
         print("hello?");
         return true;
       },
@@ -86,18 +70,32 @@ class MealDetail extends State<MealDetailState> {
           child: Column(
             //crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              SizedBox(height: 70,),
-              Center(
-                child: Text(formatDate(d, [yyyy, '.', mm, '.', dd]), style: TextStyle(fontSize: 35, color: Colors.white),),
+              SizedBox(
+                height: 70,
               ),
-              SizedBox(height: 15,),
-              !_isLoading ? Column(
-                children: _mealList.map<Widget>((menu) {
-                  return _buildMenuItem(menu, mealStatus.dayList.containsKey(formatDate(d, [yyyy, '', mm, '', dd])) && mealStatus.dayList[formatDate(d, [yyyy, '', mm, '', dd])].contains(menu), d, _mealList.indexOf(menu));
-                }).toList(),
-              ) : Container(
-                  margin: EdgeInsets.only(top:10),
-                  child: CircularProgressIndicator()),
+              Center(
+                child: Text(
+                  formatDate(d, [yyyy, '.', mm, '.', dd]),
+                  style: TextStyle(fontSize: 35, color: Colors.white),
+                ),
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              if (!_isLoading)
+                _mealList != null
+                    ? Column(
+                        children: _mealList.map<Widget>((menu) {
+                        return _buildMenuItem(
+                            menu,
+                            mealStatus.dayList.containsKey(formatDate(d, [yyyy, '', mm, '', dd])) &&
+                                mealStatus.dayList[formatDate(d, [yyyy, '', mm, '', dd])].contains(menu),
+                            d,
+                            _mealList.indexOf(menu));
+                      }).toList())
+                    : Container(child: Text("급식 정보가 없습니다." , style: TextStyle(fontSize: fs.s5 ,color: Colors.white,),), )
+              else
+                Container(margin: EdgeInsets.only(top: 10), child: CircularProgressIndicator()),
             ],
           ),
         );
@@ -105,16 +103,12 @@ class MealDetail extends State<MealDetailState> {
     );
   }
 
-
-
-
   Widget _buildMenuItem(String menu, bool dd, DateTime d, int index) {
     return Builder(
       builder: (context) {
         MealStatus mealStatus = Provider.of<MealStatus>(context);
 
-
-        void toggleFavorite(){
+        void toggleFavorite() {
           if (mealStatus.updateSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), menu)) {
             postSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
           } else {
@@ -125,36 +119,62 @@ class MealDetail extends State<MealDetailState> {
 
         return Column(
           children: <Widget>[
-            SizedBox(height: 15,),
+            SizedBox(
+              height: 15,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 GestureDetector(
-                  onTap: () {toggleFavorite();},
+                  onTap: () {
+                    toggleFavorite();
+                  },
                   child: Container(
                     width: 40,
                     height: 40,
-                    child: dd ? Image.asset(getEmoji("meat"), width: 40,) : ColorFiltered(
-                      colorFilter: ColorFilter.mode(Colors.grey[600], BlendMode.modulate),
-                        child: Image.asset(getEmoji("meat"), width: 40,)),
+                    child: dd
+                        ? Image.asset(
+                            getEmoji("meat"),
+                            width: 40,
+                          )
+                        : ColorFiltered(
+                            colorFilter: ColorFilter.mode(Colors.grey[600], BlendMode.modulate),
+                            child: Image.asset(
+                              getEmoji("meat"),
+                              width: 40,
+                            )),
                   ),
                 ),
                 SizedBox(width: 10),
                 Flexible(
                   child: GestureDetector(
-                    onTap: () {toggleFavorite();},
-                    child: Text(menu, style: TextStyle(color: Colors.white, fontSize: 25,  ),textAlign: TextAlign.center,),
+                    onTap: () {
+                      toggleFavorite();
+                    },
+                    child: Text(
+                      menu,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 25,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
 //                SizedBox(width: 50,),
 
-                SizedBox(width: 15,),
+                SizedBox(
+                  width: 15,
+                ),
                 SpeechBubble(
                   width: 50,
                   nipLocation: NipLocation.LEFT,
                   color: Colors.white,
                   borderRadius: 50,
-                  child: Image.asset(getEmoji("good"), width: 40,),
+                  child: Image.asset(
+                    getEmoji("good"),
+                    width: 40,
+                  ),
                 ),
               ],
             ),
@@ -169,8 +189,8 @@ class MealDetail extends State<MealDetailState> {
       _isLoading = true;
     });
 
-
-    http.Response res = await http.get('http://meal-backend.herokuapp.com/api/meals/menu?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}', headers: {
+    http.Response res = await http
+        .get('http://meal-backend.herokuapp.com/api/meals/menu?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}', headers: {
       "Authorization": await getToken(),
     });
     print(res.statusCode);
@@ -185,32 +205,23 @@ class MealDetail extends State<MealDetailState> {
         if (jsonBody != null) {
           _mealList = jsonBody;
         } else {
-          _mealList = ['급식 데이터가 없음', '이건 영양사 잘못'];
+          _mealList = null;
         }
       });
-
-
-    } else {
-
-    }
+    } else {}
 
     setState(() {
       _isLoading = false;
     });
-
   }
 
   Future postSelectedDay(String date, int menuSeq) async {
     print(date);
     http.Response res = await http.post('http://meal-backend.herokuapp.com/api/meals/rating/favorite',
-      body: jsonEncode({
-        "menuDate": date,
-        "menuSeq": menuSeq
-      }, ), headers: {
-          "Authorization": await getToken(),
-          "Content-Type": "application/json "
-        }
-    );
+        body: jsonEncode(
+          {"menuDate": date, "menuSeq": menuSeq},
+        ),
+        headers: {"Authorization": await getToken(), "Content-Type": "application/json "});
     print('포스트');
     print(res.statusCode);
     if (res.statusCode == 200) {
@@ -225,11 +236,9 @@ class MealDetail extends State<MealDetailState> {
   Future deleteSelectedDay(String date, int menuSeq) async {
     print(date);
     print(menuSeq);
-    http.Response res = await http.delete('http://meal-backend.herokuapp.com/api/meals/rating/favorite?menuDate=${date}&menuSeq=${menuSeq}', headers: {
-          "Authorization": await getToken(),
-          "Content-Type": "application/json "
-        }
-    );
+    http.Response res = await http.delete(
+        'http://meal-backend.herokuapp.com/api/meals/rating/favorite?menuDate=${date}&menuSeq=${menuSeq}',
+        headers: {"Authorization": await getToken(), "Content-Type": "application/json "});
     print('딜리트');
     print(res.statusCode);
     if (res.statusCode == 200) {
