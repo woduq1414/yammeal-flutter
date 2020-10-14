@@ -65,7 +65,7 @@ class KakaoLoginTest extends StatelessWidget {
             // is not restarted.
 
           ),
-          home: FirstPage(),
+          home: LoginPage(),
 
         ));
   }

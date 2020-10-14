@@ -66,6 +66,7 @@ class MealUI extends State<MealState> {
   var dayList = {};
   bool _iscalled = false;
   AdMobManager adMob = AdMobManager();
+  CarouselController btnController = CarouselController();
 
   @override
   void initState() {
@@ -134,36 +135,48 @@ class MealUI extends State<MealState> {
                       size: MediaQuery.of(context).size,
                     ),
                   ),
-                  AnimatedPositioned(
-                    child: Image.asset(
-                      getEmoji("soup"),
-                      width: _nowTab == 0 ? 70 : 50,
+                  GestureDetector(
+                    onTap: () {
+                      print("이히히히히힝");
+                      btnController.animateToPage(0);
+                    },
+                    behavior: HitTestBehavior.translucent,
+                    child: AnimatedContainer(
+                        child: Image.asset(
+                          getEmoji("soup"),
+                          width: _nowTab == 0 ? 70 : 50,
+                        ),
+                      margin: EdgeInsets.only(
+                        top:
+                        _nowTab == 0 ? MediaQuery.of(context).size.height*0.79 : MediaQuery.of(context).size.height * 0.85,
+                        left: _nowTab == 0
+                            ? MediaQuery.of(context).size.width * 0.5 - 33
+                            : MediaQuery.of(context).size.width * 0.5 - 80,
+                      ),
+                      duration: Duration(milliseconds: 400),
+                      curve: Curves.ease,
                     ),
-                    bottom:
-                        _nowTab == 0 ? MediaQuery.of(context).size.height * 0.1 : MediaQuery.of(context).size.height * 0.05,
-                    left: _nowTab == 0
-                        ? MediaQuery.of(context).size.width * 0.5 - 35
-                        : MediaQuery.of(context).size.width * 0.5 - 80,
-                    duration: Duration(milliseconds: 400),
-                    curve: Curves.ease,
                   ),
-                  AnimatedPositioned(
+                  AnimatedContainer(
                     child: Image.asset(
                       getEmoji("calendar"),
                       width: _nowTab == 0 ? 50 : 70,
                     ),
-                    bottom:
-                        _nowTab == 0 ? MediaQuery.of(context).size.height * 0.05 : MediaQuery.of(context).size.height * 0.1,
-                    left: _nowTab == 0
-                        ? MediaQuery.of(context).size.width * 0.5 + 30
-                        : MediaQuery.of(context).size.width * 0.5 - 35,
+                    margin: EdgeInsets.only(
+                      top:
+                      _nowTab == 0 ? MediaQuery.of(context).size.height * 0.85 : MediaQuery.of(context).size.height * 0.78,
+                      left: _nowTab == 0
+                          ? MediaQuery.of(context).size.width * 0.5 + 30
+                          : MediaQuery.of(context).size.width * 0.5 - 33,
+                    ),
                     duration: Duration(milliseconds: 400),
                     curve: Curves.ease,
-                  )
+                  ),
                 ],
               ),
             ),
             CarouselSlider(
+            carouselController: btnController,
               options: CarouselOptions(
                   enableInfiniteScroll: false,
                   autoPlay: false,
@@ -490,7 +503,6 @@ class MealUI extends State<MealState> {
     return Column(
         children: keys.map((x) {
       return _buildDDayListItem(x, mealStatus.dayList[x], i++);
-      ;
     }).toList());
 
     return ListView(
@@ -532,7 +544,7 @@ class MealUI extends State<MealState> {
             child: Row(
               children: <Widget>[
                 Container(
-                  width: MediaQuery.of(context).size.width * 0.18,
+                  width: MediaQuery.of(context).size.width * 0.2,
                   height: MediaQuery.of(context).size.width * 0.1,
                   child: Center(
                     child: Text(
