@@ -214,7 +214,7 @@ class MealUI extends State<MealState> {
                           child: GestureDetector(
                             behavior: HitTestBehavior.translucent,
                             onTap: (){
-                              btnController.animateToPage(0);
+                              btnController.animateToPage(tabList.indexOf(tab));
                             },
                             child: Container(
 //                        color: Colors.blue,
@@ -588,6 +588,9 @@ class MealUI extends State<MealState> {
     var keys = mealStatus.dayList.keys.toList();
 
     int i = 1;
+
+    keys.sort();
+
     return Column(
         children: keys.map((x) {
       return _buildDDayListItem(x, mealStatus.dayList[x], i++);
