@@ -50,6 +50,8 @@ class MealDetail extends State<MealDetailState> {
 
   var _mealList = [];
 
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -89,11 +91,13 @@ class MealDetail extends State<MealDetailState> {
                 child: Text(formatDate(d, [yyyy, '.', mm, '.', dd]), style: TextStyle(fontSize: 35, color: Colors.white),),
               ),
               SizedBox(height: 15,),
-              Column(
+              !_isLoading ? Column(
                 children: _mealList.map<Widget>((menu) {
                   return _buildMenuItem(menu, mealStatus.dayList.containsKey(formatDate(d, [yyyy, '', mm, '', dd])) && mealStatus.dayList[formatDate(d, [yyyy, '', mm, '', dd])].contains(menu), d, _mealList.indexOf(menu));
                 }).toList(),
-              ),
+              ) : Container(
+                  margin: EdgeInsets.only(top:10),
+                  child: CircularProgressIndicator()),
             ],
           ),
         );
@@ -161,6 +165,11 @@ class MealDetail extends State<MealDetailState> {
   }
 
   Future getDayMealMenu() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+
     http.Response res = await http.get('http://meal-backend.herokuapp.com/api/meals/menu?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}', headers: {
       "Authorization": await getToken(),
     });
@@ -180,10 +189,15 @@ class MealDetail extends State<MealDetailState> {
         }
       });
 
-      return;
+
     } else {
-      return;
+
     }
+
+    setState(() {
+      _isLoading = false;
+    });
+
   }
 
   Future postSelectedDay(String date, int menuSeq) async {
