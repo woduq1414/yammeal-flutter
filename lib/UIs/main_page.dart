@@ -17,10 +17,12 @@ import 'package:date_format/date_format.dart';
 import 'package:http/http.dart' as http;
 import "package:meal_flutter/common/font.dart";
 
+import "package:meal_flutter/main.dart";
+
 GlobalKey _containerKey = GlobalKey();
 FontSize fs;
 
-
+//FontSize fs;
 //GlobalKey _underMenuKey = GlobalKey();
 
 class MealMainUI extends StatelessWidget {
@@ -68,10 +70,8 @@ class MealUI extends State<MealState> {
 
   @override
   Widget build(BuildContext context) {
-
-    fs = FontSize(context);
 //    print(fs.s1());
-
+    fs = FontSize(context);
 
     print("!!!!!!!!1");
     print(_mealList);
@@ -114,6 +114,7 @@ class MealUI extends State<MealState> {
                   ),
                 ),
                 Container(
+
                   child: CustomPaint(
                     painter: BuchaePainter(),
                     size: MediaQuery.of(context).size,
@@ -196,16 +197,17 @@ class MealUI extends State<MealState> {
                                       width: 50,
                                     ),
                                   ),
-                                  Text('오늘의 메뉴', style: TextStyle(fontSize: fs.s3, color: Colors.white)),
+                                  Text('오늘의 메뉴',
+                                      style: TextStyle(fontSize: fs.s3, color: Colors.white, fontWeight: Font.normal)),
                                   Image.asset(
                                     getEmoji("soup"),
                                     width: 50,
                                   ),
                                 ],
                               ),
-                              Text('점심', style: TextStyle(fontSize: 25, color: Colors.white)),
+                              Text('점심', style: TextStyle(fontSize: fs.s6, color: Colors.white, fontWeight: Font.normal)),
                               Text(formatDate(DateTime.now(), [yyyy, '.', mm, '.', dd]),
-                                  style: TextStyle(fontSize: 20, color: Colors.white)),
+                                  style: TextStyle(fontSize: fs.s7, color: Colors.white)),
                               Container(
                                 margin: EdgeInsets.only(top: 5),
                                 width: 200,
@@ -267,9 +269,7 @@ class MealUI extends State<MealState> {
                                             return _buildMealItem(menu, _mealList.indexOf(menu));
                                           }).toList(),
                                     )
-                                  : Container(
-                                  margin: EdgeInsets.all(40),
-                                  child: CircularProgressIndicator()),
+                                  : Container(margin: EdgeInsets.all(40), child: CircularProgressIndicator()),
                               Positioned(
                                 child: _buildBelowItemInfo(_selectedIndex),
                                 top: _selectedTop,
@@ -309,7 +309,7 @@ class MealUI extends State<MealState> {
                                   getEmoji("calendar"),
                                   width: 50,
                                 ),
-                                Text('내 급식표', style: TextStyle(fontSize: 32, color: Colors.white)),
+                                Text('내 급식표', style: TextStyle(fontSize: fs.s3, color: Colors.white)),
                                 Image.asset(
                                   getEmoji("calendar"),
                                   width: 50,
@@ -338,7 +338,7 @@ class MealUI extends State<MealState> {
         child: Column(
           children: <Widget>[
             SizedBox(
-              height: 7,
+              height: fs.s7,
             ),
             GestureDetector(
               onLongPressStart: (LongPressStartDetails d) {
@@ -363,7 +363,7 @@ class MealUI extends State<MealState> {
                   _openInfo = false;
                 });
               },
-              child: Text(mealName, style: TextStyle(fontSize: 25, color: Colors.white)),
+              child: Text(mealName, style: TextStyle(fontSize: fs.s5, color: Colors.white)),
             ),
             SizedBox(
               height: 7,
@@ -483,26 +483,43 @@ class MealUI extends State<MealState> {
       ); // 개선 여지 매우 큼.
     return Builder(
       builder: (context) {
-        return Row(
-          children: <Widget>[
-            Container(
-              width: MediaQuery.of(context).size.width * 0.18,
-              height: MediaQuery.of(context).size.width * 0.1,
-              child: Center(
-                child: Text(
-                  'D-${dday == 0 ? 'Day' : dday}',
-                  style: TextStyle(fontSize: 20, color: Colors.white),
+        return Container(
+          margin: EdgeInsets.symmetric(vertical: 2),
+          decoration: BoxDecoration(
+            color :Color(0xffFF5454) ,
+            boxShadow: index % 2 == 0 ?<BoxShadow>[
+
+              BoxShadow(
+                color: Colors.black.withOpacity(0.5),
+                spreadRadius: 0.1,
+                blurRadius: 3,
+                offset: Offset(0, 2), // changes position of shadow
+              ),
+            ] : [],
+          ),
+          child: Row(
+            children: <Widget>[
+              Container(
+                width: MediaQuery.of(context).size.width * 0.18,
+                height: MediaQuery.of(context).size.width * 0.1,
+                child: Center(
+                  child: Text(
+                    'D-${dday == 0 ? 'Day' : dday}',
+                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  ),
+                ),
+                decoration: BoxDecoration(
+                  color: index % 2 == 0 ? Color(0xffFFBB00) : Color(0xffFF5454),
                 ),
               ),
-              decoration: BoxDecoration(color: index % 2 == 0 ? Color(0xffFFBB00) : Color(0xffFF5454)),
-            ),
-            SizedBox(
-              width: 20,
-            ),
-            Flexible(
-              child: Text(menus.join(", "), style: TextStyle(fontSize: 20, color: Colors.white), softWrap: true),
-            )
-          ],
+              Flexible(
+                child: Container(
+
+                  margin: EdgeInsets.only(left: fs.s7),
+                    child: Text(menus.join(", "), style: TextStyle(fontSize: fs.s6, color: Colors.white), softWrap: true)),
+              )
+            ],
+          ),
         );
       },
     );
@@ -609,6 +626,7 @@ class BuchaePainter extends CustomPainter {
 
     path.arcTo(Rect.fromLTWH(x * 0.34, y * 0.87, x * 0.33, y * 0.2), degToRad(-60), degToRad(-60), true);
     canvas.drawPath(path, paint);
+
   }
 
   num degToRad(num deg) => deg * (math.pi / 180.0);
