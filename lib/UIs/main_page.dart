@@ -185,7 +185,7 @@ class MealUI extends State<MealState> {
                     child: GestureDetector(
                       behavior: HitTestBehavior.translucent,
                       onTap: (){
-                        print("heeee");
+                        btnController.animateToPage(0);
                       },
                       child: Container(
 //                        color: Colors.blue,
@@ -206,9 +206,14 @@ class MealUI extends State<MealState> {
                     curve: Curves.ease,
                   ),
                   AnimatedContainer(
-                    child: Image.asset(
-                      getEmoji("calendar"),
-                      width: _nowTab == 0 ? 50 : 70,
+                    child: GestureDetector(
+                      onTap: () {
+                        btnController.animateToPage(1);
+                      },
+                      child: Image.asset(
+                        getEmoji("calendar"),
+                        width: _nowTab == 0 ? 50 : 70,
+                      ),
                     ),
                     margin: EdgeInsets.only(
                       top:
