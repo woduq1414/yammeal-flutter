@@ -38,7 +38,8 @@ dependencies:
   speech_bubble: ^0.0.5
   date_format: ^1.0.9
 
-  firebase_core:
+#  firebase_core:
+  firebase_admob: ^0.9.3+2
   firebase_messaging:
    # This dependency was added during initial configuration.
   firebase_analytics:   # add dependency for Google Analytics for Firebase

@@ -65,6 +65,14 @@
                 <data android:scheme="kakao39d6c43a0a346cca6ebc7b2dbb8e4353" android:host="oauth"/>
             </intent-filter>
         </activity>
+
+
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-2755450101712612~8101773189"/>
+
+
     </application>
 
     <meta-data

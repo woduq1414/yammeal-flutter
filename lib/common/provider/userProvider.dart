@@ -1,13 +1,15 @@
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../ip.dart';
+
 import 'package:http/http.dart' as http;
 
 import 'package:kakao_flutter_sdk/auth.dart';
 import 'package:kakao_flutter_sdk/user.dart';
 
 import 'dart:convert';
+
+import '../ip.dart';
 
 Map<String, dynamic> parseJwtPayLoad(String token) {
   final parts = token.split('.');
@@ -496,5 +498,8 @@ class UserStatus with ChangeNotifier {
 getToken() async {
   final storage = new FlutterSecureStorage();
   var token = await storage.read(key: "token");
+  if(token == null){
+    return "";
+  }
   return "Bearer " + token;
 }

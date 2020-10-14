@@ -1,10 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:math' as Math;
-
-
-
-
 
 import 'dart:convert';
 
@@ -23,35 +20,34 @@ import 'common/color.dart';
 
 import 'test_page.dart';
 
-
-
-
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
-
-
 class _LoginPageState extends State<LoginPage> {
-  final _idController = TextEditingController(text:"qaz123@naver.com");
-  final _passwordController = TextEditingController(text:"qwe123");
+  final _idController = TextEditingController(text: "qaz123@naver.com");
+  final _passwordController = TextEditingController(text: "qwe123");
 
   void goKakaoRegisterPage() {
     Navigator.push(
       context,
-      FadeRoute(page: RegisterPage(isKakao: true,)),
+      FadeRoute(
+          page: RegisterPage(
+        isKakao: true,
+      )),
     );
   }
-
 
   void goRegisterPage() {
     Navigator.push(
       context,
-      FadeRoute(page: RegisterPage(isKakao: false,)),
+      FadeRoute(
+          page: RegisterPage(
+        isKakao: false,
+      )),
     );
   }
-
 
   void goMainPage() {
     Navigator.push(
@@ -60,15 +56,9 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-
-
-
     UserStatus userStatus = Provider.of<UserStatus>(context);
-
 
     return LoadingModal(
       child: Scaffold(
@@ -83,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
                   //crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      margin: EdgeInsets.only(top: 165),
+                      margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.2),
                       child: Text(
                         '오늘 뭐먹지?',
                         style: TextStyle(
@@ -108,14 +98,13 @@ class _LoginPageState extends State<LoginPage> {
                 )
               ],
             ),
-          )
-      ),
+          )),
     );
   }
 
   Widget _buildTextFields() {
     return Builder(
-      builder: (context){
+      builder: (context) {
         return Container(
             margin: EdgeInsets.symmetric(horizontal: 30),
             child: Column(
@@ -123,10 +112,11 @@ class _LoginPageState extends State<LoginPage> {
                 TextField(
                   controller: _idController,
                   maxLines: 1,
-                  maxLength: 30,
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(40),
+                  ],
                   decoration: InputDecoration(
-
-                    hintText: '아이디',
+                    hintText: '아메일',
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(50),
@@ -134,10 +124,13 @@ class _LoginPageState extends State<LoginPage> {
                     contentPadding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                   ),
                 ),
+                SizedBox(height: 15,),
                 TextField(
                   controller: _passwordController,
                   maxLines: 1,
-                  maxLength: 30,
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(40),
+                  ],
                   decoration: InputDecoration(
                     hintText: '비밀번호',
                     fillColor: Colors.white,
@@ -147,14 +140,17 @@ class _LoginPageState extends State<LoginPage> {
                     contentPadding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                   ),
                 ),
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.05,
+                ),
                 ButtonTheme(
                   minWidth: 320,
                   height: 40,
                   child: RaisedButton(
                     color: primaryColor,
                     child: Text(
-                      '로그인', style: TextStyle(fontSize: 20, color: Colors.white),
+                      '로그인',
+                      style: TextStyle(fontSize: 20, color: Colors.white),
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(50),
@@ -163,11 +159,14 @@ class _LoginPageState extends State<LoginPage> {
                       UserStatus userStatus = Provider.of<UserStatus>(context);
                       bool loginResult = await userStatus.loginDefault(_idController.text, _passwordController.text);
                       print(loginResult);
-                      if(loginResult == true){
+                      if (loginResult == true) {
                         goMainPage();
                       }
                     },
                   ),
+                ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.007,
                 ),
                 ButtonTheme(
                   minWidth: 320,
@@ -175,7 +174,8 @@ class _LoginPageState extends State<LoginPage> {
                   child: RaisedButton(
                     color: primaryColor,
                     child: Text(
-                      '회원가입', style: TextStyle(fontSize: 20, color: Colors.white),
+                      '회원가입',
+                      style: TextStyle(fontSize: 20, color: Colors.white),
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(50),
@@ -186,8 +186,6 @@ class _LoginPageState extends State<LoginPage> {
 //                  goKakaoRegisterPage();
 
                       goRegisterPage();
-
-
                     },
                   ),
                 ),
@@ -198,12 +196,13 @@ class _LoginPageState extends State<LoginPage> {
                   child: RaisedButton(
                     color: kakaoColor,
                     child: Text(
-                      '카카오톡으로 로그인', style: TextStyle(fontSize: 20, color: Colors.black),
+                      '카카오톡으로 로그인',
+                      style: TextStyle(fontSize: 20, color: Colors.black),
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(50),
                     ),
-                    onPressed: () async{
+                    onPressed: () async {
                       UserStatus userStatus = Provider.of<UserStatus>(context);
                       userStatus.setIsKakao(true);
 //                  goKakaoRegisterPage();
@@ -211,22 +210,17 @@ class _LoginPageState extends State<LoginPage> {
                       bool loginResult = await userStatus.loginWithKakao();
                       print(loginResult);
                       userStatus.setIsLoading(false);
-                      if(loginResult == true){
+                      if (loginResult == true) {
 //                      userStatus.loginWithKakao();
                         print('성공');
                         goMainPage();
-
-                      }else{
+                      } else {
                         goKakaoRegisterPage();
                       }
-
                     },
                   ),
                 ),
-
-
               ],
-
             ));
       },
     );
@@ -234,7 +228,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildDivisionLine() {
     return Container(
-      margin: EdgeInsets.only(top: 30, bottom: 30),
+      margin: EdgeInsets.only(top:  MediaQuery.of(context).size.height * 0.02, bottom:  MediaQuery.of(context).size.height * 0.02),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -244,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
             color: Colors.black,
           ),
           Text(
-            ' OR ',
+            ' 간편 로그인 ',
             style: TextStyle(color: Colors.black),
           ),
           Container(
@@ -255,7 +249,6 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
     );
-
   }
 
   Widget _buildUpperCurvePainter() {
@@ -292,10 +285,9 @@ class Painter1 extends CustomPainter {
     Path path = new Path();
     path.moveTo(-50, 0);
     path.lineTo(-50, size.height * 0.27);
-    path.cubicTo(size.width * 0.2, size.height * 0.15, size.width * 0.45,
-        size.height * 0.08, size.width * 0.6, size.height * 0.12);
-    path.cubicTo(size.width, size.height * 0.25, size.width, size.height * 0.25,
-        size.width * 1.05, size.height * 0.02);
+    path.cubicTo(
+        size.width * 0.2, size.height * 0.15, size.width * 0.45, size.height * 0.08, size.width * 0.6, size.height * 0.12);
+    path.cubicTo(size.width, size.height * 0.25, size.width, size.height * 0.25, size.width * 1.05, size.height * 0.02);
     path.lineTo(size.width, 0);
     path.lineTo(0, 0);
     canvas.drawPath(path, paint);
@@ -320,10 +312,9 @@ class Painter2 extends CustomPainter {
     Path path = new Path();
     path.moveTo(-50, 0);
     path.lineTo(-50, size.height * 0.2);
-    path.cubicTo(-20, size.height * 0.2, size.width * 0.15, size.height * 0.05,
-        size.width * 0.51, size.height * 0.2);
-    path.cubicTo(size.width * 0.65, size.height * 0.25, size.width * 0.85,
-        size.height * 0.25, size.width, size.height * 0.16);
+    path.cubicTo(-20, size.height * 0.2, size.width * 0.15, size.height * 0.05, size.width * 0.51, size.height * 0.2);
+    path.cubicTo(
+        size.width * 0.65, size.height * 0.25, size.width * 0.85, size.height * 0.25, size.width, size.height * 0.16);
     path.lineTo(size.width, 0);
     path.lineTo(0, 0);
     canvas.drawPath(path, paint);
@@ -335,7 +326,4 @@ class Painter2 extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) {
     return true;
   }
-
-
-
 }

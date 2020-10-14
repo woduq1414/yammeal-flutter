@@ -1,5 +1,6 @@
 import 'dart:convert';
-
+import 'dart:io';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +9,11 @@ import 'package:meal_flutter/UIs/servey_page.dart';
 import 'package:meal_flutter/common/asset_path.dart';
 import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:meal_flutter/login_page.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
 import 'dart:math' as math;
+import '../firebase.dart';
 import 'esteregg.dart';
 import 'meal_calendar.dart';
 import 'package:date_format/date_format.dart';
@@ -18,6 +21,8 @@ import 'package:http/http.dart' as http;
 import "package:meal_flutter/common/font.dart";
 
 import "package:meal_flutter/main.dart";
+
+import 'meal_detail.dart';
 
 GlobalKey _containerKey = GlobalKey();
 FontSize fs;
@@ -60,9 +65,12 @@ class MealUI extends State<MealState> {
   bool _getMealDataSuccess = false;
   var dayList = {};
   bool _iscalled = false;
+  AdMobManager adMob = AdMobManager();
 
   @override
   void initState() {
+    adMob.init();
+
     super.initState();
     getNowMealMenu();
     getSelectedMealMenu();
@@ -81,252 +89,271 @@ class MealUI extends State<MealState> {
     _mealList.map((menu) {
       print(menu);
     });
-    return Scaffold(
-      backgroundColor: Color(0xffFF5454),
-      body: SafeArea(
-          child: Stack(
-        children: <Widget>[
-          Container(
-            child: Stack(
-              children: <Widget>[
-                CustomPaint(painter: CurvePainter1(), size: MediaQuery.of(context).size),
-                CustomPaint(
-                  painter: CurvePainter2(),
-                  size: MediaQuery.of(context).size,
-                )
-              ],
-            ),
-          ),
-          Container(
-//            key: _underMenuKey,
-            child: Stack(
-              children: <Widget>[
-                Container(
-                  child: CustomPaint(
-                    painter: HalfCirclePainter(),
-                    size: MediaQuery.of(context).size,
-                  ),
-                ),
-                Container(
-                  child: CustomPaint(
-                    painter: InnerHalfCirclePainter(),
-                    size: MediaQuery.of(context).size,
-                  ),
-                ),
-                Container(
+    return WillPopScope(
+      onWillPop: () async {
 
-                  child: CustomPaint(
-                    painter: BuchaePainter(),
+//        exit(1);
+
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: Color(0xffFF5454),
+        body: SafeArea(
+            child: Stack(
+          children: <Widget>[
+            Container(
+              child: Stack(
+                children: <Widget>[
+                  CustomPaint(painter: CurvePainter1(), size: MediaQuery.of(context).size),
+                  CustomPaint(
+                    painter: CurvePainter2(),
                     size: MediaQuery.of(context).size,
-                  ),
-                ),
-                AnimatedPositioned(
-                  child: Image.asset(
-                    getEmoji("soup"),
-                    width: _nowTab == 0 ? 70 : 50,
-                  ),
-                  bottom:
-                      _nowTab == 0 ? MediaQuery.of(context).size.height * 0.1 : MediaQuery.of(context).size.height * 0.05,
-                  left: _nowTab == 0
-                      ? MediaQuery.of(context).size.width * 0.5 - 35
-                      : MediaQuery.of(context).size.width * 0.5 - 80,
-                  duration: Duration(milliseconds: 400),
-                  curve: Curves.ease,
-                ),
-                AnimatedPositioned(
-                  child: Image.asset(
-                    getEmoji("calendar"),
-                    width: _nowTab == 0 ? 50 : 70,
-                  ),
-                  bottom:
-                      _nowTab == 0 ? MediaQuery.of(context).size.height * 0.05 : MediaQuery.of(context).size.height * 0.1,
-                  left: _nowTab == 0
-                      ? MediaQuery.of(context).size.width * 0.5 + 30
-                      : MediaQuery.of(context).size.width * 0.5 - 35,
-                  duration: Duration(milliseconds: 400),
-                  curve: Curves.ease,
-                )
-              ],
+                  )
+                ],
+              ),
             ),
-          ),
-          CarouselSlider(
-            options: CarouselOptions(
-                enableInfiniteScroll: false,
-                autoPlay: false,
-                height: MediaQuery.of(context).size.height,
-                viewportFraction: 1,
-                onPageChanged: (index, CarouselPageChangedReason c) {
-                  MealStatus mealStatus = Provider.of<MealStatus>(context);
-                  setState(() {
-                    _nowTab = index;
-                    if (_nowTab == 1 && !_iscalled) {
-                      mealStatus.setDayList(dayList);
-                      setState(() {
-                        _iscalled = true;
-                      });
-                    }
-                  });
-                }),
-            items: <Widget>[
-              FractionallySizedBox(
-                alignment: Alignment.topCenter,
-                heightFactor: 0.8,
-                child: SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
-                  child: Container(
+            Container(
+//            key: _underMenuKey,
+              child: Stack(
+                children: <Widget>[
+                  Container(
+                    child: CustomPaint(
+                      painter: HalfCirclePainter(),
+                      size: MediaQuery.of(context).size,
+                    ),
+                  ),
+                  Container(
+                    child: CustomPaint(
+                      painter: InnerHalfCirclePainter(),
+                      size: MediaQuery.of(context).size,
+                    ),
+                  ),
+                  Container(
+                    child: CustomPaint(
+                      painter: BuchaePainter(),
+                      size: MediaQuery.of(context).size,
+                    ),
+                  ),
+                  AnimatedPositioned(
+                    child: Image.asset(
+                      getEmoji("soup"),
+                      width: _nowTab == 0 ? 70 : 50,
+                    ),
+                    bottom:
+                        _nowTab == 0 ? MediaQuery.of(context).size.height * 0.1 : MediaQuery.of(context).size.height * 0.05,
+                    left: _nowTab == 0
+                        ? MediaQuery.of(context).size.width * 0.5 - 35
+                        : MediaQuery.of(context).size.width * 0.5 - 80,
+                    duration: Duration(milliseconds: 400),
+                    curve: Curves.ease,
+                  ),
+                  AnimatedPositioned(
+                    child: Image.asset(
+                      getEmoji("calendar"),
+                      width: _nowTab == 0 ? 50 : 70,
+                    ),
+                    bottom:
+                        _nowTab == 0 ? MediaQuery.of(context).size.height * 0.05 : MediaQuery.of(context).size.height * 0.1,
+                    left: _nowTab == 0
+                        ? MediaQuery.of(context).size.width * 0.5 + 30
+                        : MediaQuery.of(context).size.width * 0.5 - 35,
+                    duration: Duration(milliseconds: 400),
+                    curve: Curves.ease,
+                  )
+                ],
+              ),
+            ),
+            CarouselSlider(
+              options: CarouselOptions(
+                  enableInfiniteScroll: false,
+                  autoPlay: false,
+                  height: MediaQuery.of(context).size.height,
+                  viewportFraction: 1,
+                  onPageChanged: (index, CarouselPageChangedReason c) {
+                    MealStatus mealStatus = Provider.of<MealStatus>(context);
+                    setState(() {
+                      _nowTab = index;
+                      if (_nowTab == 1 && !_iscalled) {
+                        mealStatus.setDayList(dayList);
+                        setState(() {
+                          _iscalled = true;
+                        });
+                      }
+                    });
+                  }),
+              items: <Widget>[
+                FractionallySizedBox(
+                  alignment: Alignment.topCenter,
+                  heightFactor: 0.8,
+                  child: SingleChildScrollView(
+                    physics: BouncingScrollPhysics(),
+                    child: Container(
 //                    color: Colors.blue,
-                    width: MediaQuery.of(context).size.width,
-                    child: Column(
-                      children: <Widget>[
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.035,
-                        ),
-                        Container(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  GestureDetector(
-                                    onLongPress: () {
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => EasterEgg()));
-                                    },
-                                    child: Image.asset(
+                      width: MediaQuery.of(context).size.width,
+                      child: Column(
+                        children: <Widget>[
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.035,
+                          ),
+                          Container(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    GestureDetector(
+                                      onLongPress: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => EasterEgg()));
+                                      },
+                                      child: Image.asset(
+                                        getEmoji("soup"),
+                                        width: 50,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onDoubleTap: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                                      },
+                                      child: Text('오늘의 메뉴',
+                                          style: TextStyle(fontSize: fs.s3, color: Colors.white, fontWeight: Font.normal)),
+                                    ),
+                                    Image.asset(
                                       getEmoji("soup"),
                                       width: 50,
                                     ),
+                                  ],
+                                ),
+                                Text('점심', style: TextStyle(fontSize: fs.s6, color: Colors.white, fontWeight: Font.normal)),
+                                Text(formatDate(DateTime.now(), [yyyy, '.', mm, '.', dd]),
+                                    style: TextStyle(fontSize: fs.s7, color: Colors.white)),
+                                Container(
+                                  margin: EdgeInsets.only(top: 5),
+                                  width: 200,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Image.asset(
+                                        getEmoji("spice"),
+                                        width: 35,
+                                      ),
+                                      Image.asset(
+                                        getEmoji("cold"),
+                                        width: 35,
+                                      ),
+                                      Image.asset(
+                                        getEmoji("soso"),
+                                        width: 35,
+                                      ),
+                                      Image.asset(
+                                        getEmoji("good"),
+                                        width: 35,
+                                      ),
+                                      Image.asset(
+                                        getEmoji("love"),
+                                        width: 35,
+                                      ),
+                                    ],
                                   ),
-                                  Text('오늘의 메뉴',
-                                      style: TextStyle(fontSize: fs.s3, color: Colors.white, fontWeight: Font.normal)),
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(50),
+                                      boxShadow: [
+                                        new BoxShadow(
+                                          color: Colors.black.withOpacity(0.2),
+                                          offset: Offset(1, 4),
+                                          blurRadius: 3,
+                                          spreadRadius: 1,
+                                        )
+                                      ]),
+                                )
+                              ],
+                            ),
+                          ),
+                          Container(
+                            key: _containerKey,
+                            width: MediaQuery.of(context).size.width,
+//                          height: 500,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: <Widget>[
+                                _getMealDataSuccess
+                                    ? Column(
+                                        children: <Widget>[
+                                              SizedBox(
+                                                height: 15,
+                                              )
+                                            ] +
+                                            _mealList.map<Widget>((menu) {
+                                              //print(_mealList.indexOf(menu));
+                                              print('덩기덕 쿵덕');
+                                              return _buildMealItem(menu, _mealList.indexOf(menu));
+                                            }).toList() +
+                                            <Widget>[
+                                              SizedBox(
+                                                height: 40,
+                                              )
+                                            ],
+                                      )
+                                    : Container(margin: EdgeInsets.all(40), child: CircularProgressIndicator()),
+                                Positioned(
+                                  child: _buildBelowItemInfo(_selectedIndex),
+                                  top: _selectedTop,
+                                ),
+                                Positioned(
+                                  child: _buildUpperItemInfo(_selectedIndex),
+                                  top: _selectedTop - 100,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+//                height : MediaQuery.of(context).size.height,
+                  child: FractionallySizedBox(
+                    heightFactor: 0.8,
+                    alignment: Alignment.topCenter,
+                    child: SingleChildScrollView(
+                      physics: BouncingScrollPhysics(),
+                      child: Container(
+                          width: MediaQuery.of(context).size.width,
+//                  color: Colors.blue,
+//                  height: 150,
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.035,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
                                   Image.asset(
-                                    getEmoji("soup"),
+                                    getEmoji("calendar"),
+                                    width: 50,
+                                  ),
+                                  Text('내 급식표', style: TextStyle(fontSize: fs.s3, color: Colors.white)),
+                                  Image.asset(
+                                    getEmoji("calendar"),
                                     width: 50,
                                   ),
                                 ],
                               ),
-                              Text('점심', style: TextStyle(fontSize: fs.s6, color: Colors.white, fontWeight: Font.normal)),
-                              Text(formatDate(DateTime.now(), [yyyy, '.', mm, '.', dd]),
-                                  style: TextStyle(fontSize: fs.s7, color: Colors.white)),
-                              Container(
-                                margin: EdgeInsets.only(top: 5),
-                                width: 200,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Image.asset(
-                                      getEmoji("spice"),
-                                      width: 35,
-                                    ),
-                                    Image.asset(
-                                      getEmoji("cold"),
-                                      width: 35,
-                                    ),
-                                    Image.asset(
-                                      getEmoji("soso"),
-                                      width: 35,
-                                    ),
-                                    Image.asset(
-                                      getEmoji("good"),
-                                      width: 35,
-                                    ),
-                                    Image.asset(
-                                      getEmoji("love"),
-                                      width: 35,
-                                    ),
-                                  ],
-                                ),
-                                decoration:
-                                    BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(50), boxShadow: [
-                                  new BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
-                                    offset: Offset(1, 4),
-                                    blurRadius: 3,
-                                    spreadRadius: 1,
-                                  )
-                                ]),
-                              )
+                              MealCalState(),
+                              _buildDDayList()
                             ],
-                          ),
-                        ),
-                        Container(
-//                      key: _containerKey,
-                          width: MediaQuery.of(context).size.width,
-//                          height: 500,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: <Widget>[
-                              _getMealDataSuccess
-                                  ? Column(
-                                      children: <Widget>[
-                                            SizedBox(
-                                              height: 15,
-                                            )
-                                          ] +
-                                          _mealList.map<Widget>((menu) {
-                                            //print(_mealList.indexOf(menu));
-                                            print('덩기덕 쿵덕');
-                                            return _buildMealItem(menu, _mealList.indexOf(menu));
-                                          }).toList(),
-                                    )
-                                  : Container(margin: EdgeInsets.all(40), child: CircularProgressIndicator()),
-                              Positioned(
-                                child: _buildBelowItemInfo(_selectedIndex),
-                                top: _selectedTop,
-                              ),
-                              Positioned(
-                                child: _buildUpperItemInfo(_selectedIndex),
-                                top: _selectedTop - 100,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                          )),
                     ),
                   ),
-                ),
-              ),
-              Container(
-//                height : MediaQuery.of(context).size.height,
-                child: FractionallySizedBox(
-                  heightFactor: 0.8,
-                  alignment: Alignment.topCenter,
-                  child: SingleChildScrollView(
-                    physics: BouncingScrollPhysics(),
-                    child: Container(
-                        width: MediaQuery.of(context).size.width,
-//                  color: Colors.blue,
-//                  height: 150,
-                        child: Column(
-                          children: <Widget>[
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.035,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  getEmoji("calendar"),
-                                  width: 50,
-                                ),
-                                Text('내 급식표', style: TextStyle(fontSize: fs.s3, color: Colors.white)),
-                                Image.asset(
-                                  getEmoji("calendar"),
-                                  width: 50,
-                                ),
-                              ],
-                            ),
-                            MealCalState(),
-                            _buildDDayList()
-                          ],
-                        )),
-                  ),
-                ),
-              )
-            ],
-          ),
-        ],
-      )),
+                )
+              ],
+            ),
+          ],
+        )),
+      ),
     );
   }
 
@@ -483,42 +510,47 @@ class MealUI extends State<MealState> {
       ); // 개선 여지 매우 큼.
     return Builder(
       builder: (context) {
-        return Container(
-          margin: EdgeInsets.symmetric(vertical: 2),
-          decoration: BoxDecoration(
-            color :Color(0xffFF5454) ,
-            boxShadow: index % 2 == 0 ?<BoxShadow>[
-
-              BoxShadow(
-                color: Colors.black.withOpacity(0.5),
-                spreadRadius: 0.1,
-                blurRadius: 3,
-                offset: Offset(0, 2), // changes position of shadow
-              ),
-            ] : [],
-          ),
-          child: Row(
-            children: <Widget>[
-              Container(
-                width: MediaQuery.of(context).size.width * 0.18,
-                height: MediaQuery.of(context).size.width * 0.1,
-                child: Center(
-                  child: Text(
-                    'D-${dday == 0 ? 'Day' : dday}',
-                    style: TextStyle(fontSize: 20, color: Colors.white),
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => MealDetailState(dParsed)));
+          },
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 2),
+            decoration: BoxDecoration(
+              color: Color(0xffFF5454),
+              boxShadow: index % 2 == 0
+                  ? <BoxShadow>[
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        spreadRadius: 0.1,
+                        blurRadius: 0.5,
+                        offset: Offset(0, 2), // changes position of shadow
+                      ),
+                    ]
+                  : [],
+            ),
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.18,
+                  height: MediaQuery.of(context).size.width * 0.1,
+                  child: Center(
+                    child: Text(
+                      'D-${dday == 0 ? 'Day' : dday}',
+                      style: TextStyle(fontSize: 20, color: Colors.white),
+                    ),
+                  ),
+                  decoration: BoxDecoration(
+                    color: index % 2 == 0 ? Color(0xffFFBB00) : Color(0xffFF5454),
                   ),
                 ),
-                decoration: BoxDecoration(
-                  color: index % 2 == 0 ? Color(0xffFFBB00) : Color(0xffFF5454),
-                ),
-              ),
-              Flexible(
-                child: Container(
-
-                  margin: EdgeInsets.only(left: fs.s7),
-                    child: Text(menus.join(", "), style: TextStyle(fontSize: fs.s6, color: Colors.white), softWrap: true)),
-              )
-            ],
+                Flexible(
+                  child: Container(
+                      margin: EdgeInsets.only(left: fs.s7),
+                      child: Text(menus.join(", "), style: TextStyle(fontSize: fs.s6, color: Colors.white), softWrap: true)),
+                )
+              ],
+            ),
           ),
         );
       },
@@ -626,7 +658,6 @@ class BuchaePainter extends CustomPainter {
 
     path.arcTo(Rect.fromLTWH(x * 0.34, y * 0.87, x * 0.33, y * 0.2), degToRad(-60), degToRad(-60), true);
     canvas.drawPath(path, paint);
-
   }
 
   num degToRad(num deg) => deg * (math.pi / 180.0);

@@ -101,34 +101,44 @@ class MealDetail extends State<MealDetailState> {
     );
   }
 
+
+
+
   Widget _buildMenuItem(String menu, bool dd, DateTime d, int index) {
     return Builder(
       builder: (context) {
         MealStatus mealStatus = Provider.of<MealStatus>(context);
+
+
+        void toggleFavorite(){
+          if (mealStatus.updateSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), menu)) {
+            postSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
+          } else {
+            print('딜리딜리딜리트');
+            deleteSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
+          }
+        }
+
         return Column(
           children: <Widget>[
             SizedBox(height: 15,),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Container(
-                  width: 40,
-                  height: 40,
-                  child: dd ? Image.asset(getEmoji("meat"), width: 40,) : ColorFiltered(
-                    colorFilter: ColorFilter.mode(Colors.grey[600], BlendMode.modulate),
-                      child: Image.asset(getEmoji("meat"), width: 40,)),
+                GestureDetector(
+                  onTap: () {toggleFavorite();},
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    child: dd ? Image.asset(getEmoji("meat"), width: 40,) : ColorFiltered(
+                      colorFilter: ColorFilter.mode(Colors.grey[600], BlendMode.modulate),
+                        child: Image.asset(getEmoji("meat"), width: 40,)),
+                  ),
                 ),
                 SizedBox(width: 10),
                 Flexible(
                   child: GestureDetector(
-                    onTap: () {
-                      if (mealStatus.updateSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), menu)) {
-                        postSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
-                      } else {
-                        print('딜리딜리딜리트');
-                        deleteSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
-                      }
-                    },
+                    onTap: () {toggleFavorite();},
                     child: Text(menu, style: TextStyle(color: Colors.white, fontSize: 25,  ),textAlign: TextAlign.center,),
                   ),
                 ),

@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:meal_flutter/UIs/meal_detail.dart';
 import 'package:meal_flutter/common/asset_path.dart';
+import 'package:meal_flutter/common/font.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -13,6 +14,9 @@ import '../common/provider/mealProvider.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+
+FontSize fs;
+
 class MealCalState extends StatefulWidget {
   @override
   MealCalendar createState() => MealCalendar();
@@ -45,12 +49,38 @@ class MealCalendar extends State<MealCalState> {
 
   @override
   Widget build(BuildContext context) {
+    fs = FontSize(context);
+
     initializeDateFormatting('ko_KR', null);
-    return TableCalendar(
-      calendarController: _controller,
-      locale: "ko_KR",
-      builders: _calendarBuilders(),
-      headerVisible: false,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        SizedBox(
+          height: 10,
+        ),
+        TableCalendar(
+          calendarController: _controller,
+//          locale: "ko_KR",
+          builders: _calendarBuilders(),
+          headerVisible: true,
+          headerStyle: HeaderStyle(
+            centerHeaderTitle: true,
+            formatButtonVisible: false,
+            titleTextStyle: TextStyle(fontSize: fs.s6, color: Colors.white),
+            leftChevronIcon: Icon(
+              Icons.chevron_left,
+              size: fs.s4,
+              color: Colors.white,
+            ),
+            rightChevronIcon: Icon(
+              Icons.chevron_right,
+              size: fs.s4,
+              color: Colors.white,
+            ),
+            headerMargin: EdgeInsets.only(bottom: 5),
+          ),
+        )
+      ],
     );
   }
 
@@ -109,10 +139,18 @@ class MealCalendar extends State<MealCalState> {
       return Center(
         child: Text(
           date.toString(),
-          style: TextStyle(color: Colors.yellow),
+          style: TextStyle(color: Colors.white),
         ),
       );
-    });
+    }, dowWeekdayBuilder: (context, date) {
+      return Center(
+        child: Text(
+          date.toString(),
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    },
+    );
   }
 
   int randomNum() {
