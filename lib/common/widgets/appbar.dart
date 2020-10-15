@@ -8,14 +8,15 @@ import 'package:provider/provider.dart';
 
 
 class DefaultAppBar extends StatefulWidget implements PreferredSizeWidget {
-  DefaultAppBar({this.onActionButtonPressed, this.title});
+  DefaultAppBar({this.onActionButtonPressed, this.title, this.backgroundColor});
 
   var onActionButtonPressed;
   var title;
+  var backgroundColor;
 
   @override
   _DefaultAppBarState createState() =>
-      _DefaultAppBarState(onActionButtonPressed, title);
+      _DefaultAppBarState(onActionButtonPressed, title, backgroundColor);
 
   @override
   // TODO: implement preferredSize
@@ -27,10 +28,12 @@ class _DefaultAppBarState extends State<DefaultAppBar>
   String value;
   var onActionButtonPressed;
   var title;
+  var backgroundColor;
 
-  _DefaultAppBarState(_onActionButtonPressed, _title) {
+  _DefaultAppBarState(_onActionButtonPressed, _title, _backgroundColor) {
     onActionButtonPressed = _onActionButtonPressed;
     title = _title;
+    backgroundColor = _backgroundColor;
   }
 
   int result = 0;
@@ -48,7 +51,7 @@ class _DefaultAppBarState extends State<DefaultAppBar>
       // the App.build method, and use it to set our appbar title.
 
 
-      backgroundColor: navColor,
+      backgroundColor: backgroundColor != null ? backgroundColor : navColor,
 
       centerTitle: true,
       title: _buildDefaultAppBarTitle(),

@@ -26,6 +26,11 @@ Color cardColor = Color(0xFFF3F3F3);
 Color primaryRed = Color(0xFFFF5454);
 Color primaryYellow = Color(0xffFFBB00);
 
+
+Color primaryYellowDark = Color(0xffffa600);
+
+
+
 Color primaryRedDark = Color(0xFFFF4600);
 
 Color kakaoColor = Color(0xFFFFD814);

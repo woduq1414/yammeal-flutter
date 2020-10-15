@@ -304,6 +304,9 @@ class UserStatus with ChangeNotifier {
 
 
   Future<bool> registerWithKakao() async {
+
+    setIsLoading(true);
+
     var code;
     if (_isKakaoTalkInstalled == true) {
       code = await AuthCodeClient.instance.requestWithTalk();
@@ -312,7 +315,7 @@ class UserStatus with ChangeNotifier {
     }
 
     var token = await _issueAccessToken(code);
-
+    setIsLoading(false);
 
     var param = {
       "nickname": inputData["nickname"],

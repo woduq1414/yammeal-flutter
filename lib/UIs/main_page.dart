@@ -114,19 +114,27 @@ class MealUI extends State<MealState> {
 
   var tabList = ["soup", "calendar", "soso"];
 
+  var _bannerAd;
+
   @override
   void initState() {
 //    adMob.init();
-//    var _bannerAd = adMob.createBannerAd();
-//    _bannerAd
-//      ..load().then((loaded) {
-//        if (loaded && this.mounted) {
-//          _bannerAd..show();
-//        }
-//      });
+    _bannerAd = adMob.createBannerAd();
+    _bannerAd
+      ..load().then((loaded) {
+        if (loaded && this.mounted) {
+          _bannerAd..show();
+        }
+      });
     super.initState();
     getNowMealMenu();
     getSelectedMealMenu();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
   }
 
   double degreeToRadian(double f) {

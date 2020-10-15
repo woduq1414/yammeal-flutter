@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:date_format/date_format.dart';
 import 'package:meal_flutter/common/asset_path.dart';
+import 'package:meal_flutter/common/color.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:meal_flutter/common/widgets/appbar.dart';
 import 'package:speech_bubble/speech_bubble.dart';
 import 'package:http/http.dart' as http;
 import '../common/provider/mealProvider.dart';
@@ -54,6 +56,7 @@ class MealDetail extends State<MealDetailState> {
         return true;
       },
       child: Scaffold(
+        appBar: DefaultAppBar(backgroundColor: primaryYellowDark, title: "급식표",),
         backgroundColor: Color(0xffFFBB00),
         body: _buildBody(d),
       ),
@@ -71,7 +74,7 @@ class MealDetail extends State<MealDetailState> {
             //crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               SizedBox(
-                height: 70,
+                height: 30,
               ),
               Center(
                 child: Text(
