@@ -395,14 +395,7 @@ class MealUI extends State<MealState> {
                                             ],
                                       )
                                     : Container(margin: EdgeInsets.all(40), child: CircularProgressIndicator()),
-                                Positioned(
-                                  child: _buildBelowItemInfo(_selectedIndex),
-                                  top: _selectedTop,
-                                ),
-                                Positioned(
-                                  child: _buildUpperItemInfo(_selectedIndex),
-                                  top: _selectedTop - 100,
-                                ),
+
                               ],
                             ),
                           ),

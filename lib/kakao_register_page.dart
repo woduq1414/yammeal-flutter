@@ -247,8 +247,8 @@ class _KakaoRegisterPageState extends State<KakaoRegisterPage> {
 
                       bool registerResult = await userStatus.registerWithKakao();
                       if(registerResult == true){
-                        var loginResult = await
-                        userStatus.login(_idController.text, _pwController.text);
+                        print("!!!!!!!!!!!!11");
+                        bool loginResult = await userStatus.loginWithKakao();
 
 //                        if(loginResult == true){
 //                          goMainPage();

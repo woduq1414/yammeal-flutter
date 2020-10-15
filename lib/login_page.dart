@@ -18,8 +18,12 @@ import './kakao_register_page.dart';
 import 'UIs/main_page.dart';
 import 'common/color.dart';
 
+import 'common/font.dart';
+
 import 'firebase.dart';
 import 'test_page.dart';
+
+FontSize fs;
 
 class LoginPage extends StatefulWidget {
   @override
@@ -68,6 +72,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     UserStatus userStatus = Provider.of<UserStatus>(context);
 
+    fs = FontSize(context);
+
     return LoadingModal(
       child: Scaffold(
           backgroundColor: Colors.white,
@@ -83,16 +89,16 @@ class _LoginPageState extends State<LoginPage> {
                     Container(
                       margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.2),
                       child: Text(
-                        '오늘 뭐먹지?',
+                        "배고파급식먹자",
                         style: TextStyle(
-                          fontSize: 30,
+                          fontSize: fs.s2,
                         ),
                       ),
                     ),
                     Container(
                       //margin: EdgeInsets.only(bottom: 120),
                       child: Image.asset(
-                        'assets/yam_logo.jpg',
+                        'assets/yam_logo.png',
                         width: 150,
                       ),
                     ),
