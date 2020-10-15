@@ -25,7 +25,13 @@ class MealCalState extends StatefulWidget {
 class MealCalendar extends State<MealCalState> {
   CalendarController _controller;
 
-  final List<String> emojiList = ['cold', 'good', 'spice', 'umji', 'love']; // 랜덤 돌리려 만들어둔거, 삭제될 예정.
+  final List<String> emojiList = [
+    'cold',
+    'good',
+    'spice',
+    'umji',
+    'love'
+  ]; // 랜덤 돌리려 만들어둔거, 삭제될 예정.
   var dayList = {};
 
   @override
@@ -87,69 +93,84 @@ class MealCalendar extends State<MealCalState> {
   CalendarBuilders _calendarBuilders() {
     MealStatus mealStatus = Provider.of<MealStatus>(context);
 
-    return CalendarBuilders(selectedDayBuilder: (context, date, _) {
-      return Container(child: Image.asset(getEmoji(emojiList[randomNum()]), width: 50));
-    }, todayDayBuilder: (context, date, _) {
-      return Container(
-        child: Stack(
-          children: <Widget>[Image.asset(getEmoji(emojiList[randomNum()]), width: 50)],
-        ),
-        decoration: BoxDecoration(
-          color: Colors.red,
-        ),
-      );
-    }, dayBuilder: (_context, date, _) {
-      return GestureDetector(
-        onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => MealDetailState(date)));
-        },
-        child: Container(
-          child: Column(
+    return CalendarBuilders(
+      selectedDayBuilder: (context, date, _) {
+        return Container(
+            child: Image.asset(getEmoji(emojiList[randomNum()]), width: 50));
+      },
+      todayDayBuilder: (context, date, _) {
+        return Container(
+          child: Stack(
             children: <Widget>[
-              Text(date.day.toString()),
-              Image.asset(
-                DateTime.now().difference(date).inMilliseconds <= 0
-                    ? (!mealStatus.dayList.containsKey(formatDate(date, ['yyyy', '', 'mm', '', 'dd']))
-                        ? getEmoji("dishes")
-                        : getEmoji("selected"))
-                    : getEmoji(emojiList[randomNum()]),
-                width: 35,
-              ),
+              Image.asset(getEmoji(emojiList[randomNum()]), width: 50)
             ],
           ),
-        ),
-      );
-    }, outsideDayBuilder: (context, date, _) {
-      return Container(
-          child: Center(
-        child: Text(
-          date.day.toString(),
-          style: TextStyle(color: Colors.grey),
-        ),
-      ));
-    }, outsideWeekendDayBuilder: (context, date, _) {
-      return Container(
-          child: Center(
-        child: Text(
-          date.day.toString(),
-          style: TextStyle(color: Colors.grey),
-        ),
-      ));
-    }, dowWeekendBuilder: (context, date) {
-      return Center(
-        child: Text(
-          date.toString(),
-          style: TextStyle(color: Colors.white),
-        ),
-      );
-    }, dowWeekdayBuilder: (context, date) {
-      return Center(
-        child: Text(
-          date.toString(),
-          style: TextStyle(color: Colors.white),
-        ),
-      );
-    },
+          decoration: BoxDecoration(
+            color: Colors.red,
+          ),
+        );
+      },
+      dayBuilder: (_context, date, _) {
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => MealDetailState(date)));
+          },
+          child: Container(
+            child: Column(
+              children: <Widget>[
+                Text(date.day.toString()),
+                DateTime.now().difference(date).inMilliseconds <= 0
+                    ? (!mealStatus.dayList.containsKey(
+                            formatDate(date, ['yyyy', '', 'mm', '', 'dd']))
+                        ? Image.asset(
+                            getEmoji("dishes"),
+                            width: 35,
+                          )
+                        : Image.asset(getEmoji("selected"), width: 35))
+                    : ColorFiltered(
+                        colorFilter: ColorFilter.mode(
+                            Colors.grey[400], BlendMode.modulate),
+                        child: Image.asset(getEmoji("dishes"), width: 35))
+              ],
+            ),
+          ),
+        );
+      },
+      outsideDayBuilder: (context, date, _) {
+        return Container(
+            child: Center(
+          child: Text(
+            date.day.toString(),
+            style: TextStyle(color: Colors.grey),
+          ),
+        ));
+      },
+      outsideWeekendDayBuilder: (context, date, _) {
+        return Container(
+            child: Center(
+          child: Text(
+            date.day.toString(),
+            style: TextStyle(color: Colors.grey),
+          ),
+        ));
+      },
+      dowWeekendBuilder: (context, date) {
+        return Center(
+          child: Text(
+            date.toString(),
+            style: TextStyle(color: Colors.white),
+          ),
+        );
+      },
+      dowWeekdayBuilder: (context, date) {
+        return Center(
+          child: Text(
+            date.toString(),
+            style: TextStyle(color: Colors.white),
+          ),
+        );
+      },
     );
   }
 

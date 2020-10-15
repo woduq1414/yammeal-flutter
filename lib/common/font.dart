@@ -19,6 +19,7 @@ import 'package:http/http.dart' as http;
 class FontSize{
   BuildContext context;
   double deviceWidth;
+  double deviceHeight;
 
   double s1;
   double s2;
@@ -33,6 +34,7 @@ class FontSize{
   FontSize(_context){
     context = _context;
     deviceWidth = MediaQuery.of(context).size.width;
+    deviceHeight = MediaQuery.of(context).size.height;
     s1 = deviceWidth * 0.1;
     s2 = deviceWidth * 0.09;
     s3 = deviceWidth * 0.08;
@@ -41,12 +43,14 @@ class FontSize{
     s6 = deviceWidth * 0.05;
     s7 = deviceWidth * 0.04;
     s8 = deviceWidth * 0.035;
-
-
   }
 
   double getWidthRatioSize(double ratio){
     return deviceWidth * ratio;
+  }
+
+  double getHeightRatioSize(double ratio) {
+    return deviceHeight * ratio;
   }
 
 }

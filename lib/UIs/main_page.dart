@@ -110,6 +110,7 @@ class MealUI extends State<MealState> {
   bool _iscalled = false;
   AdMobManager adMob = AdMobManager();
   CarouselController btnController = CarouselController();
+  bool _bubbleOpened = false;
 
   var tabList = ["soup", "calendar", "soso"];
 
@@ -326,46 +327,46 @@ class MealUI extends State<MealState> {
                                 Text('점심', style: TextStyle(fontSize: fs.s6, color: Colors.white, fontWeight: Font.normal)),
                                 Text(formatDate(DateTime.now(), [yyyy, '.', mm, '.', dd]),
                                     style: TextStyle(fontSize: fs.s7, color: Colors.white)),
-                                Container(
-                                  margin: EdgeInsets.only(top: 5),
-                                  width: 200,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Image.asset(
-                                        getEmoji("spice"),
-                                        width: 35,
-                                      ),
-                                      Image.asset(
-                                        getEmoji("cold"),
-                                        width: 35,
-                                      ),
-                                      Image.asset(
-                                        getEmoji("soso"),
-                                        width: 35,
-                                      ),
-                                      Image.asset(
-                                        getEmoji("good"),
-                                        width: 35,
-                                      ),
-                                      Image.asset(
-                                        getEmoji("love"),
-                                        width: 35,
-                                      ),
-                                    ],
-                                  ),
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(50),
-                                      boxShadow: [
-                                        new BoxShadow(
-                                          color: Colors.black.withOpacity(0.2),
-                                          offset: Offset(1, 4),
-                                          blurRadius: 3,
-                                          spreadRadius: 1,
-                                        )
-                                      ]),
-                                )
+                                // Container(
+                                //   margin: EdgeInsets.only(top: 5),
+                                //   width: 200,
+                                //   child: Row(
+                                //     mainAxisAlignment: MainAxisAlignment.center,
+                                //     children: <Widget>[
+                                //       Image.asset(
+                                //         getEmoji("spice"),
+                                //         width: 35,
+                                //       ),
+                                //       Image.asset(
+                                //         getEmoji("cold"),
+                                //         width: 35,
+                                //       ),
+                                //       Image.asset(
+                                //         getEmoji("soso"),
+                                //         width: 35,
+                                //       ),
+                                //       Image.asset(
+                                //         getEmoji("good"),
+                                //         width: 35,
+                                //       ),
+                                //       Image.asset(
+                                //         getEmoji("love"),
+                                //         width: 35,
+                                //       ),
+                                //     ],
+                                //   ),
+                                //   decoration: BoxDecoration(
+                                //       color: Colors.white,
+                                //       borderRadius: BorderRadius.circular(50),
+                                //       boxShadow: [
+                                //         new BoxShadow(
+                                //           color: Colors.black.withOpacity(0.2),
+                                //           offset: Offset(1, 4),
+                                //           blurRadius: 3,
+                                //           spreadRadius: 1,
+                                //         )
+                                //       ]),
+                                // )
                               ],
                             ),
                           ),
@@ -374,30 +375,51 @@ class MealUI extends State<MealState> {
                             width: MediaQuery.of(context).size.width,
 //                          height: 500,
                             child: Stack(
-                              alignment: Alignment.center,
-                              children: <Widget>[
-                                _getMealDataSuccess
-                                    ? Column(
-                                        children: <Widget>[
-                                              SizedBox(
-                                                height: 15,
-                                              )
-                                            ] +
-                                            _mealList.map<Widget>((menu) {
-                                              //print(_mealList.indexOf(menu));
-                                              print('덩기덕 쿵덕');
-                                              return _buildMealItem(menu, _mealList.indexOf(menu));
-                                            }).toList() +
-                                            <Widget>[
-                                              SizedBox(
-                                                height: 40,
-                                              )
-                                            ],
-                                      )
-                                    : Container(margin: EdgeInsets.all(40), child: CircularProgressIndicator()),
-
-                              ],
-                            ),
+                                  alignment: Alignment.center,
+                                  children: <Widget>[
+                                    _getMealDataSuccess
+                                        ? Column(
+                                      children: <Widget>[
+                                        SizedBox(
+                                          height: fs.getWidthRatioSize(0.15),
+                                        )
+                                      ] +
+                                          _mealList.map<Widget>((menu) {
+                                            print('덩기덕 쿵덕');
+                                            return _buildMealItem(menu, _mealList.indexOf(menu));
+                                          }).toList() +
+                                          <Widget>[
+                                            SizedBox(
+                                              height: fs.getWidthRatioSize(0.15),
+                                            )
+                                          ],
+                                    )
+                                        : Container(margin: EdgeInsets.all(40), child: CircularProgressIndicator()),
+                                    Positioned(
+                                      child: _buildBelowItemInfo(_selectedIndex),
+                                      top: _selectedTop,
+                                    ),
+                                    Positioned(
+                                      child: _buildUpperItemInfo(_selectedIndex),
+                                      top: _selectedTop - 100,
+                                    ),
+                                     _bubbleOpened ? GestureDetector(
+                                       onTap: () {
+                                         setState(() {
+                                           _bubbleOpened = false;
+                                           _openInfo = false;
+                                         });
+                                       },
+                                       child: Container(
+                                         width: fs.getWidthRatioSize(1),
+                                         height: fs.getHeightRatioSize(0.6),
+                                         decoration: BoxDecoration(
+                                             color: Colors.transparent
+                                         ),
+                                       ),
+                                     ) : Container(width: 0, height: 0,)
+                                  ],
+                                ),
                           ),
                         ],
                       ),
@@ -482,6 +504,7 @@ class MealUI extends State<MealState> {
                   _openInfo = true;
                   _selectedTop = getWidgetPos(_key).dy - getWidgetPos(_containerKey).dy + 47;
                   _selectedIndex = index;
+                  _bubbleOpened = true;
                 });
                 print('keypressStart');
               },
@@ -512,7 +535,7 @@ class MealUI extends State<MealState> {
     return AnimatedOpacity(
       child: AnimatedContainer(
         duration: Duration(milliseconds: 200),
-        height: _openInfo ? 50 : 0,
+        height: _openInfo ? MediaQuery.of(context).size.height*0.06 : 0,
         decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(50), boxShadow: [
           new BoxShadow(
             color: Colors.black.withOpacity(0.2),
@@ -522,7 +545,7 @@ class MealUI extends State<MealState> {
           )
         ]),
         child: SpeechBubble(
-            height: _openInfo ? 50 : 0,
+            height: _openInfo ? MediaQuery.of(context).size.height*0.06 : 0,
             nipLocation: NipLocation.TOP,
             color: primaryYellow,
             borderRadius: 50,
@@ -546,7 +569,7 @@ class MealUI extends State<MealState> {
     return AnimatedOpacity(
       child: AnimatedContainer(
         duration: Duration(milliseconds: 200),
-        height: _openInfo ? 50 : 0,
+        height: _openInfo ? MediaQuery.of(context).size.height*0.06 : 0,
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(50), boxShadow: [
           new BoxShadow(
             color: Colors.black.withOpacity(0.2),
@@ -556,7 +579,7 @@ class MealUI extends State<MealState> {
           )
         ]),
         child: SpeechBubble(
-          height: _openInfo ? 50 : 0,
+          height: _openInfo ? MediaQuery.of(context).size.height*0.06 : 0,
           nipLocation: NipLocation.BOTTOM,
           color: Colors.white,
           borderRadius: 50,
@@ -778,6 +801,7 @@ class BuchaePainter extends CustomPainter {
     //path.lineTo(, y);
 
     path.arcTo(Rect.fromLTWH(x * 0.34, y * 0.87, x * 0.33, y * 0.2), degToRad(-60), degToRad(-60), true);
+    canvas.drawShadow(path.shift(Offset(0, 10)), Colors.black, 2.0, true);
     canvas.drawPath(path, paint);
   }
 
