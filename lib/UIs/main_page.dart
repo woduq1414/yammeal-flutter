@@ -801,7 +801,6 @@ class BuchaePainter extends CustomPainter {
     //path.lineTo(, y);
 
     path.arcTo(Rect.fromLTWH(x * 0.34, y * 0.87, x * 0.33, y * 0.2), degToRad(-60), degToRad(-60), true);
-    canvas.drawShadow(path.shift(Offset(0, 10)), Colors.black, 2.0, true);
     canvas.drawPath(path, paint);
   }
 
