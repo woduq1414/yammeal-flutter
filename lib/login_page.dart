@@ -139,6 +139,7 @@ class _LoginPageState extends State<LoginPage> {
                   inputFormatters: [
                     LengthLimitingTextInputFormatter(40),
                   ],
+                  obscureText: true,
                   decoration: InputDecoration(
                     hintText: '비밀번호',
                     fillColor: Colors.white,
@@ -214,10 +215,13 @@ class _LoginPageState extends State<LoginPage> {
                       UserStatus userStatus = Provider.of<UserStatus>(context);
                       userStatus.setIsKakao(true);
 //                  goKakaoRegisterPage();
-                      userStatus.setIsLoading(true);
+//                      userStatus.setIsLoading(true);
                       bool loginResult = await userStatus.loginWithKakao();
                       print(loginResult);
-                      userStatus.setIsLoading(false);
+//                      userStatus.setIsLoading(false);
+
+
+
                       if (loginResult == true) {
 //                      userStatus.loginWithKakao();
                         print('성공');

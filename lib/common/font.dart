@@ -45,6 +45,10 @@ class FontSize{
 
   }
 
+  double getWidthRatioSize(double ratio){
+    return deviceWidth * ratio;
+  }
+
 }
 
 class Font {

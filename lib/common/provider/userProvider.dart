@@ -83,6 +83,8 @@ class UserStatus with ChangeNotifier {
   bool isSchoolCodeVerified = false;
   List<dynamic> schoolSearchList = [];
 
+  bool isSearchingSchool = false;
+
   bool isKakao = false;
 
   void setIsKakao(value) {
@@ -124,6 +126,12 @@ class UserStatus with ChangeNotifier {
     isLoading = value;
     notifyListeners();
   }
+
+  void setIsSearchingSchool(value) {
+    isSearchingSchool = value;
+    notifyListeners();
+  }
+
 
 
   Future<dynamic> GET({String url}) async {
@@ -199,10 +207,15 @@ class UserStatus with ChangeNotifier {
   }
 
   Future<dynamic> searchSchoolName(search) async {
+
+    setIsSearchingSchool(true);
+
+
     final res = await GET(
       url:
       "${Host.address}/schools?schoolName=${search}",
     );
+    setIsSearchingSchool(false);
 
     if (res.statusCode == 200) {
       print("success");
@@ -219,6 +232,9 @@ class UserStatus with ChangeNotifier {
       print(res.body);
       return null;
     }
+
+
+
   }
 
 

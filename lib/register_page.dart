@@ -230,7 +230,7 @@ class NameRegisterPage extends StatelessWidget {
                       ),
                       decoration: InputDecoration(
 //                        border: InputBorder.none,
-                        hintText: "다른 사람들에게 보여요",
+                        hintText: "다른 사람들에게 공개돼요",
                         contentPadding: EdgeInsets.fromLTRB(0, 10.0, 0, 8.0),
 
                         helperText: "한글 또는 영문 또는 숫자로 이루어진 2~10자",
@@ -481,38 +481,40 @@ class SchoolInfoRegisterPage extends StatelessWidget {
                                                     Flexible(child: Builder(
                                                       builder: (context) {
                                                         UserStatus userStatus = Provider.of<UserStatus>(context);
-                                                        return ListView(
+                                                        return !userStatus.isSearchingSchool ? ListView(
                                                             children: userStatus.schoolSearchList.map((school) {
-                                                          return Material(
-                                                              child: InkWell(
-                                                                  onTap: () {
-                                                                    userStatus.setInputData(
-                                                                        "schoolName", school["schoolName"]);
-                                                                    userStatus.setInputData("schoolId", school["schoolId"]);
-                                                                    Navigator.pop(context);
-                                                                  },
-                                                                  child: Container(
-                                                                    height: 70,
-                                                                    child: Container(
-                                                                      padding: EdgeInsets.all(5),
-                                                                      child: Column(
-                                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                                        children: <Widget>[
-                                                                          Text(
-                                                                            school["schoolName"],
-                                                                            style: TextStyle(
-                                                                                fontSize: 18, fontWeight: FontWeight.bold),
+                                                              return Material(
+                                                                  child: InkWell(
+                                                                      onTap: () {
+                                                                        userStatus.setInputData(
+                                                                            "schoolName", school["schoolName"]);
+                                                                        userStatus.setInputData("schoolId", school["schoolId"]);
+                                                                        Navigator.pop(context);
+                                                                      },
+                                                                      child: Container(
+                                                                        height: 70,
+                                                                        child: Container(
+                                                                          padding: EdgeInsets.all(5),
+                                                                          child: Column(
+                                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                                            children: <Widget>[
+                                                                              Text(
+                                                                                school["schoolName"],
+                                                                                style: TextStyle(
+                                                                                    fontSize: 18, fontWeight: FontWeight.bold),
+                                                                              ),
+                                                                              SizedBox(height: 10),
+                                                                              Text(school["schoolAddress"],
+                                                                                  style: TextStyle(
+                                                                                    fontSize: 14,
+                                                                                  ))
+                                                                            ],
                                                                           ),
-                                                                          SizedBox(height: 10),
-                                                                          Text(school["schoolAddress"],
-                                                                              style: TextStyle(
-                                                                                fontSize: 14,
-                                                                              ))
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                  )));
-                                                        }).toList());
+                                                                        ),
+                                                                      )));
+                                                            }).toList()) : Container(
+                                                            margin: EdgeInsets.only(top : 20),
+                                                            child: CircularProgressIndicator());
                                                       },
                                                     ))
                                                   ],

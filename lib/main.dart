@@ -19,6 +19,7 @@ import 'common/route_transition.dart';
 import 'login_page.dart';
 import 'first_page.dart';
 import 'kakao_register_page.dart';
+import 'package:flutter/services.dart';
 
 
 
@@ -38,7 +39,7 @@ class KakaoLoginTest extends StatelessWidget {
 //    var storage = FlutterSecureStorage();
 //    String token = await storage.read(key: "token");
 
-
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return MultiProvider(
 
 

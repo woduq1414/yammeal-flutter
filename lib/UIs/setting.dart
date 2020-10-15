@@ -18,7 +18,7 @@ class _SettingState extends State<Setting> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text('불쌍한 고딩 개발자들을 위해\n 아래 광고 한번 눌러주십쇼...', style: TextStyle(fontSize: fs.s4),),
+          Text('불쌍한 정재엽을 위해\n 아래 광고 한번 눌러주십쇼...', style: TextStyle(fontSize: fs.s4),),
           Text('↓', style: TextStyle(fontSize: 200),)
         ],
       ),
