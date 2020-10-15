@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:meal_flutter/UIs/login_UI.dart';
+import 'package:meal_flutter/UIs/main_page.dart';
 
 import 'common/provider/userProvider.dart';
 
@@ -153,6 +155,7 @@ class PwRegisterPage extends StatelessWidget {
                     onChanged: (value) {
                       userStatus.setInputData("password", value);
                     },
+                    obscureText: true,
                     controller: _controller,
                     style: TextStyle(
                       fontSize: 25,
@@ -455,28 +458,50 @@ class SchoolInfoRegisterPage extends StatelessWidget {
                                                 width: 100000,
                                                 child: Column(
                                                   children: <Widget>[
-                                                    TextField(
-                                                      autofocus: true,
-                                                      onChanged: (value) {
-                                                        userStatus.setInputData("schoolName", value);
-                                                      },
-                                                      onSubmitted: (value) async {
-                                                        var searchResult = await userStatus.searchSchoolName(value);
-                                                      },
-                                                      controller: _controller,
-                                                      style: TextStyle(
-                                                        fontSize: 18,
-                                                      ),
-                                                      textInputAction: TextInputAction.search,
-                                                      decoration: InputDecoration(
-//                        border: InputBorder.none,
-                                                        hintText: "학교 이름",
-                                                        contentPadding: EdgeInsets.fromLTRB(0, 10.0, 0, 8.0),
+                                                    Row(
+                                                      children:[Flexible(
+                                                        child: TextField(
+                                                          autofocus: true,
+                                                          onChanged: (value) {
+                                                            userStatus.setInputData("schoolName", value);
+                                                          },
+                                                          onSubmitted: (value) async {
+                                                            var searchResult = await userStatus.searchSchoolName(value);
 
-                                                        hintStyle: TextStyle(
-                                                          fontSize: 18,
+                                                          },
+                                                          controller: _controller,
+                                                          style: TextStyle(
+                                                            fontSize: 18,
+                                                          ),
+                                                          textInputAction: TextInputAction.search,
+                                                          decoration: InputDecoration(
+//                        border: InputBorder.none,
+                                                            hintText: "학교 이름",
+                                                            contentPadding: EdgeInsets.fromLTRB(0, 10.0, 0, 8.0),
+
+                                                            hintStyle: TextStyle(
+                                                              fontSize: 18,
+                                                            ),
+                                                          ),
                                                         ),
-                                                      ),
+                                                      ), Material(
+                                                        borderRadius : BorderRadius.all(Radius.circular(500)),
+                                                        color: Colors.grey[200],
+                                                        child: InkWell(
+                                                          borderRadius : BorderRadius.all(Radius.circular(500)),
+                                                          onTap: () async {
+                                                            var searchResult = await userStatus.searchSchoolName(_controller.text);
+                                                          },
+                                                          child: Container(
+                                                              padding: EdgeInsets.all(5),
+                                                              decoration : BoxDecoration(
+                                                                  borderRadius : BorderRadius.all(Radius.circular(500)),
+
+                                                              ),
+
+                                                              child: Icon(Icons.search)),
+                                                        ),
+                                                      )],
                                                     ),
                                                     Flexible(child: Builder(
                                                       builder: (context) {
@@ -639,13 +664,23 @@ class SchoolInfoRegisterPage extends StatelessWidget {
                                 bool registerResult = await userStatus.registerWithKakao();
                                 if(registerResult){
                                   bool loginResult = await userStatus.loginWithKakao();
-                                  Navigator.of(context).popUntil((route) => route.isFirst);
+                                  if(loginResult) {
+                                    print("!!!!!!!!!!!!1");
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => MealState()));
+                                  }else{
+                                    Navigator.of(context).popUntil((route) => route.isFirst);
+                                  }
                                 }
                               }else{
                                 bool registerResult = await userStatus.registerDefault();
                                 if(registerResult){
-                                  bool loginREsult = await userStatus.loginDefault(userStatus.inputData["id"], userStatus.inputData["password"]);
-                                  Navigator.of(context).popUntil((route) => route.isFirst);
+                                  bool loginResult = await userStatus.loginDefault(userStatus.inputData["id"], userStatus.inputData["password"]);
+                                  if(loginResult) {
+                                    print("!!!!!!!!!!!!1");
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => MealState()));
+                                  }else{
+                                    Navigator.of(context).popUntil((route) => route.isFirst);
+                                  }
                                 }
                               }
 

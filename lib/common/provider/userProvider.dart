@@ -230,6 +230,8 @@ class UserStatus with ChangeNotifier {
     } else {
       print("failed");
       print(res.body);
+      schoolSearchList = [];
+      notifyListeners();
       return null;
     }
 
