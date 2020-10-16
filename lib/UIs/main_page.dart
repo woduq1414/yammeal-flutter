@@ -122,7 +122,7 @@ class MealUI extends State<MealState> {
 
   int _count = 1;
 
-
+  List<int> _ratingStarList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
   @override
   void initState() {
@@ -137,7 +137,55 @@ class MealUI extends State<MealState> {
     super.initState();
     getNowMealMenu();
     getSelectedMealMenu();
+
+    getMyRatedStar();
+
   }
+
+
+  Future getMyRatedStar() async{
+    http.Response res =
+    await http.get('http://meal-backend.herokuapp.com/api/meals/rating/star/my?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}', headers: {
+      "Authorization": await getToken(),
+    });
+    print(res.statusCode);
+    if (res.statusCode == 200) {
+      print(jsonDecode(res.body));
+      var jsonBody = jsonDecode(res.body)["data"];
+      for(var rating in jsonBody){
+        setState(() {
+          _ratingStarList[rating["menuSeq"]] = rating["star"];
+        });
+      }
+      return;
+    } else {
+      return;
+    }
+  }
+
+  Future rateStar(int menuSeq, int star) async{
+//    print(date);
+    http.Response res = await http.post('http://meal-backend.herokuapp.com/api/meals/rating/star',
+        body: jsonEncode(
+          {"menuDate": formatDate(DateTime.now(), [yyyy, '', mm, '', dd]), "menus" : [
+            {"menuSeq" : menuSeq,
+            "star" : star}
+          ]},
+        ),
+        headers: {"Authorization": await getToken(), "Content-Type": "application/json "});
+    print('포스트');
+    print(res.statusCode);
+    if (res.statusCode == 200) {
+      print('포스트 성공');
+
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
+
 
   @override
   void dispose() {
@@ -164,19 +212,19 @@ class MealUI extends State<MealState> {
     });
     return WillPopScope(
       onWillPop: () async {
-        showCustomDialog(context: context,
-          title : "앱을 종료할까요?",
+        showCustomDialog(
+            context: context,
+            title: "앱을 종료할까요?",
 //          content : null,
-          cancelButtonText: "취소",
-          confirmButtonText: "나가기",
-          cancelButtonAction: () {
-            Navigator.pop(context);
-          },
-          confirmButtonAction:  () {
-            Navigator.pop(context);
-            exit(1);
-          }
-        );
+            cancelButtonText: "취소",
+            confirmButtonText: "나가기",
+            cancelButtonAction: () {
+              Navigator.pop(context);
+            },
+            confirmButtonAction: () {
+              Navigator.pop(context);
+              exit(1);
+            });
 
         return true;
       },
@@ -345,11 +393,8 @@ class MealUI extends State<MealState> {
 //                                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
 //                                      },
                                       child: Text('오늘의 메뉴',
-                                          style: TextStyle(fontSize: fs.s3, color: Colors.white, shadows: [Shadow(
-                                              offset: Offset(0, 4.0),
-                                              blurRadius: 10.0,
-                                              color: Colors.black38
-                                          ),
+                                          style: TextStyle(fontSize: fs.s3, color: Colors.white, shadows: [
+                                            Shadow(offset: Offset(0, 4.0), blurRadius: 10.0, color: Colors.black38),
                                           ])),
                                     ),
                                     SizedBox(width: 5),
@@ -359,7 +404,7 @@ class MealUI extends State<MealState> {
                                     ),
                                   ],
                                 ),
-                                SizedBox(height : 8),
+                                SizedBox(height: 8),
                                 Text('점심', style: TextStyle(fontSize: fs.s6, color: Colors.white, fontWeight: Font.normal)),
                                 Text(formatDate(DateTime.now(), [yyyy, '.', mm, '.', dd]),
                                     style: TextStyle(fontSize: fs.s7, color: Colors.white)),
@@ -411,53 +456,54 @@ class MealUI extends State<MealState> {
                             width: MediaQuery.of(context).size.width,
 //                          height: 500,
                             child: Stack(
-                                  alignment: Alignment.topCenter,
-                                  children: <Widget>[
-                                    _getMealDataSuccess
-                                        ? Column(
-                                      children: <Widget>[
-                                        SizedBox(
-                                          height: fs.getWidthRatioSize(0.15),
-                                        )
-                                      ] +
-                                          (_mealList).map<Widget>((menu) {
-                                            print('덩기덕 쿵덕');
-                                            return _buildMealItem(menu, _mealList.indexOf(menu));
-                                          }).toList() +
-                                          <Widget>[
-                                            SizedBox(
-                                              height: fs.getWidthRatioSize(0.15),
-                                            )
-                                          ],
-                                    )
-                                        : Container(margin: EdgeInsets.all(40), child: CircularProgressIndicator()),
-
-                                     _bubbleOpened ? GestureDetector(
-                                       onTap: () {
-                                         setState(() {
-                                           _bubbleOpened = false;
-                                           _openInfo = false;
-                                         });
-                                       },
-                                       child: Container(
-                                         width: fs.getWidthRatioSize(1),
-                                         height: fs.getHeightRatioSize(0.6),
-                                         decoration: BoxDecoration(
-                                             color: Colors.transparent
-                                         ),
-                                       ),
-                                     ) : Container(width: 0, height: 0,),
-
-                                    Positioned(
-                                      child: _buildBelowItemInfo(_selectedIndex),
-                                      top: _selectedTop + 5,
-                                    ),
-                                    Positioned(
-                                      child: _buildUpperItemInfo(_selectedIndex),
-                                      top: _selectedTop - 90,
-                                    ),
-                                  ],
+                              alignment: Alignment.topCenter,
+                              children: <Widget>[
+                                _getMealDataSuccess
+                                    ? Column(
+                                        children: <Widget>[
+                                              SizedBox(
+                                                height: fs.getWidthRatioSize(0.15),
+                                              )
+                                            ] +
+                                            (_mealList).map<Widget>((menu) {
+                                              print('덩기덕 쿵덕');
+                                              return _buildMealItem(menu, _mealList.indexOf(menu));
+                                            }).toList() +
+                                            <Widget>[
+                                              SizedBox(
+                                                height: fs.getWidthRatioSize(0.15),
+                                              )
+                                            ],
+                                      )
+                                    : Container(margin: EdgeInsets.all(40), child: CircularProgressIndicator()),
+                                _bubbleOpened
+                                    ? GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _bubbleOpened = false;
+                                            _openInfo = false;
+                                          });
+                                        },
+                                        child: Container(
+                                          width: fs.getWidthRatioSize(1),
+                                          height: fs.getHeightRatioSize(0.6),
+                                          decoration: BoxDecoration(color: Colors.transparent),
+                                        ),
+                                      )
+                                    : Container(
+                                        width: 0,
+                                        height: 0,
+                                      ),
+                                Positioned(
+                                  child: _buildBelowItemInfo(_selectedIndex),
+                                  top: _selectedTop + 5,
                                 ),
+                                Positioned(
+                                  child: _buildUpperItemInfo(_selectedIndex),
+                                  top: _selectedTop - 90,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -488,12 +534,10 @@ class MealUI extends State<MealState> {
                                     width: 50,
                                   ),
                                   SizedBox(width: 5),
-                                  Text('내 급식표', style: TextStyle(fontSize: fs.s3, color: Colors.white, shadows: [Shadow(
-                                      offset: Offset(0, 4.0),
-                                      blurRadius: 10.0,
-                                      color: Colors.black38
-                                  ),
-                                  ])),
+                                  Text('내 급식표',
+                                      style: TextStyle(fontSize: fs.s3, color: Colors.white, shadows: [
+                                        Shadow(offset: Offset(0, 4.0), blurRadius: 10.0, color: Colors.black38),
+                                      ])),
                                   SizedBox(width: 5),
                                   Image.asset(
                                     getEmoji("calendar"),
@@ -544,7 +588,7 @@ class MealUI extends State<MealState> {
               height: fs.s7,
             ),
             GestureDetector(
-              onLongPressStart: (LongPressStartDetails d) {
+              onTap: () {
                 setState(() {
                   _openInfo = true;
                   _selectedTop = getWidgetPos(_key).dy - getWidgetPos(_containerKey).dy + 47;
@@ -580,7 +624,7 @@ class MealUI extends State<MealState> {
     return AnimatedOpacity(
       child: AnimatedContainer(
         duration: Duration(milliseconds: 200),
-        height: _openInfo ? MediaQuery.of(context).size.height*0.06 : 0,
+        height: _openInfo ? MediaQuery.of(context).size.height * 0.06 : 0,
         decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(50), boxShadow: [
           new BoxShadow(
             color: Colors.black.withOpacity(0.2),
@@ -590,7 +634,7 @@ class MealUI extends State<MealState> {
           )
         ]),
         child: SpeechBubble(
-            height: _openInfo ? MediaQuery.of(context).size.height*0.06 : 0,
+            height: _openInfo ? MediaQuery.of(context).size.height * 0.06 : 0,
             nipLocation: NipLocation.TOP,
             color: primaryYellow,
             borderRadius: 50,
@@ -614,7 +658,7 @@ class MealUI extends State<MealState> {
     return AnimatedOpacity(
       child: AnimatedContainer(
         duration: Duration(milliseconds: 200),
-        height: _openInfo ? MediaQuery.of(context).size.height*0.06 : 0,
+        height: _openInfo ? MediaQuery.of(context).size.height * 0.06 : 0,
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(50), boxShadow: [
           new BoxShadow(
             color: Colors.black.withOpacity(0.2),
@@ -624,7 +668,7 @@ class MealUI extends State<MealState> {
           )
         ]),
         child: SpeechBubble(
-          height: _openInfo ? MediaQuery.of(context).size.height*0.06 : 0,
+          height: _openInfo ? MediaQuery.of(context).size.height * 0.06 : 0,
           nipLocation: NipLocation.BOTTOM,
           color: Colors.white,
           borderRadius: 50,
@@ -633,81 +677,88 @@ class MealUI extends State<MealState> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               AnimatedSwitcher(
-                duration: const Duration(milliseconds: 500),
+                duration: const Duration(milliseconds: 200),
                 transitionBuilder: (Widget child, Animation<double> animation) {
-                  return RotationTransition(child: child, turns: animation);
+                  return SizeTransition(
+                    sizeFactor: animation,
+                    child: child,
+                    axisAlignment: 1,
+                    axis: Axis.horizontal,
+                  );
                 },
-                child:
-                _count % 2 == 1 ?
-                    Row(
-                      key: ValueKey<int>(_count),
-                      children: ratingEmojiList.map(
-                              (x) {
-                            return Material(
+                child: _ratingStarList[index] == 0
+                    ? Row(
+                        key: ValueKey<List>(_ratingStarList),
+                        children: ratingEmojiList.map((x) {
+                          return Material(
+                            borderRadius: BorderRadius.all(Radius.circular(100)),
+                            child: InkWell(
                               borderRadius: BorderRadius.all(Radius.circular(100)),
-                              child: InkWell(
-                                borderRadius: BorderRadius.all(Radius.circular(100)),
-                                onTap: (){
-                                  int i = ratingEmojiList.indexOf(x);
+                              onTap: () async{
+                                int star = ratingEmojiList.indexOf(x) + 1;
+                                setState(() {
+                                  _ratingStarList[index] = star;
+
+                                });
 
 
 
 
+                                Future.delayed(Duration(milliseconds: 600),(){
 
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.all(2),
-                                  child: Image.asset(
-                                    getEmoji(x),
-                                    width: 35,
-                                  ),
+                                  setState(() {
+                                    _bubbleOpened = false;
+                                    _openInfo = false;
+                                  });
+
+                                });
+
+                                var rateResult = await rateStar(index, star);
+
+
+
+
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(2),
+                                child: Image.asset(
+                                  getEmoji(x),
+                                  width: 35,
                                 ),
                               ),
-                            );
-
-                          }
-                      ).toList(),
-                    ) : Container(   key: ValueKey<int>(_count),
-                child: Material(
-                  borderRadius: BorderRadius.all(Radius.circular(100)),
-                  child: InkWell(
-                    borderRadius: BorderRadius.all(Radius.circular(100)),
-                    onTap: (){
+                            ),
+                          );
+                        }).toList(),
+                      )
+                    : Container(
+                        key: ValueKey<List>(_ratingStarList),
+                        child: Material(
+                          borderRadius: BorderRadius.all(Radius.circular(100)),
+                          child: InkWell(
+                            borderRadius: BorderRadius.all(Radius.circular(100)),
+                            onTap: () {
 //                      int i = ratingEmojiList.indexOf(x);
-
-
-
-
-
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(2),
-                      child: Image.asset(
-                        getEmoji("love"),
-                        width: 35,
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(2),
+                              child: Image.asset(
+                                getEmoji(ratingEmojiList[_ratingStarList[index] - 1]),
+                                width: 35,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-
-                ),
-
-
               ),
-              RaisedButton(
-                child: const Text('Increment'),
-                onPressed: () {
-                  setState(() {
-                    _count += 1;
-                  });
-                },
-              ),
+//              RaisedButton(
+//                child: const Text('Increment'),
+//                onPressed: () {
+//                  setState(() {
+//                    _count += 1;
+//                  });
+//                },
+//              ),
             ],
-
-
-
-
-
 
 //            children: <Widget>[
 //              GestureDetector(
@@ -836,6 +887,9 @@ class MealUI extends State<MealState> {
     });
   */
   Future getNowMealMenu() async {
+
+//    ${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}
+
     http.Response res = await http.get(
         'http://meal-backend.herokuapp.com/api/meals/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}',
         headers: {

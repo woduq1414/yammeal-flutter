@@ -5,6 +5,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:kakao_flutter_sdk/auth.dart';
 import 'package:kakao_flutter_sdk/user.dart';
 import 'package:http/http.dart' as http;
+import 'package:meal_flutter/common/color.dart';
+import 'package:meal_flutter/common/font.dart';
 import 'package:meal_flutter/common/widgets/loading.dart';
 import 'package:meal_flutter/login_page.dart';
 import 'package:meal_flutter/register_page.dart';
@@ -22,6 +24,8 @@ class FirstPage extends StatefulWidget {
   @override
   _FirstPageState createState() => _FirstPageState();
 }
+
+FontSize fs;
 
 class _FirstPageState extends State<FirstPage> {
 
@@ -79,11 +83,27 @@ class _FirstPageState extends State<FirstPage> {
   Widget build(BuildContext context) {
 
 
-
+    fs = FontSize(context);
 
     return Scaffold(
+      backgroundColor: primaryYellow,
       body: Center(
-        child: CircularProgressIndicator(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              "YAMMEAL",
+              style: TextStyle(
+                fontSize: fs.s2,
+                fontWeight: Font.bold,
+                letterSpacing: 8,
+
+              ),
+            ),
+            SizedBox(height: 30,),
+            CircularProgressIndicator(),
+          ],
+        )
       )
     );
 
