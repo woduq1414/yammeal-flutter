@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_admob/firebase_admob.dart';
@@ -113,6 +114,7 @@ class MealUI extends State<MealState> {
   AdMobManager adMob = AdMobManager();
   CarouselController btnController = CarouselController();
   bool _bubbleOpened = false;
+  bool _getNowMealFail = false;
 
   var tabList = ["soup", "calendar", "setting"];
 
@@ -408,46 +410,6 @@ class MealUI extends State<MealState> {
                                 Text('점심', style: TextStyle(fontSize: fs.s6, color: Colors.white, fontWeight: Font.normal)),
                                 Text(formatDate(DateTime.now(), [yyyy, '.', mm, '.', dd]),
                                     style: TextStyle(fontSize: fs.s7, color: Colors.white)),
-                                // Container(
-                                //   margin: EdgeInsets.only(top: 5),
-                                //   width: 200,
-                                //   child: Row(
-                                //     mainAxisAlignment: MainAxisAlignment.center,
-                                //     children: <Widget>[
-                                //       Image.asset(
-                                //         getEmoji("spice"),
-                                //         width: 35,
-                                //       ),
-                                //       Image.asset(
-                                //         getEmoji("cold"),
-                                //         width: 35,
-                                //       ),
-                                //       Image.asset(
-                                //         getEmoji("soso"),
-                                //         width: 35,
-                                //       ),
-                                //       Image.asset(
-                                //         getEmoji("good"),
-                                //         width: 35,
-                                //       ),
-                                //       Image.asset(
-                                //         getEmoji("love"),
-                                //         width: 35,
-                                //       ),
-                                //     ],
-                                //   ),
-                                //   decoration: BoxDecoration(
-                                //       color: Colors.white,
-                                //       borderRadius: BorderRadius.circular(50),
-                                //       boxShadow: [
-                                //         new BoxShadow(
-                                //           color: Colors.black.withOpacity(0.2),
-                                //           offset: Offset(1, 4),
-                                //           blurRadius: 3,
-                                //           spreadRadius: 1,
-                                //         )
-                                //       ]),
-                                // )
                               ],
                             ),
                           ),
@@ -475,7 +437,7 @@ class MealUI extends State<MealState> {
                                               )
                                             ],
                                       )
-                                    : Container(margin: EdgeInsets.all(40), child: CircularProgressIndicator()),
+                                    : (!_getNowMealFail ? Container(margin: EdgeInsets.all(40), child: CircularProgressIndicator()) : Container(margin: EdgeInsets.only(top: fs.getHeightRatioSize(0.07)),child: Text('급식을 불러올 수 없습니다.', style: TextStyle(color: Colors.white, fontSize: fs.s4),))),
                                 _bubbleOpened
                                     ? GestureDetector(
                                         onTap: () {
@@ -596,14 +558,6 @@ class MealUI extends State<MealState> {
                   _bubbleOpened = true;
                 });
                 print('keypressStart');
-              },
-              onLongPressMoveUpdate: (LongPressMoveUpdateDetails d) {
-                print('update');
-                print(d);
-              },
-              onPanUpdate: (DragUpdateDetails d) {
-                print('update');
-                print(d);
               },
               onTapUp: (TapUpDetails t) {
                 print('tapup');
@@ -750,43 +704,7 @@ class MealUI extends State<MealState> {
                         ),
                       ),
               ),
-//              RaisedButton(
-//                child: const Text('Increment'),
-//                onPressed: () {
-//                  setState(() {
-//                    _count += 1;
-//                  });
-//                },
-//              ),
-            ],
-
-//            children: <Widget>[
-//              GestureDetector(
-//                onTap: (){
-//                  print("asssssssssssssssssssssssssssssss");
-//                },
-//                child: Image.asset(
-//                  getEmoji("spice"),
-//                  width: 35,
-//                ),
-//              ),
-//              Image.asset(
-//                getEmoji("cold"),
-//                width: 35,
-//              ),
-//              Image.asset(
-//                getEmoji("soso"),
-//                width: 35,
-//              ),
-//              Image.asset(
-//                getEmoji("good"),
-//                width: 35,
-//              ),
-//              Image.asset(
-//                getEmoji("love"),
-//                width: 35,
-//              ),
-//            ],
+            ]
           ),
         ),
       ),
@@ -881,14 +799,17 @@ class MealUI extends State<MealState> {
   }
 
   // api 가져오는 지역
-  /*
-    http.Response res = await http.get('http://meal-backend.herokuapp.com/api/meals/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}', headers: {
-      "Authorization": await getToken(),
-    });
-  */
   Future getNowMealMenu() async {
-
-//    ${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}
+    Timer(const Duration(milliseconds: 7000), () {
+      print('이거 되긴 되냐');
+      if (!_getMealDataSuccess) {
+        setState(() {
+          _getNowMealFail = true;
+        });
+      } else {
+        _getNowMealFail = false;
+      }
+    });
 
     http.Response res = await http.get(
         'http://meal-backend.herokuapp.com/api/meals/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}',
