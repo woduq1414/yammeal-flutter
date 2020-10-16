@@ -8,6 +8,7 @@ import 'dart:convert';
 
 class MealStatus with ChangeNotifier {
   Map<dynamic, dynamic> dayList = Map<dynamic, dynamic>();
+  String selectedEmoji = 'selected';
 
   void setDayList(Map m) {
     dayList = m;
@@ -16,12 +17,6 @@ class MealStatus with ChangeNotifier {
     print(dayList[0]);
     notifyListeners();
   }
-
-  // void sortMapITem(Map m) {
-  //   for (int i = 0; i < m.length; i++) {
-  //     if (m)
-  //   }
-  // }
 
   bool updateSelectedDay(String date, String menu) { //true - 추가, false - 삭제
     if (!dayList.containsKey(date)) {
@@ -44,5 +39,10 @@ class MealStatus with ChangeNotifier {
         return true;
       }
     }
+  }
+
+  void setSelectedEmoji(String s) {
+    selectedEmoji = s;
+    notifyListeners();
   }
 }

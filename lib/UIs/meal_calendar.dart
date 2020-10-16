@@ -94,10 +94,10 @@ class MealCalendar extends State<MealCalState> {
     MealStatus mealStatus = Provider.of<MealStatus>(context);
 
     return CalendarBuilders(
-      selectedDayBuilder: (context, date, _) {
-        return Container(
-            child: Image.asset(getEmoji(emojiList[randomNum()]), width: 50));
-      },
+      // selectedDayBuilder: (context, date, _) {
+      //   return Container(
+      //       child: Image.asset(getEmoji(emojiList[randomNum()]), width: 50));
+      // },
       todayDayBuilder: (context, date, _) {
         return Container(
           child: Stack(
@@ -127,7 +127,7 @@ class MealCalendar extends State<MealCalState> {
                             getEmoji("dishes"),
                             width: 35,
                           )
-                        : Image.asset(getEmoji("selected"), width: 35))
+                        : Image.asset(getEmoji(mealStatus.selectedEmoji), width: 35))
                     : ColorFiltered(
                         colorFilter: ColorFilter.mode(
                             Colors.grey[400], BlendMode.modulate),

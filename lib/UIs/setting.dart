@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:meal_flutter/common/asset_path.dart';
 import 'package:meal_flutter/common/font.dart';
+import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:meal_flutter/common/widgets/dialog.dart';
 import 'package:provider/provider.dart';
@@ -30,7 +31,8 @@ class _SettingState extends State<Setting> {
   Widget build(BuildContext context) {
     fs = FontSize(context);
     UserStatus userStatus = Provider.of<UserStatus>(context);
-
+    MealStatus mealStatus = Provider.of<MealStatus>(context);
+    final List emojiList = ['selected', 'pretzel', 'pan', 'icecream'];
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 10),
@@ -167,6 +169,48 @@ class _SettingState extends State<Setting> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
+                    "기타 설정",
+                    style: TextStyle(fontSize: fs.s5),
+                    textAlign: TextAlign.left,
+                  ),
+                  Divider(),
+                  Container(
+                    child: Text(
+                      '즐겨찾기 이모지 바꾸기', style: TextStyle(fontSize: fs.s7),
+                    ),
+                  ),
+                  Row(
+                    children: emojiList.map((item) {
+                      return GestureDetector(
+                        onTap: () {
+                          mealStatus.setSelectedEmoji(item);
+                        },
+                        child: Container(
+                          width: 50,
+                          height: 50,
+                          child: Image.asset(getEmoji(item), width: 50,),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.black, width: mealStatus.selectedEmoji == item ? 3 : 1),
+
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  )
+                ],
+              )
+          ),
+          SizedBox(height: 15,),
+          Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.3),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
                     "앱 정보",
                     style: TextStyle(fontSize: fs.s5),
                     textAlign: TextAlign.left,
@@ -194,7 +238,8 @@ class _SettingState extends State<Setting> {
                     ),
                   )
                 ],
-              ))
+              )
+          )
         ],
       ),
     );

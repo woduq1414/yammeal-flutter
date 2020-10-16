@@ -72,6 +72,9 @@ flutter:
   assets:
     - assets/
     - assets/emoji/setting.png
+    - assets/emoji/pretzel.png
+    - assets/emoji/pan.png
+    - assets/emoji/icecream.png
     - pubspec.yaml
   # To add assets to your application, add an assets section, like this:
   # assets:
