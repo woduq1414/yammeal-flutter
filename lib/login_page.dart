@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,6 +22,7 @@ import 'common/color.dart';
 
 import 'common/font.dart';
 
+import 'common/widgets/dialog.dart';
 import 'firebase.dart';
 import 'test_page.dart';
 
@@ -75,44 +78,82 @@ class _LoginPageState extends State<LoginPage> {
     fs = FontSize(context);
 
     return LoadingModal(
-      child: Scaffold(
-          backgroundColor: Colors.white,
-          body: SingleChildScrollView(
-            child: Stack(
-              children: [
-                _buildUpperCurvePainter(),
-                //SizedBox(height: 100,),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  //crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.2),
-                      child: Text(
-                        "배고파급식먹자",
-                        style: TextStyle(
-                          fontSize: fs.s2,
+      child: WillPopScope(
+        onWillPop: () async {
+          showCustomDialog(context: context,
+              title : "앱을 종료할까요?",
+//          content : null,
+              cancelButtonText: "취소",
+              confirmButtonText: "나가기",
+              cancelButtonAction: () {
+                Navigator.pop(context);
+              },
+              confirmButtonAction:  () {
+                Navigator.pop(context);
+                exit(1);
+              }
+          );
+
+          return true;
+        },
+        child: Scaffold(
+            backgroundColor: Colors.white,
+            body: SingleChildScrollView(
+              child: Stack(
+                children: [
+                  _buildUpperCurvePainter(),
+                  //SizedBox(height: 100,),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    //crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.18),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                          color: primaryYellow.withOpacity(0.8)
+                        ),
+                        child: Text(
+                          "모두의 급식 앱",
+                          style: TextStyle(
+                              fontSize: fs.s6,
+                              fontWeight: Font.normal,
+                              letterSpacing: 8
+                          ),
                         ),
                       ),
-                    ),
-                    Container(
-                      //margin: EdgeInsets.only(bottom: 120),
-                      child: Image.asset(
-                        'assets/yam_logo.png',
-                        width: 150,
+                      SizedBox(height: 10,),
+                      Container(
+                        child: Text(
+                          "YAMMEAL",
+                          style: TextStyle(
+                            fontSize: fs.s2,
+                            fontWeight: Font.bold,
+                            letterSpacing: 8,
+
+                          ),
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Container(
-                      child: _buildTextFields(),
-                    )
-                  ],
-                )
-              ],
-            ),
-          )),
+
+                      Container(
+                        //margin: EdgeInsets.only(bottom: 120),
+                        child: Image.asset(
+                          'assets/yam_logo.png',
+                          width: 150,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Container(
+                        child: _buildTextFields(),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            )),
+      ),
     );
   }
 
@@ -156,7 +197,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.05,
+                  height: MediaQuery.of(context).size.height * 0.03,
                 ),
                 ButtonTheme(
                   minWidth: 320,

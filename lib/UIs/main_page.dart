@@ -6,12 +6,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:meal_flutter/UIs/servey_page.dart';
 import 'package:meal_flutter/UIs/setting.dart';
 import 'package:meal_flutter/common/asset_path.dart';
 import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:meal_flutter/common/widgets/dialog.dart';
 import 'package:meal_flutter/login_page.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
@@ -112,9 +114,15 @@ class MealUI extends State<MealState> {
   CarouselController btnController = CarouselController();
   bool _bubbleOpened = false;
 
-  var tabList = ["soup", "calendar", "soso"];
+  var tabList = ["soup", "calendar", "setting"];
+
+  var ratingEmojiList = ["spice", "cold", "soso", "good", "love"];
 
   var _bannerAd;
+
+  int _count = 1;
+
+
 
   @override
   void initState() {
@@ -156,7 +164,19 @@ class MealUI extends State<MealState> {
     });
     return WillPopScope(
       onWillPop: () async {
-//        exit(1);
+        showCustomDialog(context: context,
+          title : "앱을 종료할까요?",
+//          content : null,
+          cancelButtonText: "취소",
+          confirmButtonText: "나가기",
+          cancelButtonAction: () {
+            Navigator.pop(context);
+          },
+          confirmButtonAction:  () {
+            Navigator.pop(context);
+            exit(1);
+          }
+        );
 
         return true;
       },
@@ -319,19 +339,27 @@ class MealUI extends State<MealState> {
                                         width: 50,
                                       ),
                                     ),
+                                    SizedBox(width: 5),
                                     GestureDetector(
-                                      onDoubleTap: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                                      },
+//                                      onDoubleTap: () {
+//                                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+//                                      },
                                       child: Text('오늘의 메뉴',
-                                          style: TextStyle(fontSize: fs.s3, color: Colors.white, fontWeight: Font.normal)),
+                                          style: TextStyle(fontSize: fs.s3, color: Colors.white, shadows: [Shadow(
+                                              offset: Offset(0, 4.0),
+                                              blurRadius: 10.0,
+                                              color: Colors.black38
+                                          ),
+                                          ])),
                                     ),
+                                    SizedBox(width: 5),
                                     Image.asset(
                                       getEmoji("soup"),
                                       width: 50,
                                     ),
                                   ],
                                 ),
+                                SizedBox(height : 8),
                                 Text('점심', style: TextStyle(fontSize: fs.s6, color: Colors.white, fontWeight: Font.normal)),
                                 Text(formatDate(DateTime.now(), [yyyy, '.', mm, '.', dd]),
                                     style: TextStyle(fontSize: fs.s7, color: Colors.white)),
@@ -383,7 +411,7 @@ class MealUI extends State<MealState> {
                             width: MediaQuery.of(context).size.width,
 //                          height: 500,
                             child: Stack(
-                                  alignment: Alignment.center,
+                                  alignment: Alignment.topCenter,
                                   children: <Widget>[
                                     _getMealDataSuccess
                                         ? Column(
@@ -392,7 +420,7 @@ class MealUI extends State<MealState> {
                                           height: fs.getWidthRatioSize(0.15),
                                         )
                                       ] +
-                                          _mealList.map<Widget>((menu) {
+                                          (_mealList).map<Widget>((menu) {
                                             print('덩기덕 쿵덕');
                                             return _buildMealItem(menu, _mealList.indexOf(menu));
                                           }).toList() +
@@ -403,14 +431,7 @@ class MealUI extends State<MealState> {
                                           ],
                                     )
                                         : Container(margin: EdgeInsets.all(40), child: CircularProgressIndicator()),
-                                    Positioned(
-                                      child: _buildBelowItemInfo(_selectedIndex),
-                                      top: _selectedTop,
-                                    ),
-                                    Positioned(
-                                      child: _buildUpperItemInfo(_selectedIndex),
-                                      top: _selectedTop - 100,
-                                    ),
+
                                      _bubbleOpened ? GestureDetector(
                                        onTap: () {
                                          setState(() {
@@ -425,7 +446,16 @@ class MealUI extends State<MealState> {
                                              color: Colors.transparent
                                          ),
                                        ),
-                                     ) : Container(width: 0, height: 0,)
+                                     ) : Container(width: 0, height: 0,),
+
+                                    Positioned(
+                                      child: _buildBelowItemInfo(_selectedIndex),
+                                      top: _selectedTop + 5,
+                                    ),
+                                    Positioned(
+                                      child: _buildUpperItemInfo(_selectedIndex),
+                                      top: _selectedTop - 90,
+                                    ),
                                   ],
                                 ),
                           ),
@@ -457,7 +487,14 @@ class MealUI extends State<MealState> {
                                     getEmoji("calendar"),
                                     width: 50,
                                   ),
-                                  Text('내 급식표', style: TextStyle(fontSize: fs.s3, color: Colors.white)),
+                                  SizedBox(width: 5),
+                                  Text('내 급식표', style: TextStyle(fontSize: fs.s3, color: Colors.white, shadows: [Shadow(
+                                      offset: Offset(0, 4.0),
+                                      blurRadius: 10.0,
+                                      color: Colors.black38
+                                  ),
+                                  ])),
+                                  SizedBox(width: 5),
                                   Image.asset(
                                     getEmoji("calendar"),
                                     width: 50,
@@ -592,28 +629,113 @@ class MealUI extends State<MealState> {
           color: Colors.white,
           borderRadius: 50,
           child: Row(
-            children: <Widget>[
-              Image.asset(
-                getEmoji("spice"),
-                width: 35,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 500),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return RotationTransition(child: child, turns: animation);
+                },
+                child:
+                _count % 2 == 1 ?
+                    Row(
+                      key: ValueKey<int>(_count),
+                      children: ratingEmojiList.map(
+                              (x) {
+                            return Material(
+                              borderRadius: BorderRadius.all(Radius.circular(100)),
+                              child: InkWell(
+                                borderRadius: BorderRadius.all(Radius.circular(100)),
+                                onTap: (){
+                                  int i = ratingEmojiList.indexOf(x);
+
+
+
+
+
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(2),
+                                  child: Image.asset(
+                                    getEmoji(x),
+                                    width: 35,
+                                  ),
+                                ),
+                              ),
+                            );
+
+                          }
+                      ).toList(),
+                    ) : Container(   key: ValueKey<int>(_count),
+                child: Material(
+                  borderRadius: BorderRadius.all(Radius.circular(100)),
+                  child: InkWell(
+                    borderRadius: BorderRadius.all(Radius.circular(100)),
+                    onTap: (){
+//                      int i = ratingEmojiList.indexOf(x);
+
+
+
+
+
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(2),
+                      child: Image.asset(
+                        getEmoji("love"),
+                        width: 35,
+                      ),
+                    ),
+                  ),
+                ),
+
+                ),
+
+
               ),
-              Image.asset(
-                getEmoji("cold"),
-                width: 35,
-              ),
-              Image.asset(
-                getEmoji("soso"),
-                width: 35,
-              ),
-              Image.asset(
-                getEmoji("good"),
-                width: 35,
-              ),
-              Image.asset(
-                getEmoji("love"),
-                width: 35,
+              RaisedButton(
+                child: const Text('Increment'),
+                onPressed: () {
+                  setState(() {
+                    _count += 1;
+                  });
+                },
               ),
             ],
+
+
+
+
+
+
+//            children: <Widget>[
+//              GestureDetector(
+//                onTap: (){
+//                  print("asssssssssssssssssssssssssssssss");
+//                },
+//                child: Image.asset(
+//                  getEmoji("spice"),
+//                  width: 35,
+//                ),
+//              ),
+//              Image.asset(
+//                getEmoji("cold"),
+//                width: 35,
+//              ),
+//              Image.asset(
+//                getEmoji("soso"),
+//                width: 35,
+//              ),
+//              Image.asset(
+//                getEmoji("good"),
+//                width: 35,
+//              ),
+//              Image.asset(
+//                getEmoji("love"),
+//                width: 35,
+//              ),
+//            ],
           ),
         ),
       ),

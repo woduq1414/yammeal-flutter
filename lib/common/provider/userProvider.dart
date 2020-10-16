@@ -371,7 +371,7 @@ class UserStatus with ChangeNotifier {
         storage.write(key: "token", value: resData["accessToken"]);
 
         isLogined = true;
-        userInfo["nickname"] = parseJwtPayLoad(resData["accessToken"])["data"]["nickname"];
+        userInfo = parseJwtPayLoad(resData["accessToken"])["data"];
         print("SDFASFD");
         notifyListeners();
         return true;
@@ -412,7 +412,7 @@ class UserStatus with ChangeNotifier {
           storage.write(key: "token", value: resData["accessToken"]);
 
           isLogined = true;
-          userInfo["nickname"] = parseJwtPayLoad(resData["accessToken"])["data"]["nickname"];
+          userInfo = parseJwtPayLoad(resData["accessToken"])["data"];
           print("성공");
           notifyListeners();
           return true;
@@ -437,7 +437,7 @@ class UserStatus with ChangeNotifier {
     storage.write(key: "token", value: token);
 
     isLogined = true;
-    userInfo["nickname"] = parseJwtPayLoad(token)["nickname"];
+    userInfo = parseJwtPayLoad(token)["data"];
 
     notifyListeners();
 //  print();
@@ -494,7 +494,8 @@ class UserStatus with ChangeNotifier {
 
     if (token != null) {
       try {
-        userInfo["id"] = parseJwtPayLoad(token)["id"];
+        userInfo = parseJwtPayLoad(token)["data"];
+        print(userInfo["nickname"]);
         isLogined = true;
       } catch (e) {
         isLogined = false;

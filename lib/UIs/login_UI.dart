@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:meal_flutter/common/widgets/dialog.dart';
 import 'main_page.dart';
 import 'login_UI.dart';
 import 'dart:math' as Math;
@@ -25,46 +28,65 @@ class MyApp extends StatelessWidget {
 class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.white,
-        resizeToAvoidBottomInset: false,
-        resizeToAvoidBottomPadding: false,
-        body: SingleChildScrollView(
-          child: Stack(
-            children: [
-              _buildUpperCurvePainter(),
-              //SizedBox(height: 100,),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                //crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(top: 165),
-                    child: Text(
-                      '오늘 뭐먹지?',
-                      style: TextStyle(
-                        fontSize: 30,
+    return WillPopScope(
+      onWillPop: () async {
+        showCustomDialog(context: context,
+            title : "앱을 종료할까요?",
+//          content : null,
+            cancelButtonText: "취소",
+            confirmButtonText: "나가기",
+            cancelButtonAction: () {
+              Navigator.pop(context);
+            },
+            confirmButtonAction:  () {
+              Navigator.pop(context);
+              exit(1);
+            }
+        );
+
+        return true;
+      },
+      child: Scaffold(
+          backgroundColor: Colors.white,
+          resizeToAvoidBottomInset: false,
+          resizeToAvoidBottomPadding: false,
+          body: SingleChildScrollView(
+            child: Stack(
+              children: [
+                _buildUpperCurvePainter(),
+                //SizedBox(height: 100,),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  //crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(top: 165),
+                      child: Text(
+                        '오늘 뭐먹지?',
+                        style: TextStyle(
+                          fontSize: 30,
+                        ),
                       ),
                     ),
-                  ),
-                  Container(
-                    //margin: EdgeInsets.only(bottom: 120),
-                    child: Image.asset(
-                      'assets/yam_logo.jpg',
-                      width: 150,
+                    Container(
+                      //margin: EdgeInsets.only(bottom: 120),
+                      child: Image.asset(
+                        'assets/yam_logo.jpg',
+                        width: 150,
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Container(
-                    child: _buildTextFields(context),
-                  )
-                ],
-              )
-            ],
-          ),
-        )
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Container(
+                      child: _buildTextFields(context),
+                    )
+                  ],
+                )
+              ],
+            ),
+          )
+      ),
     );
   }
 
