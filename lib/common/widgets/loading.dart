@@ -5,6 +5,8 @@ import '../color.dart';
 import '../font.dart';
 import '../asset_path.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
 
 class LoadingModal extends StatelessWidget {
 
@@ -23,4 +25,22 @@ class LoadingModal extends StatelessWidget {
       opacity: 0.2,
     );
   }
+}
+
+
+
+Widget CircularLoading(){
+  return CircularProgressIndicator(
+    valueColor: AlwaysStoppedAnimation<Color>(primaryYellow),
+  );
+}
+
+Widget CustomLoading() {
+  return Container(
+    margin: EdgeInsets.all(15),
+    child: SpinKitThreeBounce(
+      color: Colors.white,
+      size: 35.0,
+    ),
+  );
 }

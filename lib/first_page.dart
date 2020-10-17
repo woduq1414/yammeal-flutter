@@ -40,7 +40,7 @@ class _FirstPageState extends State<FirstPage> {
     String token = await getToken();
     print(token);
     final res = await http.get(
-      "${Host.address}/auth",
+      "${Host.herokuAddress}/auth",
       headers: {"Content-Type": "application/json", "Authorization" : token},
     );
     print(res.statusCode);
@@ -101,7 +101,7 @@ class _FirstPageState extends State<FirstPage> {
               ),
             ),
             SizedBox(height: 30,),
-            CircularProgressIndicator(),
+            CustomLoading(),
           ],
         )
       )

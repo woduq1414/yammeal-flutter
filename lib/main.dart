@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -24,7 +26,11 @@ import 'package:flutter/services.dart';
 
 
 
-void main() => runApp(KakaoLoginTest());
+void main() async{
+
+
+  return runApp(KakaoLoginTest()) ;
+}
 
 class KakaoLoginTest extends StatelessWidget {
   // This widget is the root of your application.

@@ -1,4 +1,4 @@
-package com.example.meal_flutter
+package com.aperture.yammeal
 
 import io.flutter.embedding.android.FlutterActivity
 

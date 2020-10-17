@@ -1,10 +1,13 @@
 import 'dart:convert';
 
+import "../common/ip.dart";
+
 import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:meal_flutter/UIs/meal_detail.dart';
 import 'package:meal_flutter/common/asset_path.dart';
+import 'package:meal_flutter/common/color.dart';
 import 'package:meal_flutter/common/font.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:provider/provider.dart';
@@ -25,13 +28,9 @@ class MealCalState extends StatefulWidget {
 class MealCalendar extends State<MealCalState> {
   CalendarController _controller;
 
-  final List<String> emojiList = [
-    'cold',
-    'good',
-    'spice',
-    'umji',
-    'love'
-  ]; // 랜덤 돌리려 만들어둔거, 삭제될 예정.
+
+
+  final List<String> emojiList = ['cold', 'good', 'spice', 'umji', 'love']; // 랜덤 돌리려 만들어둔거, 삭제될 예정.
   var dayList = {};
 
   @override
@@ -56,7 +55,7 @@ class MealCalendar extends State<MealCalState> {
   @override
   Widget build(BuildContext context) {
     fs = FontSize(context);
-
+    MealStatus mealStatus = Provider.of<MealStatus>(context);
     initializeDateFormatting('ko_KR', null);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -67,8 +66,44 @@ class MealCalendar extends State<MealCalState> {
         TableCalendar(
           calendarController: _controller,
 //          locale: "ko_KR",
+
+          onVisibleDaysChanged: (a, b, c) async {
+            var startDate = formatDate(a, ['yyyy', '', 'mm', '', 'dd']);
+            var endDate = formatDate(b, ['yyyy', '', 'mm', '', 'dd']);
+
+            if (DateTime.now().difference(b).inDays > 0){
+              mealStatus.setDayList({});
+              return;
+            }
+
+
+            mealStatus.setIsLoadingFavorite(true);
+
+            http.Response res = await http.get(
+                '${Host.herokuAddress}/meals/rating/favorite?startDate=${startDate}&endDate=${endDate}',
+                headers: {
+                  "Authorization": await getToken(),
+                });
+            print(res.statusCode);
+            if (res.statusCode == 200) {
+              print(jsonDecode(res.body));
+              Map<dynamic, dynamic> jsonBody = jsonDecode(res.body)["data"];
+              setState(() {
+                if (jsonBody != null) {
+                  mealStatus.setDayList(jsonBody);
+                } else {}
+              });
+            } else {
+              mealStatus.setDayList({});
+            }
+
+            mealStatus.setIsLoadingFavorite(false);
+          },
+
           builders: _calendarBuilders(),
+
           headerVisible: true,
+
           headerStyle: HeaderStyle(
             centerHeaderTitle: true,
             formatButtonVisible: false,
@@ -99,38 +134,40 @@ class MealCalendar extends State<MealCalState> {
       //       child: Image.asset(getEmoji(emojiList[randomNum()]), width: 50));
       // },
       todayDayBuilder: (context, date, _) {
-        return Container(
-          child: Stack(
-            children: <Widget>[
-              Image.asset(getEmoji(emojiList[randomNum()]), width: 50)
-            ],
-          ),
-          decoration: BoxDecoration(
-            color: Colors.red,
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => MealDetailState(date)));
+          },
+          child: Container(
+            child: Column(
+              children: <Widget>[
+                Text(date.day.toString()),
+                ColorFiltered(
+                    colorFilter: ColorFilter.mode(primaryYellow, BlendMode.modulate),
+                    child: Image.asset(getEmoji("dishes"), width: 35))
+              ],
+            ),
           ),
         );
       },
       dayBuilder: (_context, date, _) {
         return GestureDetector(
           onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => MealDetailState(date)));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => MealDetailState(date)));
           },
           child: Container(
             child: Column(
               children: <Widget>[
                 Text(date.day.toString()),
                 DateTime.now().difference(date).inMilliseconds <= 0
-                    ? (!mealStatus.dayList.containsKey(
-                            formatDate(date, ['yyyy', '', 'mm', '', 'dd']))
+                    ? (!mealStatus.dayList.containsKey(formatDate(date, ['yyyy', '', 'mm', '', 'dd']))
                         ? Image.asset(
                             getEmoji("dishes"),
                             width: 35,
                           )
                         : Image.asset(getEmoji(mealStatus.selectedEmoji), width: 35))
                     : ColorFiltered(
-                        colorFilter: ColorFilter.mode(
-                            Colors.grey[400], BlendMode.modulate),
+                        colorFilter: ColorFilter.mode(Colors.grey[400], BlendMode.modulate),
                         child: Image.asset(getEmoji("dishes"), width: 35))
               ],
             ),

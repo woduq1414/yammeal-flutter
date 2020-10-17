@@ -9,8 +9,21 @@ class AdMobManager {
   String appID = Platform.isIOS
       ? 'ca-app-pub-3940256099942544~1458002511' // iOS Test App ID
       : 'ca-app-pub-2755450101712612~8101773189'; // Android Test App ID
+
+  bool isDebug = true;
+
+
   String bannerID = "ca-app-pub-2755450101712612/4676699347";
   String interstitialID = "ca-app-pub-2755450101712612/8297391916";
+
+
+  AdMobManager(){
+    if(isDebug == true){
+      bannerID = BannerAd.testAdUnitId;
+      interstitialID = InterstitialAd.testAdUnitId;
+      appID = FirebaseAdMob.testAppId;
+    }
+  }
 
   static MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
     keywords: <String>['flutter', 'firebase', 'admob'],

@@ -12,9 +12,11 @@ import 'package:flutter/widgets.dart';
 import 'package:meal_flutter/UIs/servey_page.dart';
 import 'package:meal_flutter/UIs/setting.dart';
 import 'package:meal_flutter/common/asset_path.dart';
+import 'package:meal_flutter/common/ip.dart';
 import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:meal_flutter/common/widgets/dialog.dart';
+import 'package:meal_flutter/common/widgets/loading.dart';
 import 'package:meal_flutter/login_page.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
@@ -138,23 +140,23 @@ class MealUI extends State<MealState> {
       });
     super.initState();
     getNowMealMenu();
-    getSelectedMealMenu();
+    getSelectedMealMenu(DateTime.now().year, DateTime.now().month);
 
     getMyRatedStar();
-
   }
 
 
-  Future getMyRatedStar() async{
+  Future getMyRatedStar() async {
     http.Response res =
-    await http.get('http://meal-backend.herokuapp.com/api/meals/rating/star/my?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}', headers: {
+    await http.get('${Host.herokuAddress}/meals/rating/star/my?menuDate=${formatDate(
+        DateTime.now(), [yyyy, '', mm, '', dd])}', headers: {
       "Authorization": await getToken(),
     });
     print(res.statusCode);
     if (res.statusCode == 200) {
       print(jsonDecode(res.body));
       var jsonBody = jsonDecode(res.body)["data"];
-      for(var rating in jsonBody){
+      for (var rating in jsonBody) {
         setState(() {
           _ratingStarList[rating["menuSeq"]] = rating["star"];
         });
@@ -165,13 +167,13 @@ class MealUI extends State<MealState> {
     }
   }
 
-  Future rateStar(int menuSeq, int star) async{
+  Future rateStar(int menuSeq, int star) async {
 //    print(date);
-    http.Response res = await http.post('http://meal-backend.herokuapp.com/api/meals/rating/star',
+    http.Response res = await http.post('${Host.herokuAddress}/meals/rating/star',
         body: jsonEncode(
-          {"menuDate": formatDate(DateTime.now(), [yyyy, '', mm, '', dd]), "menus" : [
-            {"menuSeq" : menuSeq,
-            "star" : star}
+          {"menuDate": formatDate(DateTime.now(), [yyyy, '', mm, '', dd]), "menus": [
+            {"menuSeq": menuSeq,
+              "star": star}
           ]},
         ),
         headers: {"Authorization": await getToken(), "Content-Type": "application/json "});
@@ -185,8 +187,6 @@ class MealUI extends State<MealState> {
       return false;
     }
   }
-
-
 
 
   @override
@@ -203,7 +203,7 @@ class MealUI extends State<MealState> {
   Widget build(BuildContext context) {
 //    print(fs.s1());
     fs = FontSize(context);
-
+    MealStatus mealStatus = Provider.of<MealStatus>(context);
     print("!!!!!!!!1");
     print(_mealList);
 
@@ -234,33 +234,41 @@ class MealUI extends State<MealState> {
         backgroundColor: primaryRed,
         body: SafeArea(
             child: CustomStack(
-          children: <Widget>[
-            Container(
-              color: Colors.transparent,
-              child: Stack(
-                children: <Widget>[
-                  CustomPaint(painter: CurvePainter1(), size: MediaQuery.of(context).size),
-                  CustomPaint(
-                    painter: CurvePainter2(),
-                    size: MediaQuery.of(context).size,
-                  )
-                ],
-              ),
-            ),
-            Container(
+              children: <Widget>[
+                Container(
+                  color: Colors.transparent,
+                  child: Stack(
+                    children: <Widget>[
+                      CustomPaint(painter: CurvePainter1(), size: MediaQuery
+                          .of(context)
+                          .size),
+                      CustomPaint(
+                        painter: CurvePainter2(),
+                        size: MediaQuery
+                            .of(context)
+                            .size,
+                      )
+                    ],
+                  ),
+                ),
+                Container(
 //            key: _underMenuKey,
-              child: CustomStack(
-                children: <Widget>[
+                  child: CustomStack(
+                    children: <Widget>[
                       Container(
                         child: CustomPaint(
                           painter: HalfCirclePainter(),
-                          size: MediaQuery.of(context).size,
+                          size: MediaQuery
+                              .of(context)
+                              .size,
                         ),
                       ),
                       Container(
                         child: CustomPaint(
                           painter: InnerHalfCirclePainter(),
-                          size: MediaQuery.of(context).size,
+                          size: MediaQuery
+                              .of(context)
+                              .size,
                         ),
                       ),
 //                  Positioned(
@@ -271,33 +279,41 @@ class MealUI extends State<MealState> {
                       Container(
                         child: CustomPaint(
                           painter: BuchaePainter(),
-                          size: MediaQuery.of(context).size,
+                          size: MediaQuery
+                              .of(context)
+                              .size,
                         ),
                       )
                     ] +
-                    tabList.map<Widget>((tab) {
-                      var t = 90 + (_nowTab - tabList.indexOf(tab)) * 40.0;
-                      var s = _nowTab == tabList.indexOf(tab) ? 70.0 : 50.0;
+                        tabList.map<Widget>((tab) {
+                          var t = 90 + (_nowTab - tabList.indexOf(tab)) * 40.0;
+                          var s = _nowTab == tabList.indexOf(tab) ? 70.0 : 50.0;
 
-                      double halfCircleVerticalRadius = MediaQuery.of(context).size.height * 0.15 / 1.4;
-                      double halfCircleHorizontalRadius = MediaQuery.of(context).size.width * 0.3 / 1.4;
+                          double halfCircleVerticalRadius = MediaQuery
+                              .of(context)
+                              .size
+                              .height * 0.15 / 1.4;
+                          double halfCircleHorizontalRadius = MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.3 / 1.4;
 
 //                        print(math.sin(degreeToRadian(t))* (s == 70 ? 230 : 210));
 
 //                        print(math.cos(30  * math.pi / 180));
-                      return AnimatedPositioned(
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          onTap: () {
-                            btnController.animateToPage(tabList.indexOf(tab));
-                          },
-                          child: Container(
+                          return AnimatedPositioned(
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.translucent,
+                              onTap: () {
+                                btnController.animateToPage(tabList.indexOf(tab));
+                              },
+                              child: Container(
 //                        color: Colors.blue,
-                            child: Image.asset(
-                              getEmoji(tab),
+                                child: Image.asset(
+                                  getEmoji(tab),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
 //                    margin: EdgeInsets.only(
 //                      top:
 //                      _nowTab == 0 ? MediaQuery.of(context).size.height*0.79 : MediaQuery.of(context).size.height * 0.85,
@@ -305,19 +321,25 @@ class MealUI extends State<MealState> {
 //                          ? MediaQuery.of(context).size.width * 0.5 - 33
 //                          : MediaQuery.of(context).size.width * 0.5 - 80,
 //                    ),
-                        top: MediaQuery.of(context).size.height * 1 -
-                            math.sin(degreeToRadian(t)) * halfCircleVerticalRadius -
-                            s -
-                            10,
-                        left: (MediaQuery.of(context).size.width / 2) +
-                            math.cos(degreeToRadian(t)) * halfCircleHorizontalRadius -
-                            s / 2,
-                        width: s,
-                        height: s,
-                        duration: Duration(milliseconds: 400),
-                        curve: Curves.ease,
-                      );
-                    }).toList(),
+                            top: MediaQuery
+                                .of(context)
+                                .size
+                                .height * 1 -
+                                math.sin(degreeToRadian(t)) * halfCircleVerticalRadius -
+                                s -
+                                10,
+                            left: (MediaQuery
+                                .of(context)
+                                .size
+                                .width / 2) +
+                                math.cos(degreeToRadian(t)) * halfCircleHorizontalRadius -
+                                s / 2,
+                            width: s,
+                            height: s,
+                            duration: Duration(milliseconds: 400),
+                            curve: Curves.ease,
+                          );
+                        }).toList(),
 //                  AnimatedContainer(
 //                    child: GestureDetector(
 //                      onTap: () {
@@ -338,203 +360,234 @@ class MealUI extends State<MealState> {
 //                    duration: Duration(milliseconds: 400),
 //                    curve: Curves.ease,
 //                  ),
-              ),
-            ),
-            CarouselSlider(
-              carouselController: btnController,
-              options: CarouselOptions(
-                  enableInfiniteScroll: false,
-                  autoPlay: false,
-                  height: MediaQuery.of(context).size.height,
-                  viewportFraction: 1,
-                  onPageChanged: (index, CarouselPageChangedReason c) {
-                    MealStatus mealStatus = Provider.of<MealStatus>(context);
-                    setState(() {
-                      _nowTab = index;
-                      if (_nowTab == 1 && !_iscalled) {
-                        mealStatus.setDayList(dayList);
-                        setState(() {
-                          _iscalled = true;
-                        });
-                      }
-                    });
-                  }),
-              items: <Widget>[
-                FractionallySizedBox(
-                  alignment: Alignment.topCenter,
-                  heightFactor: 0.8,
-                  child: SingleChildScrollView(
-                    physics: BouncingScrollPhysics(),
-                    child: Container(
-//                    color: Colors.blue,
-                      width: MediaQuery.of(context).size.width,
-                      child: Column(
-                        children: <Widget>[
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.035,
-                          ),
-                          Container(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    GestureDetector(
-                                      onLongPress: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => EasterEgg()));
-                                      },
-                                      child: Image.asset(
-                                        getEmoji("soup"),
-                                        width: 50,
-                                      ),
-                                    ),
-                                    SizedBox(width: 5),
-                                    GestureDetector(
-//                                      onDoubleTap: () {
-//                                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-//                                      },
-                                      child: Text('오늘의 메뉴',
-                                          style: TextStyle(fontSize: fs.s3, color: Colors.white, shadows: [
-                                            Shadow(offset: Offset(0, 4.0), blurRadius: 10.0, color: Colors.black38),
-                                          ])),
-                                    ),
-                                    SizedBox(width: 5),
-                                    Image.asset(
-                                      getEmoji("soup"),
-                                      width: 50,
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 8),
-                                Text('점심', style: TextStyle(fontSize: fs.s6, color: Colors.white, fontWeight: Font.normal)),
-                                Text(formatDate(DateTime.now(), [yyyy, '.', mm, '.', dd]),
-                                    style: TextStyle(fontSize: fs.s7, color: Colors.white)),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            key: _containerKey,
-                            width: MediaQuery.of(context).size.width,
-//                          height: 500,
-                            child: Stack(
-                              alignment: Alignment.topCenter,
-                              children: <Widget>[
-                                _getMealDataSuccess
-                                    ? Column(
-                                        children: <Widget>[
-                                              SizedBox(
-                                                height: fs.getWidthRatioSize(0.15),
-                                              )
-                                            ] +
-                                            (_mealList).map<Widget>((menu) {
-                                              print('덩기덕 쿵덕');
-                                              return _buildMealItem(menu, _mealList.indexOf(menu));
-                                            }).toList() +
-                                            <Widget>[
-                                              SizedBox(
-                                                height: fs.getWidthRatioSize(0.15),
-                                              )
-                                            ],
-                                      )
-                                    : (!_getNowMealFail ? Container(margin: EdgeInsets.all(40), child: CircularProgressIndicator()) : Container(margin: EdgeInsets.only(top: fs.getHeightRatioSize(0.07)),child: Text('급식을 불러올 수 없습니다.', style: TextStyle(color: Colors.white, fontSize: fs.s4),))),
-                                _bubbleOpened
-                                    ? GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            _bubbleOpened = false;
-                                            _openInfo = false;
-                                          });
-                                        },
-                                        child: Container(
-                                          width: fs.getWidthRatioSize(1),
-                                          height: fs.getHeightRatioSize(0.6),
-                                          decoration: BoxDecoration(color: Colors.transparent),
-                                        ),
-                                      )
-                                    : Container(
-                                        width: 0,
-                                        height: 0,
-                                      ),
-                                Positioned(
-                                  child: _buildBelowItemInfo(_selectedIndex),
-                                  top: _selectedTop + 5,
-                                ),
-                                Positioned(
-                                  child: _buildUpperItemInfo(_selectedIndex),
-                                  top: _selectedTop - 90,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
                 ),
-                Container(
-//                height : MediaQuery.of(context).size.height,
-                  child: FractionallySizedBox(
-                    heightFactor: 0.8,
-                    alignment: Alignment.topCenter,
-                    child: SingleChildScrollView(
-                      physics: BouncingScrollPhysics(),
-                      child: Container(
-                          width: MediaQuery.of(context).size.width,
-//                  color: Colors.blue,
-//                  height: 150,
+                CarouselSlider(
+                  carouselController: btnController,
+                  options: CarouselOptions(
+                      enableInfiniteScroll: false,
+                      autoPlay: false,
+                      height: MediaQuery
+                          .of(context)
+                          .size
+                          .height,
+                      viewportFraction: 1,
+                      onPageChanged: (index, CarouselPageChangedReason c) {
+                        MealStatus mealStatus = Provider.of<MealStatus>(context);
+                        setState(() {
+                          _nowTab = index;
+                          if (_nowTab == 1 && !_iscalled) {
+                            mealStatus.setDayList(dayList);
+                            setState(() {
+                              _iscalled = true;
+                            });
+                          }
+                        });
+                      }),
+                  items: <Widget>[
+                    FractionallySizedBox(
+                      alignment: Alignment.topCenter,
+                      heightFactor: 0.8,
+                      child: SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
+                        child: Container(
+//                    color: Colors.blue,
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width,
                           child: Column(
                             children: <Widget>[
                               SizedBox(
-                                height: MediaQuery.of(context).size.height * 0.035,
+                                height: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .height * 0.035,
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Image.asset(
-                                    getEmoji("calendar"),
-                                    width: 50,
-                                  ),
-                                  SizedBox(width: 5),
-                                  Text('내 급식표',
-                                      style: TextStyle(fontSize: fs.s3, color: Colors.white, shadows: [
-                                        Shadow(offset: Offset(0, 4.0), blurRadius: 10.0, color: Colors.black38),
-                                      ])),
-                                  SizedBox(width: 5),
-                                  Image.asset(
-                                    getEmoji("calendar"),
-                                    width: 50,
-                                  ),
-                                ],
+                              Container(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        GestureDetector(
+                                          onLongPress: () {
+                                            Navigator.push(context, MaterialPageRoute(builder: (context) => EasterEgg()));
+                                          },
+                                          child: Image.asset(
+                                            getEmoji("soup"),
+                                            width: 50,
+                                          ),
+                                        ),
+                                        SizedBox(width: 5),
+                                        GestureDetector(
+//                                      onDoubleTap: () {
+//                                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+//                                      },
+                                          child: Text('오늘의 메뉴',
+                                              style: TextStyle(fontSize: fs.s3, color: Colors.white, shadows: [
+                                                Shadow(offset: Offset(0, 4.0), blurRadius: 10.0, color: Colors.black38),
+                                              ])),
+                                        ),
+                                        SizedBox(width: 5),
+                                        Image.asset(
+                                          getEmoji("soup"),
+                                          width: 50,
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text('점심',
+                                        style: TextStyle(fontSize: fs.s6, color: Colors.white, fontWeight: Font.normal)),
+                                    Text(formatDate(DateTime.now(), [yyyy, '.', mm, '.', dd]),
+                                        style: TextStyle(fontSize: fs.s7, color: Colors.white)),
+                                  ],
+                                ),
                               ),
-                              MealCalState(),
-                              _buildDDayList()
+                              Container(
+                                key: _containerKey,
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width,
+//                          height: 500,
+                                child: Stack(
+                                  alignment: Alignment.topCenter,
+                                  children: <Widget>[
+                                    _getMealDataSuccess
+                                        ? Column(
+                                      children: <Widget>[
+                                        SizedBox(
+                                          height: fs.getWidthRatioSize(0.15),
+                                        )
+                                      ] +
+                                          (_mealList).map<Widget>((menu) {
+                                            print('덩기덕 쿵덕');
+                                            return _buildMealItem(menu, _mealList.indexOf(menu));
+                                          }).toList() +
+                                          <Widget>[
+                                            SizedBox(
+                                              height: fs.getWidthRatioSize(0.15),
+                                            )
+                                          ],
+                                    )
+                                        : (!_getNowMealFail ? Container(
+                                        margin: EdgeInsets.all(40), child: CustomLoading()) : Container(
+                                        margin: EdgeInsets.only(top: fs.getHeightRatioSize(0.07)),
+                                        child: Text(
+                                          '급식 정보가 없습니다.', style: TextStyle(color: Colors.white, fontSize: fs.s4),))),
+                                    _bubbleOpened
+                                        ? GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _bubbleOpened = false;
+                                          _openInfo = false;
+                                        });
+                                      },
+                                      child: Container(
+                                        width: fs.getWidthRatioSize(1),
+                                        height: fs.getHeightRatioSize(0.6),
+                                        decoration: BoxDecoration(color: Colors.transparent),
+                                      ),
+                                    )
+                                        : Container(
+                                      width: 0,
+                                      height: 0,
+                                    ),
+                                    Positioned(
+                                      child: _buildBelowItemInfo(_selectedIndex),
+                                      top: _selectedTop + 5,
+                                    ),
+                                    Positioned(
+                                      child: _buildUpperItemInfo(_selectedIndex),
+                                      top: _selectedTop - 90,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ],
-                          )),
-                    ),
-                  ),
-                ),
-                Container(
-                    child: Container(
-//                height : MediaQuery.of(context).size.height,
-                  child: FractionallySizedBox(
-                    heightFactor: 0.8,
-                    alignment: Alignment.topCenter,
-                    child: SingleChildScrollView(
-                      physics: BouncingScrollPhysics(),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-//                  color: Colors.blue,
-//                  height: 150,
-                        child: Setting(),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ))
+                    Container(
+//                height : MediaQuery.of(context).size.height,
+                      child: FractionallySizedBox(
+                        heightFactor: 0.8,
+                        alignment: Alignment.topCenter,
+                        child: SingleChildScrollView(
+                          physics: BouncingScrollPhysics(),
+                          child: Container(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width,
+//                  color: Colors.blue,
+//                  height: 150,
+                              child: Column(
+                                children: <Widget>[
+                                  SizedBox(
+                                    height: MediaQuery
+                                        .of(context)
+                                        .size
+                                        .height * 0.035,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        getEmoji("calendar"),
+                                        width: 50,
+                                      ),
+                                      SizedBox(width: 5),
+                                      Text('내 급식표',
+                                          style: TextStyle(fontSize: fs.s3, color: Colors.white, shadows: [
+                                            Shadow(offset: Offset(0, 4.0), blurRadius: 10.0, color: Colors.black38),
+                                          ])),
+                                      SizedBox(width: 5),
+                                      Image.asset(
+                                        getEmoji("calendar"),
+                                        width: 50,
+                                      ),
+                                    ],
+                                  ),
+                                  MealCalState(),
+
+
+                                  !mealStatus.isLoadingFavorite ?
+                                  _buildDDayList():
+                                  CustomLoading()
+
+                                ],
+                              )),
+                        ),
+                      ),
+                    ),
+                    Container(
+                        child: Container(
+//                height : MediaQuery.of(context).size.height,
+                          child: FractionallySizedBox(
+                            heightFactor: 0.8,
+                            alignment: Alignment.topCenter,
+                            child: SingleChildScrollView(
+                              physics: BouncingScrollPhysics(),
+                              child: Container(
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width,
+//                  color: Colors.blue,
+//                  height: 150,
+                                child: Setting(),
+                              ),
+                            ),
+                          ),
+                        ))
+                  ],
+                ),
               ],
-            ),
-          ],
-        )),
+            )),
       ),
     );
   }
@@ -578,7 +631,10 @@ class MealUI extends State<MealState> {
     return AnimatedOpacity(
       child: AnimatedContainer(
         duration: Duration(milliseconds: 200),
-        height: _openInfo ? MediaQuery.of(context).size.height * 0.06 : 0,
+        height: _openInfo ? MediaQuery
+            .of(context)
+            .size
+            .height * 0.06 : 0,
         decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(50), boxShadow: [
           new BoxShadow(
             color: Colors.black.withOpacity(0.2),
@@ -588,7 +644,10 @@ class MealUI extends State<MealState> {
           )
         ]),
         child: SpeechBubble(
-            height: _openInfo ? MediaQuery.of(context).size.height * 0.06 : 0,
+            height: _openInfo ? MediaQuery
+                .of(context)
+                .size
+                .height * 0.06 : 0,
             nipLocation: NipLocation.TOP,
             color: primaryYellow,
             borderRadius: 50,
@@ -612,7 +671,10 @@ class MealUI extends State<MealState> {
     return AnimatedOpacity(
       child: AnimatedContainer(
         duration: Duration(milliseconds: 200),
-        height: _openInfo ? MediaQuery.of(context).size.height * 0.06 : 0,
+        height: _openInfo ? MediaQuery
+            .of(context)
+            .size
+            .height * 0.06 : 0,
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(50), boxShadow: [
           new BoxShadow(
             color: Colors.black.withOpacity(0.2),
@@ -622,89 +684,83 @@ class MealUI extends State<MealState> {
           )
         ]),
         child: SpeechBubble(
-          height: _openInfo ? MediaQuery.of(context).size.height * 0.06 : 0,
+          height: _openInfo ? MediaQuery
+              .of(context)
+              .size
+              .height * 0.06 : 0,
           nipLocation: NipLocation.BOTTOM,
           color: Colors.white,
           borderRadius: 50,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return SizeTransition(
-                    sizeFactor: animation,
-                    child: child,
-                    axisAlignment: 1,
-                    axis: Axis.horizontal,
-                  );
-                },
-                child: _ratingStarList[index] == 0
-                    ? Row(
-                        key: ValueKey<List>(_ratingStarList),
-                        children: ratingEmojiList.map((x) {
-                          return Material(
-                            borderRadius: BorderRadius.all(Radius.circular(100)),
-                            child: InkWell(
-                              borderRadius: BorderRadius.all(Radius.circular(100)),
-                              onTap: () async{
-                                int star = ratingEmojiList.indexOf(x) + 1;
-                                setState(() {
-                                  _ratingStarList[index] = star;
-
-                                });
-
-
-
-
-                                Future.delayed(Duration(milliseconds: 600),(){
-
-                                  setState(() {
-                                    _bubbleOpened = false;
-                                    _openInfo = false;
-                                  });
-
-                                });
-
-                                var rateResult = await rateStar(index, star);
-
-
-
-
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(2),
-                                child: Image.asset(
-                                  getEmoji(x),
-                                  width: 35,
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      )
-                    : Container(
-                        key: ValueKey<List>(_ratingStarList),
-                        child: Material(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return SizeTransition(
+                      sizeFactor: animation,
+                      child: child,
+                      axisAlignment: 1,
+                      axis: Axis.horizontal,
+                    );
+                  },
+                  child: _ratingStarList[index] == 0
+                      ? Row(
+                    key: ValueKey<List>(_ratingStarList),
+                    children: ratingEmojiList.map((x) {
+                      return Material(
+                        borderRadius: BorderRadius.all(Radius.circular(100)),
+                        child: InkWell(
                           borderRadius: BorderRadius.all(Radius.circular(100)),
-                          child: InkWell(
-                            borderRadius: BorderRadius.all(Radius.circular(100)),
-                            onTap: () {
-//                      int i = ratingEmojiList.indexOf(x);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(2),
-                              child: Image.asset(
-                                getEmoji(ratingEmojiList[_ratingStarList[index] - 1]),
-                                width: 35,
-                              ),
+                          onTap: () async {
+                            int star = ratingEmojiList.indexOf(x) + 1;
+                            setState(() {
+                              _ratingStarList[index] = star;
+                            });
+
+
+                            Future.delayed(Duration(milliseconds: 600), () {
+                              setState(() {
+                                _bubbleOpened = false;
+                                _openInfo = false;
+                              });
+                            });
+
+                            var rateResult = await rateStar(index, star);
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(2),
+                            child: Image.asset(
+                              getEmoji(x),
+                              width: 35,
                             ),
                           ),
                         ),
+                      );
+                    }).toList(),
+                  )
+                      : Container(
+                    key: ValueKey<List>(_ratingStarList),
+                    child: Material(
+                      borderRadius: BorderRadius.all(Radius.circular(100)),
+                      child: InkWell(
+                        borderRadius: BorderRadius.all(Radius.circular(100)),
+                        onTap: () {
+//                      int i = ratingEmojiList.indexOf(x);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(2),
+                          child: Image.asset(
+                            getEmoji(ratingEmojiList[_ratingStarList[index] - 1]),
+                            width: 35,
+                          ),
+                        ),
                       ),
-              ),
-            ]
+                    ),
+                  ),
+                ),
+              ]
           ),
         ),
       ),
@@ -717,6 +773,8 @@ class MealUI extends State<MealState> {
     MealStatus mealStatus = Provider.of<MealStatus>(context);
     var keys = mealStatus.dayList.keys.toList();
 
+    print(keys);
+
     int i = 0;
 
     keys.sort();
@@ -724,26 +782,30 @@ class MealUI extends State<MealState> {
     return Column(
         children: keys
             .where((x) {
-              DateTime dParsed = DateTime.parse(x);
-              int dday = dParsed.day - DateTime.now().day;
-              return dday >= 0;
-            })
+          DateTime dParsed = DateTime.parse(x);
+          var dday = dParsed.difference(DateTime
+              .now()).inDays;
+          print(dday);
+          return dday >= 0;
+        })
             .toList()
             .map((x) {
-              return _buildDDayListItem(x, mealStatus.dayList[x], i++);
-            })
+              print(x);
+          return _buildDDayListItem(x, mealStatus.dayList[x], i++);
+        })
             .toList());
 
     return ListView(
         children: keys.map((x) {
-      return _buildDDayListItem(x, mealStatus.dayList[x], i++);
-      ;
-    }).toList());
+          return _buildDDayListItem(x, mealStatus.dayList[x], i++);
+          ;
+        }).toList());
   }
 
   Widget _buildDDayListItem(String date, List menus, index) {
     DateTime dParsed = DateTime.parse(date);
-    int dday = dParsed.day - DateTime.now().day;
+    int dday =dParsed.difference(DateTime
+        .now()).inDays;
     if (dday < 0)
       return Container(
         width: 0,
@@ -761,20 +823,26 @@ class MealUI extends State<MealState> {
               color: primaryRed,
               boxShadow: index % 2 == 0
                   ? <BoxShadow>[
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        spreadRadius: 0.1,
-                        blurRadius: 0.5,
-                        offset: Offset(0, 2), // changes position of shadow
-                      ),
-                    ]
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  spreadRadius: 0.1,
+                  blurRadius: 0.5,
+                  offset: Offset(0, 2), // changes position of shadow
+                ),
+              ]
                   : [],
             ),
             child: Row(
               children: <Widget>[
                 Container(
-                  width: MediaQuery.of(context).size.width * 0.2,
-                  height: MediaQuery.of(context).size.width * 0.1,
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width * 0.2,
+                  height: MediaQuery
+                      .of(context)
+                      .size
+                      .width * 0.1,
                   child: Center(
                     child: Text(
                       'D-${dday == 0 ? 'Day' : dday}',
@@ -812,7 +880,7 @@ class MealUI extends State<MealState> {
     });
 
     http.Response res = await http.get(
-        'http://meal-backend.herokuapp.com/api/meals/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}',
+        '${Host.herokuAddress}/meals/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}',
         headers: {
           "Authorization": await getToken(),
         });
@@ -838,9 +906,9 @@ class MealUI extends State<MealState> {
     }
   }
 
-  Future getSelectedMealMenu() async {
+  Future getSelectedMealMenu(year, month) async {
     http.Response res =
-        await http.get('http://meal-backend.herokuapp.com/api/meals/rating/favorite?year=2020&month=10', headers: {
+    await http.get('${Host.herokuAddress}/meals/rating/favorite?year=${year}&month=${month}', headers: {
       "Authorization": await getToken(),
     });
     print(res.statusCode);

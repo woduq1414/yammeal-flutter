@@ -8,9 +8,38 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:540510354791:android:77672a7db49d40df01c3c2",
+        "android_client_info": {
+          "package_name": "com.aperture.yammeal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "540510354791-65m6ujip6faq3j9gealhiln47ebvmeh8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCx1h4t8u7yflXAqmHtHsk3ynL_2ppoONg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "540510354791-65m6ujip6faq3j9gealhiln47ebvmeh8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:540510354791:android:e53ba38c78de9e8801c3c2",
         "android_client_info": {
-          "package_name": "com.example.meal_flutter"
+          "package_name": "com.aperture.yammeal"
         }
       },
       "oauth_client": [

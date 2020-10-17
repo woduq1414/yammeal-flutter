@@ -164,7 +164,7 @@ class UserStatus with ChangeNotifier {
   Future<bool> checkIdDuplicate() async {
     isLoading = true;
     notifyListeners();
-    final res = await GET(url : "${Host.address}/students/check-duplicate/id/${inputData["id"]}");
+    final res = await GET(url : "${Host.herokuAddress}/students/check-duplicate/id/${inputData["id"]}");
     isLoading = false;
     notifyListeners();
 
@@ -178,7 +178,7 @@ class UserStatus with ChangeNotifier {
 
   Future<bool> checkNicknameDuplicate() async {
     final res = await GET(
-      url : "${Host.address}/students/check-duplicate/nickname/${inputData["nickname"]}",
+      url : "${Host.herokuAddress}/students/check-duplicate/nickname/${inputData["nickname"]}",
     );
     if (res.statusCode == 200){
       return true;
@@ -192,7 +192,7 @@ class UserStatus with ChangeNotifier {
   Future<dynamic> verifySchoolCode() async {
     final res = await GET(
       url :
-      "${Host.address}/schools/code-verify/${inputData["schoolCode"]}",
+      "${Host.herokuAddress}/schools/code-verify/${inputData["schoolCode"]}",
     );
 
     if (res.statusCode == 200) {
@@ -213,7 +213,7 @@ class UserStatus with ChangeNotifier {
 
     final res = await GET(
       url:
-      "${Host.address}/schools?schoolName=${search}",
+      "${Host.herokuAddress}/schools?schoolName=${search}",
     );
     setIsSearchingSchool(false);
 
@@ -286,7 +286,7 @@ class UserStatus with ChangeNotifier {
 
 
     final res = await http.post(
-      "${Host.address}/students",
+      "${Host.herokuAddress}/students",
       body: jsonEncode(param),
       headers: {"Content-Type": "application/json"},
     );
@@ -335,7 +335,7 @@ class UserStatus with ChangeNotifier {
     print(inputData);
     final res = await POST(
       url:
-      "${Host.address}/auth/kakao/register",
+      "${Host.herokuAddress}/auth/kakao/register",
       body: param,
 //      headers: {"Content-Type": "application/json"},
     );
@@ -355,7 +355,7 @@ class UserStatus with ChangeNotifier {
   Future<bool> loginDefault(id ,pw) async {
     final res = await POST(
       url:
-      "${Host.address}/auth",
+      "${Host.herokuAddress}/auth",
       body: {"id" : id, "password" : pw},
 //      headers: {"Content-Type": "application/json"},
     );
@@ -395,7 +395,7 @@ class UserStatus with ChangeNotifier {
 
       final res = await POST(
         url :
-        "${Host.address}/auth/kakao/login",
+        "${Host.herokuAddress}/auth/kakao/login",
         body: {"accessToken": token.accessToken},
 //        headers: {"Content-Type": "application/json"},
 
@@ -424,7 +424,7 @@ class UserStatus with ChangeNotifier {
   }
 
   Future<bool> login(String id, String pw) async {
-    final res = await POST(url : "${Host.address}/User/login", body: {"id": id, "password": pw});
+    final res = await POST(url : "${Host.herokuAddress}/User/login", body: {"id": id, "password": pw});
     print(res.body);
     Map<String, dynamic> data = jsonDecode(res.body);
     if (data["status"] != 200) {
@@ -448,7 +448,7 @@ class UserStatus with ChangeNotifier {
     print(data);
     final res = await POST(
       url :
-      "${Host.address}/auth/kakao/login",
+      "${Host.herokuAddress}/auth/kakao/login",
       body: data,
     );
 
@@ -524,4 +524,10 @@ getToken() async {
     return "";
   }
   return "Bearer " + token;
+}
+
+getUserInfo() async {
+  var token = await getToken();
+  var userInfo = parseJwtPayLoad(token)["data"];
+  return userInfo;
 }

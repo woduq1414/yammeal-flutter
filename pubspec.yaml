@@ -31,12 +31,15 @@ dependencies:
   kakao_flutter_sdk: ^0.4.2
   sortedmap: ^0.4.2+1
 
+  sqflite:
+  path:
+
 
   loading_overlay: "^0.2.1"
   carousel_slider: ^2.2.1
 
   table_calendar: 2.2.3
-
+  flutter_spinkit: "^4.1.2"
 
   speech_bubble: ^0.0.5
   date_format: ^1.0.9
@@ -75,6 +78,7 @@ flutter:
     - assets/emoji/pretzel.png
     - assets/emoji/pan.png
     - assets/emoji/icecream.png
+    - assets/icon/
     - pubspec.yaml
   # To add assets to your application, add an assets section, like this:
   # assets:
