@@ -104,7 +104,7 @@ class _SettingState extends State<Setting> {
                           width: 10,
                         ),
                         Text(
-                          "${userStatus.userInfo["school"]["schoolName"]}(${userStatus.userInfo["school"]["region"]})",
+                          "${userStatus.userInfo["school"]["schoolName"]}",
                           style: TextStyle(fontSize: fs.s6),
                           textAlign: TextAlign.left,
                         ),
