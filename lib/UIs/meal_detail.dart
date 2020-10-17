@@ -66,7 +66,10 @@ class MealDetail extends State<MealDetailState> {
           title: "급식표",
         ),
         backgroundColor: Color(0xffFFBB00),
-        body: _buildBody(d),
+        body: Column(children: [Flexible(child: _buildBody(d)),
+          Container(width: MediaQuery.of(context).size.width, height: 60, margin: EdgeInsets.only(bottom: 0,))
+
+        ]),
       ),
     );
   }
@@ -115,7 +118,7 @@ class MealDetail extends State<MealDetailState> {
                       )
               else
                 Container(margin: EdgeInsets.only(top: 10), child: CustomLoading()),
-              Container(width: MediaQuery.of(context).size.width, height: 60, margin: EdgeInsets.only(bottom: 0,))
+
             ],
           ),
         );

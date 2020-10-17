@@ -104,7 +104,7 @@ class _SettingState extends State<Setting> {
                           width: 10,
                         ),
                         Text(
-                          userStatus.userInfo["school"]["schoolName"],
+                          "${userStatus.userInfo["school"]["schoolName"]}(${userStatus.userInfo["school"]["region"]})",
                           style: TextStyle(fontSize: fs.s6),
                           textAlign: TextAlign.left,
                         ),
@@ -117,7 +117,7 @@ class _SettingState extends State<Setting> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
                         RaisedButton(
-                          color: primaryRed,
+                          color: primaryRedDark,
                           onPressed: () {
                             showCustomDialog(
                                 context: context,

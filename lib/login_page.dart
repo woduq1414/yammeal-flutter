@@ -37,9 +37,11 @@ class _LoginPageState extends State<LoginPage> {
   final _idController = TextEditingController(text: "qaz123@naver.com");
   final _passwordController = TextEditingController(text: "qwe123");
   AdMobManager adMob = AdMobManager();
+
   @override
   void initState() {
-//    adMob.
+
+
   }
 
 
@@ -74,6 +76,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     UserStatus userStatus = Provider.of<UserStatus>(context);
+    var _bannerAd = adMob.createBannerAd();
+    _bannerAd?.dispose();
+
 
     fs = FontSize(context);
 
@@ -143,7 +148,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       SizedBox(
-                        height: 20,
+                        height: MediaQuery.of(context).size.height * 0.01,
                       ),
                       Container(
                         child: _buildTextFields(),
@@ -171,7 +176,7 @@ class _LoginPageState extends State<LoginPage> {
                     LengthLimitingTextInputFormatter(40),
                   ],
                   decoration: InputDecoration(
-                    hintText: '아메일',
+                    hintText: '이메일',
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(50),
@@ -179,7 +184,7 @@ class _LoginPageState extends State<LoginPage> {
                     contentPadding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                   ),
                 ),
-                SizedBox(height: 15,),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.01,),
                 TextField(
                   controller: _passwordController,
                   maxLines: 1,
@@ -197,12 +202,14 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.03,
+                  height: MediaQuery.of(context).size.height * 0.01,
                 ),
                 ButtonTheme(
+
                   minWidth: 320,
-                  height: 40,
+                  height: MediaQuery.of(context).size.height * 0.045,
                   child: RaisedButton(
+
                     color: primaryRedDark,
                     child: Text(
                       '로그인',
@@ -222,11 +229,11 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.007,
+                  height: MediaQuery.of(context).size.height * 0.000,
                 ),
                 ButtonTheme(
                   minWidth: 320,
-                  height: 40,
+                  height: MediaQuery.of(context).size.height * 0.045,
                   child: RaisedButton(
                     color: primaryRedDark,
                     child: Text(
@@ -248,7 +255,7 @@ class _LoginPageState extends State<LoginPage> {
                 _buildDivisionLine(),
                 ButtonTheme(
                   minWidth: 320,
-                  height: 40,
+                  height: MediaQuery.of(context).size.height * 0.045,
                   child: RaisedButton(
                     color: kakaoColor,
                     child: Text(

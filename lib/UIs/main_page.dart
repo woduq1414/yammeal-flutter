@@ -920,11 +920,15 @@ class MealUI extends State<MealState> {
           setState(() {
             dayList = jsonBody;
           });
-        } else {}
+        } else {
+
+        }
       });
       return;
     } else {
-      return;
+      setState(() {
+        dayList = {};
+      });
     }
   }
 }

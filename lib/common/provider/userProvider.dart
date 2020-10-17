@@ -317,6 +317,9 @@ class UserStatus with ChangeNotifier {
     var token = await _issueAccessToken(code);
     setIsLoading(false);
 
+    print(token);
+
+
     var param = {
       "nickname": inputData["nickname"],
       "schoolCode": inputData["schoolCode"],
@@ -391,6 +394,9 @@ class UserStatus with ChangeNotifier {
       }
 
       var token = await _issueAccessToken(code);
+      print(token);
+      print(code);
+      print(token.accessToken);
 
 
       final res = await POST(
