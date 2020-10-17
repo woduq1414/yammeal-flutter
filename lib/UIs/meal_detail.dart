@@ -1,4 +1,5 @@
 import 'dart:convert';
+//import 'dart:html';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +77,7 @@ class MealDetail extends State<MealDetailState> {
     return Builder(
       builder: (context) {
         MealStatus mealStatus = Provider.of<MealStatus>(context);
-        return Container(
+        return SingleChildScrollView(
           child: Column(
             //crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
@@ -86,7 +87,7 @@ class MealDetail extends State<MealDetailState> {
               Center(
                 child: Text(
                   formatDate(d, [yyyy, '.', mm, '.', dd]),
-                  style: TextStyle(fontSize: 35, color: Colors.white),
+                  style: TextStyle(fontSize: fs.s2, color: Colors.white),
                 ),
               ),
               SizedBox(
@@ -114,6 +115,7 @@ class MealDetail extends State<MealDetailState> {
                       )
               else
                 Container(margin: EdgeInsets.only(top: 10), child: CustomLoading()),
+              Container(width: MediaQuery.of(context).size.width, height: 60, margin: EdgeInsets.only(bottom: 0,))
             ],
           ),
         );
@@ -138,7 +140,7 @@ class MealDetail extends State<MealDetailState> {
         return Column(
           children: <Widget>[
             SizedBox(
-              height: 15,
+              height: fs.getHeightRatioSize(0.02),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -173,7 +175,7 @@ class MealDetail extends State<MealDetailState> {
                       menu,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 25,
+                        fontSize: fs.s5,
                       ),
                       textAlign: TextAlign.center,
                     ),
