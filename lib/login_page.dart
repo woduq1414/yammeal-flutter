@@ -76,8 +76,13 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     UserStatus userStatus = Provider.of<UserStatus>(context);
-    var _bannerAd = adMob.createBannerAd();
-    _bannerAd?.dispose();
+//    var _bannerAd = adMob.createBannerAd();
+//    try{
+//      _bannerAd.dispose();
+//    }on Exception{
+//
+//    }
+
 
 
     fs = FontSize(context);

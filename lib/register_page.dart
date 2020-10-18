@@ -1,3 +1,4 @@
+import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:meal_flutter/UIs/login_UI.dart';
@@ -16,9 +17,11 @@ import 'package:provider/provider.dart';
 import './common/provider/userProvider.dart';
 import 'common/widgets/appbar.dart';
 import 'common/widgets/loading.dart';
+
 final scaffoldKey = GlobalKey<ScaffoldState>();
 final scaffoldKey2 = GlobalKey<ScaffoldState>();
 final scaffoldKey3 = GlobalKey<ScaffoldState>();
+
 class RegisterPage extends StatefulWidget {
   bool isKakao;
 
@@ -37,9 +40,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-
-
-
     return isKakao ? NameRegisterPage() : IdRegisterPage();
   }
 }
@@ -98,14 +98,14 @@ class IdRegisterPage extends StatelessWidget {
                         onTap: () async {
                           userStatus.inputData["id"] = _controller.text;
 
-
                           var checkResult = await userStatus.checkIdDuplicate();
-                          if(checkResult == false){
-                            scaffoldKey.currentState
-                                .showSnackBar(SnackBar(content: Text("이미 가입된 이메일입니다.",)));
+                          if (checkResult == false) {
+                            scaffoldKey.currentState.showSnackBar(SnackBar(
+                                content: Text(
+                              "이미 가입된 이메일입니다.",
+                            )));
                             return;
                           }
-
 
                           Navigator.push(
                             context,
@@ -113,7 +113,7 @@ class IdRegisterPage extends StatelessWidget {
                           );
                         },
                         textColor: Colors.white,
-                        primeColor: primaryRedDark ,
+                        primeColor: primaryRedDark,
                         disabled: () {
                           return !RegExp(
                                   r'^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$')
@@ -206,7 +206,7 @@ class NameRegisterPage extends StatelessWidget {
 //    var scaffoldKey = GlobalKey<ScaffoldState>();
     return LoadingModal(
       child: Scaffold(
-          key : scaffoldKey2,
+          key: scaffoldKey2,
           appBar: DefaultAppBar(),
           body: Container(
               padding: EdgeInsets.all(15),
@@ -252,11 +252,15 @@ class NameRegisterPage extends StatelessWidget {
                           userStatus.inputData["nickname"] = _controller.text;
                           print(userStatus.inputData["name"]);
 
-
                           var checkResult = await userStatus.checkNicknameDuplicate();
-                          if(checkResult == false){
-                            scaffoldKey2.currentState
-                                .showSnackBar(SnackBar(content: Text("이미 가입된 닉네임입니다.",), duration: const Duration(seconds: 1)), );
+                          if (checkResult == false) {
+                            scaffoldKey2.currentState.showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                    "이미 가입된 닉네임입니다.",
+                                  ),
+                                  duration: const Duration(seconds: 1)),
+                            );
                             return;
                           }
 
@@ -287,7 +291,7 @@ class SchoolCodeRegisterPage extends StatelessWidget {
 
     return LoadingModal(
       child: Scaffold(
-          key : scaffoldKey3,
+          key: scaffoldKey3,
           appBar: DefaultAppBar(),
           body: Container(
               padding: EdgeInsets.all(15),
@@ -340,6 +344,8 @@ class SchoolCodeRegisterPage extends StatelessWidget {
 //                          userStatus.setInputData("schoolGrade", 1);
                             userStatus.setIsSchoolCodeVerified(false);
 
+                            userStatus.setClassData("");
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => SchoolInfoRegisterPage()),
@@ -355,18 +361,23 @@ class SchoolCodeRegisterPage extends StatelessWidget {
                         NextButton(
                             text: "다음",
                             onTap: () async {
-
                               print(_controller.text);
 
                               var verifySchoolCodeResult = await userStatus.verifySchoolCode();
                               if (verifySchoolCodeResult == null) {
-
-                                scaffoldKey3.currentState
-                                    .showSnackBar(SnackBar(content: Text("인증 코드가 일치하지 않습니다.",), duration: const Duration(seconds: 1)), );
+                                scaffoldKey3.currentState.showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                        "인증 코드가 일치하지 않습니다.",
+                                      ),
+                                      duration: const Duration(seconds: 1)),
+                                );
                               } else {
                                 print(verifySchoolCodeResult);
                                 userStatus.inputData["schoolId"] = verifySchoolCodeResult["schoolId"];
                                 userStatus.inputData["schoolName"] = verifySchoolCodeResult["schoolName"];
+
+                                userStatus.setClassData(verifySchoolCodeResult["schoolId"]);
 
                                 userStatus.setInputData("schoolGrade", null);
                                 userStatus.setInputData("schoolClass", null);
@@ -380,7 +391,7 @@ class SchoolCodeRegisterPage extends StatelessWidget {
                               }
                             },
                             textColor: Colors.white,
-                            primeColor:primaryRedDark,
+                            primeColor: primaryRedDark,
                             disabled: () {
                               return !RegExp(r'^[a-zA-Z]{4,8}$').hasMatch(userStatus.inputData["schoolCode"]);
                             }),
@@ -402,6 +413,15 @@ class SchoolInfoRegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     UserStatus userStatus = Provider.of<UserStatus>(context);
+
+    if(userStatus.isSchoolCodeVerified){
+
+    }{
+//      userStatus.classData = {};
+    }
+
+
+
 
     return LoadingModal(
       child: Scaffold(
@@ -459,87 +479,95 @@ class SchoolInfoRegisterPage extends StatelessWidget {
                                                 child: Column(
                                                   children: <Widget>[
                                                     Row(
-                                                      children:[Flexible(
-                                                        child: TextField(
-                                                          autofocus: true,
-                                                          onChanged: (value) {
-                                                            userStatus.setInputData("schoolName", value);
-                                                          },
-                                                          onSubmitted: (value) async {
-                                                            var searchResult = await userStatus.searchSchoolName(value);
-
-                                                          },
-                                                          controller: _controller,
-                                                          style: TextStyle(
-                                                            fontSize: 18,
-                                                          ),
-                                                          textInputAction: TextInputAction.search,
-                                                          decoration: InputDecoration(
-//                        border: InputBorder.none,
-                                                            hintText: "학교 이름",
-                                                            contentPadding: EdgeInsets.fromLTRB(0, 10.0, 0, 8.0),
-
-                                                            hintStyle: TextStyle(
+                                                      children: [
+                                                        Flexible(
+                                                          child: TextField(
+                                                            autofocus: true,
+                                                            onChanged: (value) {
+                                                              userStatus.setInputData("schoolName", value);
+                                                            },
+                                                            onSubmitted: (value) async {
+                                                              var searchResult = await userStatus.searchSchoolName(value);
+                                                            },
+                                                            controller: _controller,
+                                                            style: TextStyle(
                                                               fontSize: 18,
+                                                            ),
+                                                            textInputAction: TextInputAction.search,
+                                                            decoration: InputDecoration(
+//                        border: InputBorder.none,
+                                                              hintText: "학교 이름",
+                                                              contentPadding: EdgeInsets.fromLTRB(0, 10.0, 0, 8.0),
+
+                                                              hintStyle: TextStyle(
+                                                                fontSize: 18,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
-                                                      ), Material(
-                                                        borderRadius : BorderRadius.all(Radius.circular(500)),
-                                                        color: Colors.grey[200],
-                                                        child: InkWell(
-                                                          borderRadius : BorderRadius.all(Radius.circular(500)),
-                                                          onTap: () async {
-                                                            var searchResult = await userStatus.searchSchoolName(_controller.text);
-                                                          },
-                                                          child: Container(
-                                                              padding: EdgeInsets.all(5),
-                                                              decoration : BoxDecoration(
-                                                                  borderRadius : BorderRadius.all(Radius.circular(500)),
-
-                                                              ),
-
-                                                              child: Icon(Icons.search)),
-                                                        ),
-                                                      )],
+                                                        Material(
+                                                          borderRadius: BorderRadius.all(Radius.circular(500)),
+                                                          color: Colors.grey[200],
+                                                          child: InkWell(
+                                                            borderRadius: BorderRadius.all(Radius.circular(500)),
+                                                            onTap: () async {
+                                                              var searchResult =
+                                                                  await userStatus.searchSchoolName(_controller.text);
+                                                            },
+                                                            child: Container(
+                                                                padding: EdgeInsets.all(5),
+                                                                decoration: BoxDecoration(
+                                                                  borderRadius: BorderRadius.all(Radius.circular(500)),
+                                                                ),
+                                                                child: Icon(Icons.search)),
+                                                          ),
+                                                        )
+                                                      ],
                                                     ),
                                                     Flexible(child: Builder(
                                                       builder: (context) {
                                                         UserStatus userStatus = Provider.of<UserStatus>(context);
-                                                        return !userStatus.isSearchingSchool ? ListView(
-                                                            children: userStatus.schoolSearchList.map((school) {
-                                                              return Material(
-                                                                  child: InkWell(
-                                                                      onTap: () {
-                                                                        userStatus.setInputData(
-                                                                            "schoolName", school["schoolName"]);
-                                                                        userStatus.setInputData("schoolId", school["schoolId"]);
-                                                                        Navigator.pop(context);
-                                                                      },
-                                                                      child: Container(
-                                                                        height: 70,
+                                                        return !userStatus.isSearchingSchool
+                                                            ? ListView(
+                                                                children: userStatus.schoolSearchList.map((school) {
+                                                                return Material(
+                                                                    child: InkWell(
+                                                                        onTap: () {
+                                                                          userStatus.setInputData(
+                                                                              "schoolName", school["schoolName"]);
+                                                                          userStatus.setInputData(
+                                                                              "schoolId", school["schoolId"]);
+
+                                                                          userStatus.setClassData(school["schoolId"]);
+
+                                                                          Navigator.pop(context);
+                                                                        },
                                                                         child: Container(
-                                                                          padding: EdgeInsets.all(5),
-                                                                          child: Column(
-                                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                                            children: <Widget>[
-                                                                              Text(
-                                                                                school["schoolName"],
-                                                                                style: TextStyle(
-                                                                                    fontSize: 18, fontWeight: FontWeight.bold),
-                                                                              ),
-                                                                              SizedBox(height: 10),
-                                                                              Text(school["schoolAddress"],
+                                                                          height: 70,
+                                                                          child: Container(
+                                                                            padding: EdgeInsets.all(5),
+                                                                            child: Column(
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              children: <Widget>[
+                                                                                Text(
+                                                                                  school["schoolName"],
                                                                                   style: TextStyle(
-                                                                                    fontSize: 14,
-                                                                                  ))
-                                                                            ],
+                                                                                      fontSize: 18,
+                                                                                      fontWeight: FontWeight.bold),
+                                                                                ),
+                                                                                SizedBox(height: 10),
+                                                                                Text(school["schoolAddress"],
+                                                                                    style: TextStyle(
+                                                                                      fontSize: 14,
+                                                                                    ))
+                                                                              ],
+                                                                            ),
                                                                           ),
-                                                                        ),
-                                                                      )));
-                                                            }).toList()) : Container(
-                                                            margin: EdgeInsets.only(top : 20),
-                                                            child: CircularProgressIndicator());
+                                                                        )));
+                                                              }).toList())
+                                                            : Container(
+                                                                margin: EdgeInsets.only(top: 20),
+                                                                child: CircularProgressIndicator());
                                                       },
                                                     ))
                                                   ],
@@ -577,7 +605,7 @@ class SchoolInfoRegisterPage extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: 25),
-                    Row(
+                    userStatus.classData.length > 0 ? Row(
                       children: <Widget>[
                         Container(
                           alignment: Alignment.center,
@@ -590,31 +618,30 @@ class SchoolInfoRegisterPage extends StatelessWidget {
                         ),
                         Flexible(
                           child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                            ),
-                            child: DropdownButton(
-//                            value: _selectedCompany,
-                              value: userStatus.inputData["schoolGrade"],
-                              items: List.generate(
-                                6,
-                                (index) => DropdownMenuItem(
-                                  value: index + 1,
-                                  child: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 20),
-                                      child: Text((index + 1).toString() + "학년")),
-                                ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.all(Radius.circular(10)),
                               ),
-                              onChanged: (value) {
-                                userStatus.setInputData("schoolGrade", value);
-                              },
-                            ),
-                          ),
+                              child: DropdownButton(
+//                            value: _selectedCompany,
+                                value: userStatus.inputData["schoolGrade"],
+
+                                items: userStatus.classData.keys.map((k) {
+                                  return DropdownMenuItem(
+                                    value: k,
+                                    child: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 20),
+                                        child: Text((k).toString() + "학년")),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                        userStatus.setInputData("schoolGrade", value);
+                                      }
+                              )),
                         ),
                       ],
-                    ),
+                    ) : Container(),
                     SizedBox(height: 25),
-                    Row(
+                    userStatus.inputData["schoolGrade"] != null && userStatus.classData.length > 0 ? Row(
                       children: <Widget>[
                         Container(
                           alignment: Alignment.center,
@@ -633,15 +660,14 @@ class SchoolInfoRegisterPage extends StatelessWidget {
                             child: DropdownButton(
 //                            value: _selectedCompany,
                               value: userStatus.inputData["schoolClass"],
-                              items: List.generate(
-                                30,
-                                (index) => DropdownMenuItem(
-                                  value: index + 1,
+                              items: userStatus.classData[userStatus.inputData["schoolGrade"]].map<DropdownMenuItem>((schoolClass) {
+                                return DropdownMenuItem(
+                                  value: schoolClass,
                                   child: Container(
                                       padding: EdgeInsets.symmetric(horizontal: 20),
-                                      child: Text((index + 1).toString() + "반")),
-                                ),
-                              ),
+                                      child: Text((schoolClass).toString() + "반")),
+                                );
+                              }).toList(),
                               onChanged: (value) {
                                 userStatus.setInputData("schoolClass", value);
                               },
@@ -649,7 +675,7 @@ class SchoolInfoRegisterPage extends StatelessWidget {
                           ),
                         ),
                       ],
-                    )
+                    ) : Container(),
                   ],
                 ),
                 Positioned(
@@ -660,30 +686,30 @@ class SchoolInfoRegisterPage extends StatelessWidget {
                             onTap: () async {
 //                            userStatus.inputData["schoolCode"] = _controller.text;
 
-                              if(userStatus.isKakao){
+                              if (userStatus.isKakao) {
                                 bool registerResult = await userStatus.registerWithKakao();
-                                if(registerResult){
+                                if (registerResult) {
                                   bool loginResult = await userStatus.loginWithKakao();
-                                  if(loginResult) {
+                                  if (loginResult) {
                                     print("!!!!!!!!!!!!1");
                                     Navigator.push(context, MaterialPageRoute(builder: (context) => MealState()));
-                                  }else{
+                                  } else {
                                     Navigator.of(context).popUntil((route) => route.isFirst);
                                   }
                                 }
-                              }else{
+                              } else {
                                 bool registerResult = await userStatus.registerDefault();
-                                if(registerResult){
-                                  bool loginResult = await userStatus.loginDefault(userStatus.inputData["id"], userStatus.inputData["password"]);
-                                  if(loginResult) {
+                                if (registerResult) {
+                                  bool loginResult = await userStatus.loginDefault(
+                                      userStatus.inputData["id"], userStatus.inputData["password"]);
+                                  if (loginResult) {
                                     print("!!!!!!!!!!!!1");
                                     Navigator.push(context, MaterialPageRoute(builder: (context) => MealState()));
-                                  }else{
+                                  } else {
                                     Navigator.of(context).popUntil((route) => route.isFirst);
                                   }
                                 }
                               }
-
 
 //                            Navigator.push(
 //                              context,

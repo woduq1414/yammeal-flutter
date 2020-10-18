@@ -112,6 +112,37 @@ class UserStatus with ChangeNotifier {
     notifyListeners();
   }
 
+  var classData = {};
+
+
+  void setClassData(schoolId) async {
+
+    if(schoolId == ""){
+      classData = {};
+      setInputData("schoolGrade", null);
+      setInputData("schoolClass", null);
+      notifyListeners();
+    }
+
+
+    final res = await GET(url : "${Host.herokuAddress}/schools/class?schoolId=${schoolId}");
+    if (res.statusCode == 200){
+      Map<String, dynamic> resData = jsonDecode(res.body);
+      classData = resData["data"];
+      setInputData("schoolGrade", null);
+      setInputData("schoolClass", null);
+
+    }else{
+
+    }
+
+    notifyListeners();
+  }
+
+
+
+
+
   void setIsSchoolCodeVerified(value) {
     isSchoolCodeVerified = value;
     notifyListeners();
@@ -285,10 +316,9 @@ class UserStatus with ChangeNotifier {
 
 
 
-    final res = await http.post(
-      "${Host.herokuAddress}/students",
+    final res = await POST(
+      url : "${Host.herokuAddress}/students",
       body: jsonEncode(param),
-      headers: {"Content-Type": "application/json"},
     );
 
     if (res.statusCode == 201) {
