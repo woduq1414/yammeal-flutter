@@ -19,7 +19,6 @@ import 'kakao_register_page.dart';
 import 'common/ip.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-
 class FirstPage extends StatefulWidget {
   @override
   _FirstPageState createState() => _FirstPageState();
@@ -28,24 +27,35 @@ class FirstPage extends StatefulWidget {
 FontSize fs;
 
 class _FirstPageState extends State<FirstPage> {
-
   final _idController = TextEditingController();
   final _passwordController = TextEditingController();
 
   var _isLogined = null;
 
-
   void getIsLogined() async {
     var storage = FlutterSecureStorage();
     String token = await getToken();
+    int exp;
     print(token);
-    final res = await http.get(
-      "${Host.herokuAddress}/auth",
-      headers: {"Content-Type": "application/json", "Authorization" : token},
-    );
-    print(res.statusCode);
-//    if
-    if(res.statusCode == 200) {
+    try{
+      exp = parseJwtPayLoad(token)["exp"];
+    }on Exception {
+      setState(() {
+        _isLogined = false;
+        Navigator.push(
+          context,
+          FadeRoute(page: LoginPage()),
+        );
+      });
+      return;
+    }
+
+
+    int now = (DateTime.now().millisecondsSinceEpoch / 1000).toInt();
+    print(exp);
+    print(now);
+
+    if (exp >= now) {
       setState(() {
         _isLogined = true;
         Navigator.push(
@@ -53,7 +63,7 @@ class _FirstPageState extends State<FirstPage> {
           FadeRoute(page: MealState()),
         );
       });
-    }else{
+    } else {
       setState(() {
         _isLogined = false;
         Navigator.push(
@@ -63,32 +73,53 @@ class _FirstPageState extends State<FirstPage> {
       });
     }
 
+//    final res = await http.get(
+//      "${Host.herokuAddress}/auth",
+//      headers: {"Content-Type": "application/json", "Authorization" : token},
+//    );
+//
+//
+//
+//
+//    print(res.statusCode);
+////    if
+//    if(res.statusCode == 200) {
+//      setState(() {
+//        _isLogined = true;
+//        Navigator.push(
+//          context,
+//          FadeRoute(page: MealState()),
+//        );
+//      });
+//    }else{
+//      setState(() {
+//        _isLogined = false;
+//        Navigator.push(
+//          context,
+//          FadeRoute(page: LoginPage()),
+//        );
+//      });
+//    }
   }
 
   @override
   void initState() {
     getIsLogined();
     SchedulerBinding.instance.addPostFrameCallback((_) {
-
       // add your code here.
 
       print("!");
     });
   }
 
-
-
-  
   @override
   Widget build(BuildContext context) {
-
-
     fs = FontSize(context);
 
     return Scaffold(
-      backgroundColor: primaryYellow,
-      body: Center(
-        child: Column(
+        backgroundColor: primaryYellow,
+        body: Center(
+            child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
@@ -97,18 +128,13 @@ class _FirstPageState extends State<FirstPage> {
                 fontSize: fs.s2,
                 fontWeight: Font.bold,
                 letterSpacing: 8,
-
               ),
             ),
-            SizedBox(height: 30,),
+            SizedBox(
+              height: 30,
+            ),
             CustomLoading(),
           ],
-        )
-      )
-    );
-
-
+        )));
   }
-
-
 }

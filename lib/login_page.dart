@@ -11,6 +11,7 @@ import 'package:kakao_flutter_sdk/auth.dart';
 import 'package:kakao_flutter_sdk/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:meal_flutter/common/widgets/loading.dart';
+import 'package:meal_flutter/find_email_page.dart';
 import 'package:meal_flutter/register_page.dart';
 import 'package:provider/provider.dart';
 
@@ -23,6 +24,7 @@ import 'common/color.dart';
 import 'common/font.dart';
 
 import 'common/widgets/dialog.dart';
+import 'find_password_page.dart';
 import 'firebase.dart';
 import 'test_page.dart';
 
@@ -34,17 +36,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _idController = TextEditingController(text: "qaz123@naver.com");
-  final _passwordController = TextEditingController(text: "qwe123");
+  final _idController = TextEditingController();
+  final _passwordController = TextEditingController();
   AdMobManager adMob = AdMobManager();
 
   @override
-  void initState() {
-
-
-  }
-
-
+  void initState() {}
 
   void goKakaoRegisterPage() {
     Navigator.push(
@@ -83,26 +80,24 @@ class _LoginPageState extends State<LoginPage> {
 //
 //    }
 
-
-
     fs = FontSize(context);
 
     return LoadingModal(
       child: WillPopScope(
         onWillPop: () async {
-          showCustomDialog(context: context,
-              title : "앱을 종료할까요?",
+          showCustomDialog(
+              context: context,
+              title: "앱을 종료할까요?",
 //          content : null,
               cancelButtonText: "취소",
               confirmButtonText: "나가기",
               cancelButtonAction: () {
                 Navigator.pop(context);
               },
-              confirmButtonAction:  () {
+              confirmButtonAction: () {
                 Navigator.pop(context);
                 exit(1);
-              }
-          );
+              });
 
           return true;
         },
@@ -120,19 +115,15 @@ class _LoginPageState extends State<LoginPage> {
                       SizedBox(height: MediaQuery.of(context).size.height * 0.18),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(
-                          color: primaryYellow.withOpacity(0.8)
-                        ),
+                        decoration: BoxDecoration(color: primaryYellow.withOpacity(0.8)),
                         child: Text(
                           "모두의 급식 앱",
-                          style: TextStyle(
-                              fontSize: fs.s6,
-                              fontWeight: Font.normal,
-                              letterSpacing: 8
-                          ),
+                          style: TextStyle(fontSize: fs.s6, fontWeight: Font.normal, letterSpacing: 8),
                         ),
                       ),
-                      SizedBox(height: 10,),
+                      SizedBox(
+                        height: 10,
+                      ),
                       Container(
                         child: Text(
                           "YAMMEAL",
@@ -140,11 +131,9 @@ class _LoginPageState extends State<LoginPage> {
                             fontSize: fs.s2,
                             fontWeight: Font.bold,
                             letterSpacing: 8,
-
                           ),
                         ),
                       ),
-
                       Container(
                         //margin: EdgeInsets.only(bottom: 120),
                         child: Image.asset(
@@ -189,7 +178,9 @@ class _LoginPageState extends State<LoginPage> {
                     contentPadding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                   ),
                 ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.01,),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.01,
+                ),
                 TextField(
                   controller: _passwordController,
                   maxLines: 1,
@@ -210,11 +201,9 @@ class _LoginPageState extends State<LoginPage> {
                   height: MediaQuery.of(context).size.height * 0.01,
                 ),
                 ButtonTheme(
-
                   minWidth: 320,
                   height: MediaQuery.of(context).size.height * 0.045,
                   child: RaisedButton(
-
                     color: primaryRedDark,
                     child: Text(
                       '로그인',
@@ -257,6 +246,51 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
                 ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.005,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: (){
+                        UserStatus userStatus = Provider.of<UserStatus>(context);
+                        userStatus.setIsKakao(false);
+                        Navigator.push(
+                            context,
+                            FadeRoute(
+                                page: FindEmailPage())
+                        );
+                      },
+                      child: Text(
+                        "이메일 찾기",
+                        style: TextStyle(
+                          fontSize: fs.s7,
+                          color: Colors.grey,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: (){
+                        UserStatus userStatus = Provider.of<UserStatus>(context);
+                        userStatus.setIsKakao(false);
+                        Navigator.push(
+                          context,
+                          FadeRoute(
+                              page: FindPasswordPage())
+                        );
+                      },
+                        child: Text(
+                      "비밀번호 찾기",
+                      style: TextStyle(
+                        fontSize: fs.s7,
+                        color: Colors.grey,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ))
+                  ],
+                ),
                 _buildDivisionLine(),
                 ButtonTheme(
                   minWidth: 320,
@@ -279,8 +313,6 @@ class _LoginPageState extends State<LoginPage> {
                       print(loginResult);
 //                      userStatus.setIsLoading(false);
 
-
-
                       if (loginResult == true) {
 //                      userStatus.loginWithKakao();
                         print('성공');
@@ -299,12 +331,13 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildDivisionLine() {
     return Container(
-      margin: EdgeInsets.only(top:  MediaQuery.of(context).size.height * 0.02, bottom:  MediaQuery.of(context).size.height * 0.02),
+      margin:
+          EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02, bottom: MediaQuery.of(context).size.height * 0.02),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Container(
-            width: MediaQuery.of(context).size.width*0.3,
+            width: MediaQuery.of(context).size.width * 0.3,
             height: 2,
             color: Colors.black,
           ),
@@ -313,7 +346,7 @@ class _LoginPageState extends State<LoginPage> {
             style: TextStyle(color: Colors.black),
           ),
           Container(
-            width: MediaQuery.of(context).size.width*0.3,
+            width: MediaQuery.of(context).size.width * 0.3,
             height: 2,
             color: Colors.black,
           ),

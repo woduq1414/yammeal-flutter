@@ -9,6 +9,8 @@ import 'package:kakao_flutter_sdk/user.dart';
 
 import 'dart:convert';
 
+import '../../login_page.dart';
+import '../../main.dart';
 import '../ip.dart';
 
 Map<String, dynamic> parseJwtPayLoad(String token) {
@@ -63,7 +65,7 @@ String _decodeBase64(String str) {
 class UserStatus with ChangeNotifier {
 //  KakaoContext.clientId = '39d6c43a0a346cca6ebc7b2dbb8e4353';
 
-
+  String tempToken = "";
   bool isLoading = false;
 
   bool isLogined = false;
@@ -77,7 +79,8 @@ class UserStatus with ChangeNotifier {
     "schoolName": "",
     "schoolId": "",
     "schoolGrade": 1,
-    "schoolClass": 1
+    "schoolClass": 1,
+    "verifyCode" : -1
   };
 
   bool isSchoolCodeVerified = false;
@@ -86,6 +89,10 @@ class UserStatus with ChangeNotifier {
   bool isSearchingSchool = false;
 
   bool isKakao = false;
+
+  String filteredMail = "";
+
+
 
   void setIsKakao(value) {
     isKakao = value;
@@ -106,6 +113,105 @@ class UserStatus with ChangeNotifier {
 
     notifyListeners();
   }
+
+  Future<bool> verifyMail() async{
+    final res = await POST(
+      url:
+      "${Host.herokuAddress}/students/password-reset/check-mail",
+      body: {
+        "id" : inputData["id"]
+      },
+    );
+
+    if (res.statusCode == 200) {
+      print("success");
+      return true;
+    } else {
+
+      print("failed");
+      print(res.body);
+      return false;
+    }
+  }
+
+
+  Future<int> findMail() async{
+    final res = await GET(
+      url:
+      "${Host.herokuAddress}/students/id-hint?nickname=${inputData["nickname"]}"
+    );
+
+    if (res.statusCode == 200) {
+      print("success");
+      Map<String, dynamic> resData = jsonDecode(res.body);
+      filteredMail = resData["data"];
+      return 200;
+    } else {
+
+      print("failed");
+      print(res.body);
+      return res.statusCode;
+    }
+  }
+
+
+
+  Future<bool> verifyMailCode() async{
+    final res = await POST(
+      url:
+      "${Host.herokuAddress}/students/password-reset/check-code",
+      body: {
+        "code" : inputData["verifyCode"],
+        "id" : inputData["id"],
+      },
+    );
+
+    if (res.statusCode == 200) {
+      print("success");
+      Map<String, dynamic> resData = jsonDecode(res.body);
+      tempToken = resData["accessToken"];
+      return true;
+    } else {
+
+      print("failed");
+      print(res.body);
+      return false;
+    }
+  }
+
+
+  Future<bool> changePassword() async{
+    isLoading = true;
+    notifyListeners();
+    final res = await http.put(
+      "${Host.herokuAddress}/students/password-reset", body: jsonEncode({
+      "password" : inputData["password"]
+    }),
+      headers:  {"Content-Type": "application/json", "Authorization" : "Bearer " + tempToken},
+    );
+    isLoading = false;
+    notifyListeners();
+
+    if (res.statusCode == 200) {
+      print("success");
+      Map<String, dynamic> resData = jsonDecode(res.body);
+      var storage = FlutterSecureStorage();
+      storage.write(key: "token", value: tempToken);
+
+      isLogined = true;
+      userInfo = parseJwtPayLoad(tempToken)["data"];
+      print("SDFASFD");
+      notifyListeners();
+      return true;
+    } else {
+
+      print("failed");
+      print(res.body);
+      return false;
+    }
+  }
+
+
 
   void setInputData(key, value) {
     inputData[key] = value;
@@ -318,7 +424,7 @@ class UserStatus with ChangeNotifier {
 
     final res = await POST(
       url : "${Host.herokuAddress}/students",
-      body: jsonEncode(param),
+      body: param,
     );
 
     if (res.statusCode == 201) {
@@ -566,4 +672,132 @@ getUserInfo() async {
   var token = await getToken();
   var userInfo = parseJwtPayLoad(token)["data"];
   return userInfo;
+}
+
+
+
+
+postWithToken(url, {body}) async {
+  var storage = FlutterSecureStorage();
+  String token = await getToken();
+  print(token);
+
+  int exp;
+  try {
+    exp = parseJwtPayLoad(token)["exp"];
+  }on Exception{
+    navigatorKey.currentState.popUntil( (route) => route.isFirst);
+
+    navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
+//    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    var storage = FlutterSecureStorage();
+    storage.write(key: "token", value: "");
+    return;
+  }
+
+  int now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+  if(exp >= now ){
+    final res = await http.post
+      (
+      url,body: jsonEncode(body),
+      headers: {"Content-Type": "application/json",  "Authorization": token,},
+    );
+    return res;
+  }else{
+
+    navigatorKey.currentState.popUntil( (route) => route.isFirst);
+
+    navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
+//    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    var storage = FlutterSecureStorage();
+    storage.write(key: "token", value: "");
+
+
+  }
+
+
+}
+
+ getWithToken(url) async {
+  var storage = FlutterSecureStorage();
+  String token = await getToken();
+  print(token);
+
+  int exp;
+  try {
+    exp = parseJwtPayLoad(token)["exp"];
+  }on Exception{
+    navigatorKey.currentState.popUntil( (route) => route.isFirst);
+
+    navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
+//    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    var storage = FlutterSecureStorage();
+    storage.write(key: "token", value: "");
+    return;
+  }
+  int now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+  if(exp >= now ){
+    final res = await http.get
+      (
+      url,  headers : {
+      "Authorization": token,
+    }
+    );
+    return res;
+  }else{
+
+    navigatorKey.currentState.popUntil( (route) => route.isFirst);
+
+    navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
+//    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    var storage = FlutterSecureStorage();
+    storage.write(key: "token", value: "");
+
+
+  }
+
+
+}
+
+
+
+deleteWithToken(url) async {
+  var storage = FlutterSecureStorage();
+  String token = await getToken();
+  print(token);
+
+  int exp;
+  try {
+    exp = parseJwtPayLoad(token)["exp"];
+  }on Exception{
+    navigatorKey.currentState.popUntil( (route) => route.isFirst);
+
+    navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
+//    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    var storage = FlutterSecureStorage();
+    storage.write(key: "token", value: "");
+    return;
+  }
+  int now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+  if(exp >= now ){
+    final res = await http.delete
+      (
+        url,  headers : {
+      "Authorization": token,
+    }
+    );
+    return res;
+  }else{
+
+    navigatorKey.currentState.popUntil( (route) => route.isFirst);
+
+    navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
+//    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    var storage = FlutterSecureStorage();
+    storage.write(key: "token", value: "");
+
+
+  }
+
+
 }

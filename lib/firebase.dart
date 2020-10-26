@@ -10,7 +10,7 @@ class AdMobManager {
       ? 'ca-app-pub-3940256099942544~1458002511' // iOS Test App ID
       : 'ca-app-pub-2755450101712612~8101773189'; // Android Test App ID
 
-  bool isDebug = true;
+  bool isDebug = false;
 
 
   String bannerID = "ca-app-pub-2755450101712612/4676699347";

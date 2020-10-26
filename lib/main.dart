@@ -31,7 +31,7 @@ void main() async{
 
   return runApp(KakaoLoginTest()) ;
 }
-
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 class KakaoLoginTest extends StatelessWidget {
   // This widget is the root of your application.
   @override
@@ -54,6 +54,7 @@ class KakaoLoginTest extends StatelessWidget {
           ChangeNotifierProvider<MealStatus>(create: (_) => MealStatus()),
         ],
         child: MaterialApp(
+          navigatorKey: navigatorKey,
           title: 'Flutter Demo',
           routes: <String, WidgetBuilder>{
             '/FirstPage': (BuildContext context) => new FirstPage(),

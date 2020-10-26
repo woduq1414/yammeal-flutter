@@ -81,19 +81,12 @@ void showCustomDialog(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Container(
-                      height: 25,
-                      child: Row(
-                        children: <Widget>[
-//                          Image.asset(IconPath.letter_p),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Text(
-                            title,
-                            style: TextStyle(fontSize: 20,  fontWeight: Font.bold),
-                          )
-                        ],
-                      ),
+//                      height: 25,
+                     margin: EdgeInsets.only(left: 5),
+                     child: Text(
+                         title,
+                         style: TextStyle(fontSize: 20,  fontWeight: Font.bold, ),
+                     ),
                     ),
                     SizedBox(height: 10),
                     if (content != null) Container(

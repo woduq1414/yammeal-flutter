@@ -70,6 +70,7 @@ class IdRegisterPage extends StatelessWidget {
                           style: TextStyle(fontSize: 25),
                         )),
                     TextField(
+                      keyboardType: TextInputType.emailAddress,
                       autofocus: true,
                       onChanged: (value) {
                         userStatus.setInputData("id", value);

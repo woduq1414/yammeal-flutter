@@ -285,11 +285,10 @@ class MealDetail extends State<MealDetailState> {
 
   Future postSelectedDay(String date, int menuSeq) async {
     print(date);
-    http.Response res = await http.post('http://meal-backend.herokuapp.com/api/meals/rating/favorite',
-        body: jsonEncode(
+    http.Response res = await postWithToken('http://meal-backend.herokuapp.com/api/meals/rating/favorite',
+        body:
           {"menuDate": date, "menuSeq": menuSeq},
-        ),
-        headers: {"Authorization": await getToken(), "Content-Type": "application/json "});
+        );
     print('포스트');
     print(res.statusCode);
     if (res.statusCode == 200) {
@@ -304,9 +303,9 @@ class MealDetail extends State<MealDetailState> {
   Future deleteSelectedDay(String date, int menuSeq) async {
     print(date);
     print(menuSeq);
-    http.Response res = await http.delete(
+    http.Response res = await deleteWithToken(
         'http://meal-backend.herokuapp.com/api/meals/rating/favorite?menuDate=${date}&menuSeq=${menuSeq}',
-        headers: {"Authorization": await getToken(), "Content-Type": "application/json "});
+     );
     print('딜리트');
     print(res.statusCode);
     if (res.statusCode == 200) {

@@ -129,6 +129,7 @@ class _SettingState extends State<Setting> {
                                   Navigator.pop(context);
                                 },
                                 confirmButtonAction: () {
+                                  Navigator.pop(context);
                                   Navigator.popUntil(context, (route) => route.isFirst);
 //                                  print(Navigator);
                                   Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
