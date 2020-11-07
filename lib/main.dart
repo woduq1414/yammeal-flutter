@@ -16,6 +16,7 @@ import 'package:provider/provider.dart';
 
 import './common/provider/userProvider.dart';
 import 'UIs/main_page.dart';
+import 'UIs/servey_page.dart';
 import 'common/route_transition.dart';
 
 import 'login_page.dart';
@@ -73,7 +74,7 @@ class KakaoLoginTest extends StatelessWidget {
             // is not restarted.
 
           ),
-          home: FirstPage(),
+          home: MealSurvey(),//FirstPage(),
 
         ));
   }
