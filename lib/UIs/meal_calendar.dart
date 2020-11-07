@@ -80,7 +80,7 @@ class MealCalendar extends State<MealCalState> {
             mealStatus.setIsLoadingFavorite(true);
 
             http.Response res = await  getWithToken(
-                '${Host.herokuAddress}/meals/rating/favorite?startDate=${startDate}&endDate=${endDate}',
+                '${currentHost}/meals/rating/favorite?startDate=${startDate}&endDate=${endDate}',
                 );
             print(res.statusCode);
             if (res.statusCode == 200) {

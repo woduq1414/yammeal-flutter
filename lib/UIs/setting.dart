@@ -15,6 +15,7 @@ import 'package:package_info/package_info.dart';
 import 'dart:io';
 
 import '../login_page.dart';
+import '../set_allergy_page.dart';
 
 class Setting extends StatefulWidget {
   @override
@@ -217,6 +218,35 @@ class _SettingState extends State<Setting> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
+                              '알레르기 정보',
+                              style: TextStyle(fontSize: fs.s6),
+                            ),
+                          ],
+                        ),
+                        RaisedButton(
+                          color: primaryRedDark,
+                          onPressed: () async{
+
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => SetAllergyPage()));
+                          },
+                          child: Text(
+                            "설정",
+                            style: TextStyle(fontSize: fs.s7),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 15),
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
                               '급식 메뉴 앱에 저장',
                               style: TextStyle(fontSize: fs.s6),
                             ),
@@ -258,7 +288,7 @@ class _SettingState extends State<Setting> {
                               showCustomAlert(
                                 context: context,
                                 isSuccess: true,
-                                title: "초기화 성공!",
+                                title: "초기화 완료!",
                                 duration: Duration(seconds: 1),
                               );
                             }

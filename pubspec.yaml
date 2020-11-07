@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+2
+version: 1.0.1+1
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -58,6 +58,9 @@ dependencies:
 
   flutter_local_notifications: ^1.4.4+1
 
+  swipedetector: 1.2.0
+
+  swipeable_page_route: ^0.1.5
 
 
 dev_dependencies:
@@ -81,6 +84,7 @@ flutter:
     - assets/emoji/pan.png
     - assets/emoji/icecream.png
     - assets/icon/
+    - assets/graphics/strikethrough.png
     - pubspec.yaml
   # To add assets to your application, add an assets section, like this:
   # assets:

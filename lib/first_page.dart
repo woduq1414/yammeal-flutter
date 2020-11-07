@@ -74,7 +74,7 @@ class _FirstPageState extends State<FirstPage> {
     }
 
 //    final res = await http.get(
-//      "${Host.herokuAddress}/auth",
+//      "${currentHost}/auth",
 //      headers: {"Content-Type": "application/json", "Authorization" : token},
 //    );
 //

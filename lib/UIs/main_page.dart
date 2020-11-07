@@ -157,7 +157,7 @@ class MealUI extends State<MealState> {
 
   Future getMyRatedStar() async {
     http.Response res = await getWithToken(
-        '${Host.herokuAddress}/meals/rating/star/my?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}');
+        '${currentHost}/meals/rating/star/my?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}');
     print(res.statusCode);
     if (res.statusCode == 200) {
       print(jsonDecode(res.body));
@@ -175,7 +175,7 @@ class MealUI extends State<MealState> {
 
   Future rateStar(int menuSeq, int star) async {
 //    print(date);
-    http.Response res = await postWithToken('${Host.herokuAddress}/meals/rating/star', body: {
+    http.Response res = await postWithToken('${currentHost}/meals/rating/star', body: {
       "menuDate": formatDate(DateTime.now(), [yyyy, '', mm, '', dd]),
       "menus": [
         {"menuSeq": menuSeq, "star": star}
@@ -819,7 +819,7 @@ class MealUI extends State<MealState> {
     });
 
     http.Response res = await getWithToken(
-      '${Host.herokuAddress}/meals/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}',
+      '${currentHost}/meals/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}',
     );
     print(res.statusCode);
     if (res.statusCode == 200) {
@@ -844,7 +844,7 @@ class MealUI extends State<MealState> {
   }
 
   Future getSelectedMealMenu(year, month) async {
-    http.Response res = await getWithToken('${Host.herokuAddress}/meals/rating/favorite?year=${year}&month=${month}');
+    http.Response res = await getWithToken('${currentHost}/meals/rating/favorite?year=${year}&month=${month}');
     print(res.statusCode);
     if (res.statusCode == 200) {
       print(jsonDecode(res.body));

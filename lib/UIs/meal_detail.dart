@@ -1,5 +1,11 @@
 import 'dart:convert';
+
 //import 'dart:html';
+
+import 'package:swipedetector/swipedetector.dart';
+
+import 'package:meal_flutter/common/ip.dart';
+import 'package:swipeable_page_route/swipeable_page_route.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +21,8 @@ import 'package:speech_bubble/speech_bubble.dart';
 import 'package:http/http.dart' as http;
 import '../common/provider/mealProvider.dart';
 import '../common/font.dart';
+
+import '../common/routes.dart';
 
 import 'package:provider/provider.dart';
 
@@ -44,9 +52,26 @@ class MealDetail extends State<MealDetailState> {
 
   bool _isLoading = false;
 
+  List<bool> checkedAlg = List.generate(20, (_) => false);
+
+  getAlgFromStorage() async {
+    var storage = FlutterSecureStorage();
+    var saved_list = await storage.read(key: "algList");
+    if (saved_list == null) {
+      return;
+    }
+    for (var i in saved_list.split(",")) {
+      setState(() {
+        checkedAlg[int.parse(i)] = true;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    getAlgFromStorage();
+
     getDayMealMenu();
   }
 
@@ -60,16 +85,44 @@ class MealDetail extends State<MealDetailState> {
         print("hello?");
         return true;
       },
-      child: Scaffold(
-        appBar: DefaultAppBar(
-          backgroundColor: primaryYellowDark,
-          title: "급식표",
-        ),
-        backgroundColor: Color(0xffFFBB00),
-        body: Column(children: [Flexible(child: _buildBody(d)),
-          Container(width: MediaQuery.of(context).size.width, height: 60, margin: EdgeInsets.only(bottom: 0,))
+      child: SwipeDetector(
+        onSwipeRight: () {
+          DateTime moveDate = widget.d.add(Duration(days: -1));
+          Navigator.of(context).pushReplacement(SlideRightRoute(
+              page : MealDetailState(moveDate)
+          ));
 
-        ]),
+
+
+
+        },
+        onSwipeLeft: () {
+          DateTime moveDate = widget.d.add(Duration(days: 1));
+
+//          Na
+
+          Navigator.of(context).pushReplacement(SlideLeftRoute(
+              page : MealDetailState(moveDate)
+          ));
+
+
+        },
+        child: Scaffold(
+          appBar: DefaultAppBar(
+            backgroundColor: primaryYellowDark,
+            title: "급식표",
+          ),
+          backgroundColor: Color(0xffFFBB00),
+          body: Column(children: [
+            Flexible(child: _buildBody(d)),
+            Container(
+                width: MediaQuery.of(context).size.width,
+                height: 60,
+                margin: EdgeInsets.only(
+                  bottom: 0,
+                ))
+          ]),
+        ),
       ),
     );
   }
@@ -99,13 +152,16 @@ class MealDetail extends State<MealDetailState> {
               if (!_isLoading)
                 _mealList != null
                     ? Column(
-                        children: _mealList.map<Widget>((menu) {
+                        children: _mealList.map<Widget>((menuData) {
+                        String menuName = menuData["menu_name"];
+
                         return _buildMenuItem(
-                            menu,
+                            menuName,
+                            menuData["alg"],
                             mealStatus.dayList.containsKey(formatDate(d, [yyyy, '', mm, '', dd])) &&
-                                mealStatus.dayList[formatDate(d, [yyyy, '', mm, '', dd])].contains(menu),
+                                mealStatus.dayList[formatDate(d, [yyyy, '', mm, '', dd])].contains(menuName),
                             d,
-                            _mealList.indexOf(menu));
+                            _mealList.indexOf(menuData));
                       }).toList())
                     : Container(
                         child: Text(
@@ -118,7 +174,6 @@ class MealDetail extends State<MealDetailState> {
                       )
               else
                 Container(margin: EdgeInsets.only(top: 10), child: CustomLoading()),
-
             ],
           ),
         );
@@ -126,7 +181,45 @@ class MealDetail extends State<MealDetailState> {
     );
   }
 
-  Widget _buildMenuItem(String menu, bool dd, DateTime d, int index) {
+  Widget _buildMenuItem(String menu, List<dynamic> menuAlgList,   bool dd, DateTime d, int index) {
+
+//    print(checkedAlg);
+    List<String> allAlgList = [
+      "난류(가금류)",
+      "우유",
+      "메밀",
+      "땅콩",
+      "대두",
+      "밀",
+      "고등어",
+      "게",
+      "새우",
+      "돼지고기",
+      "복숭아",
+      "토마토",
+      "아황산염",
+      "호두",
+      "닭고기",
+      "쇠고기",
+      "오징어",
+      "조개류"
+    ];
+
+
+    List<String> myAlgList = [];
+    for(int algId in menuAlgList){
+
+      if(algId == null){
+        continue;
+      }
+
+      if(checkedAlg[algId]== true){
+        myAlgList.add(allAlgList[algId - 1]);
+      }
+    }
+
+
+
     return Builder(
       builder: (context) {
         MealStatus mealStatus = Provider.of<MealStatus>(context);
@@ -174,7 +267,17 @@ class MealDetail extends State<MealDetailState> {
                     onTap: () {
                       toggleFavorite();
                     },
-                    child: Text(
+                    child: myAlgList.length > 0?
+                    StrikeThroughWidget(
+                      child: Text(
+                        menu,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: fs.s5,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ) : Text(
                       menu,
                       style: TextStyle(
                         color: Colors.white,
@@ -182,6 +285,7 @@ class MealDetail extends State<MealDetailState> {
                       ),
                       textAlign: TextAlign.center,
                     ),
+
                   ),
                 ),
 //                SizedBox(width: 50,),
@@ -201,6 +305,19 @@ class MealDetail extends State<MealDetailState> {
                 ),
               ],
             ),
+
+            myAlgList.length > 0?
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+
+                Text("ㄴ", style: TextStyle(fontSize: fs.s7, color: primaryRedDark),),
+                Text(myAlgList.join(", "), style: TextStyle(fontSize: fs.s7, color: primaryRedDark),),
+
+              ],
+            ): Container(),
+
           ],
         );
       },
@@ -211,9 +328,6 @@ class MealDetail extends State<MealDetailState> {
     var storage = FlutterSecureStorage();
     var isSaveMenuStorage = await storage.read(key: "isSaveMenuStorage");
 
-
-
-
     setState(() {
       _isLoading = true;
     });
@@ -223,16 +337,14 @@ class MealDetail extends State<MealDetailState> {
     var formattedDate = formatDate(d, [yyyy, '', mm, '', dd]);
 
     var sqlRes;
-    if (isSaveMenuStorage == "true"){
+    if (isSaveMenuStorage == "true") {
       sqlRes = await DBHelper.select("meals", "WHERE schoolID= $schoolId and menuDate = $formattedDate");
       print(sqlRes);
     }
 
-    if(sqlRes == null || sqlRes.length == 0){
-      http.Response res = await http
-          .get('http://meal-backend.herokuapp.com/api/meals/menu?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}', headers: {
-        "Authorization": await getToken(),
-      });
+    if (sqlRes == null || sqlRes.length == 0) {
+      http.Response res =
+          await getWithToken('${currentHost}/meals/v2/menu?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}');
       print(res.statusCode);
       if (res.statusCode == 200) {
         print('안녕');
@@ -245,38 +357,60 @@ class MealDetail extends State<MealDetailState> {
           if (jsonBody != null) {
             _mealList = jsonBody;
 
-            if(isSaveMenuStorage == "true"){
-              DBHelper.insert("meals", {"schoolId": schoolId, "menuDate": formattedDate, "menus": _mealList.join("~")});
-            }
+            if (isSaveMenuStorage == "true") {
+              String menu_str = "";
+              for (var menu in _mealList) {
+                menu_str += menu["menu_name"];
+                menu_str += ";";
+                menu_str += menu["alg"].join("^");
 
+                if (menu != _mealList[_mealList.length - 1]) {
+                  menu_str += "~";
+                }
+              }
+
+              DBHelper.insert("meals", {"schoolId": schoolId, "menuDate": formattedDate, "menus": menu_str});
+            }
           } else {
             _mealList = null;
           }
         });
-
-
-
-
       } else {}
-    }else{
+    } else {
       setState(() {
-        _mealList = sqlRes[0]["menus"].split("~");
+        String menus_data = sqlRes[0]["menus"];
+
+        for(var menu_data in menus_data.split("~")){
+          String menuName = menu_data.split(";")[0];
+          List<int> menuAlgList = [];
+          if (menu_data.split(";").length >= 2) {
+            menuAlgList = menu_data.split(";")[1].split("^").map((x) {
+              if(x != ""){
+                return int.parse(x);
+              }else{
+                return null;
+              }
+            }).toList();
+          }
+
+          setState(() {
+            _mealList.add({"menu_name": menuName, "alg": menuAlgList});
+          });
+
+          print(menuAlgList);
+        }
+
+
+
+//        _mealList = sqlRes[0]["menus"].split("~");
       });
     }
-
-
-
-
 
 //    DBHelper.insert("meals", {
 //      "schoolId": schoolId,
 //      "menuDate": formattedDate,
 //      "menus" : "aa/ss/sssdf"
 //    });
-
-
-
-
 
     setState(() {
       _isLoading = false;
@@ -285,10 +419,10 @@ class MealDetail extends State<MealDetailState> {
 
   Future postSelectedDay(String date, int menuSeq) async {
     print(date);
-    http.Response res = await postWithToken('http://meal-backend.herokuapp.com/api/meals/rating/favorite',
-        body:
-          {"menuDate": date, "menuSeq": menuSeq},
-        );
+    http.Response res = await postWithToken(
+      '${currentHost}/meals/rating/favorite',
+      body: {"menuDate": date, "menuSeq": menuSeq},
+    );
     print('포스트');
     print(res.statusCode);
     if (res.statusCode == 200) {
@@ -304,8 +438,8 @@ class MealDetail extends State<MealDetailState> {
     print(date);
     print(menuSeq);
     http.Response res = await deleteWithToken(
-        'http://meal-backend.herokuapp.com/api/meals/rating/favorite?menuDate=${date}&menuSeq=${menuSeq}',
-     );
+      '${currentHost}/meals/rating/favorite?menuDate=${date}&menuSeq=${menuSeq}',
+    );
     print('딜리트');
     print(res.statusCode);
     if (res.statusCode == 200) {
@@ -317,3 +451,24 @@ class MealDetail extends State<MealDetailState> {
     }
   }
 }
+
+
+class StrikeThroughWidget extends StatelessWidget {
+  final Widget _child;
+
+  StrikeThroughWidget({Key key, @required Widget child})
+      : this._child = child,
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: _child,
+      padding: EdgeInsets.symmetric(horizontal: 8), // this line is optional to make strikethrough effect outside a text
+      decoration: BoxDecoration(
+        image: DecorationImage(image: AssetImage('./assets/graphics/strikethrough.png'), fit: BoxFit.fitWidth),
+      ),
+    );
+  }
+}
+

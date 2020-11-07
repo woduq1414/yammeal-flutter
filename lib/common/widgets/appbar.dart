@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../color.dart';
 import '../font.dart';
 import '../asset_path.dart';
@@ -49,7 +50,7 @@ class _DefaultAppBarState extends State<DefaultAppBar>
     return AppBar(
       // Here we take the value from the MyHomePage object that was created by
       // the App.build method, and use it to set our appbar title.
-
+      titleSpacing: 0.0,
 
       backgroundColor: backgroundColor != null ? backgroundColor : navColor,
 
@@ -72,10 +73,21 @@ class _DefaultAppBarState extends State<DefaultAppBar>
   Widget _buildDefaultAppBarActionButton() {
     Widget temp;
     if (onActionButtonPressed != null) {
-      temp = IconButton(
-        icon: new Icon(Icons.person_outline),
-        tooltip: "hello",
-        onPressed: () => onActionButtonPressed(),
+      temp = GestureDetector(
+        onTap: onActionButtonPressed,
+        child: Container(
+          alignment: Alignment.center,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Text("저장", style: TextStyle(fontSize: 18),),
+              SizedBox(width: 3,),
+              Icon(
+                Icons.check, size: 25,
+              )
+            ],
+          )
+        ),
       );
     } else {
       temp = Container();
