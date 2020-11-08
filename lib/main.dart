@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -24,10 +25,16 @@ import 'kakao_register_page.dart';
 import 'package:flutter/services.dart';
 
 
-
+class MyHttpOverrides extends HttpOverrides{
+  @override
+  HttpClient createHttpClient(SecurityContext context){
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port)=> true;
+  }
+}
 
 void main() async{
-
+  HttpOverrides.global = new MyHttpOverrides();
 
   return runApp(KakaoLoginTest()) ;
 }

@@ -1150,10 +1150,7 @@ class _SchoolInfoRegisterPageState extends State<SchoolInfoRegisterPage> {
                                                     }
                                                   }
 
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(builder: (context) => IdRegisterPage()),
-                                                  );
+
                                                 },
                                                 textColor: Colors.white,
                                                 primeColor: primaryRedDark,
