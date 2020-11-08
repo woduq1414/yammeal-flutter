@@ -11,6 +11,7 @@ import 'package:meal_flutter/common/ip.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
+import 'package:meal_flutter/common/widgets/dialog.dart';
 
 import 'main_page.dart';
 
@@ -110,7 +111,13 @@ class _MealSurveyState extends State<MealSurvey> {
                         print("dkdkdkdk");
                         print(_transferData);
                         postAnswer();
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => MealMainUI()));
+                        showCustomAlert(
+                          context: context,
+                          isSuccess: true,
+                          title: "전송 완료!",
+                          duration: Duration(seconds: 1),
+                        );
+                        Navigator.pop(context);
                       },
                     )
                   ]: <Widget>[Text('로딩중...')],
