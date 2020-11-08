@@ -614,7 +614,8 @@ class MealUI extends State<MealState> {
               ),
               color: primaryYellow,
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MealSurvey()));
+                print(index is int);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MealSurvey(index, _mealList[index])));
               },
             )),
       ),
