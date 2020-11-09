@@ -759,9 +759,11 @@ class MealUI extends State<MealState> {
       ); // 개선 여지 매우 큼.
     return Builder(
       builder: (context) {
+        MealStatus mealStatus = Provider.of<MealStatus>(context);
         return GestureDetector(
-          onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => MealDetailState(dParsed)));
+          onTap: () async {
+            await Navigator.push(context, MaterialPageRoute(builder: (context) => MealDetailState(dParsed)));
+            mealStatus.setFavoriteListWithRange();
           },
           child: Container(
             margin: EdgeInsets.symmetric(vertical: 2),

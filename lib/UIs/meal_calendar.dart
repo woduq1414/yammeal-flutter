@@ -28,8 +28,6 @@ class MealCalState extends StatefulWidget {
 class MealCalendar extends State<MealCalState> {
   CalendarController _controller;
 
-
-
   final List<String> emojiList = ['cold', 'good', 'spice', 'umji', 'love']; // 랜덤 돌리려 만들어둔거, 삭제될 예정.
   var dayList = {};
 
@@ -68,34 +66,48 @@ class MealCalendar extends State<MealCalState> {
 //          locale: "ko_KR",
 
           onVisibleDaysChanged: (a, b, c) async {
+            var oldStartDate = DateTime.parse(mealStatus.startDate);
+            var oldEndDate = DateTime.parse(mealStatus.endDate);
+            var oldCalendarType = mealStatus.calendarType;
+            print("focus");
+//            print();
+            var focusedDay = _controller.focusedDay;
             var startDate = formatDate(a, ['yyyy', '', 'mm', '', 'dd']);
-            var endDate = formatDate(b, ['yyyy', '', 'mm', '', 'dd']);
+            var endDate = formatDate(
+                DateTime(focusedDay.year, focusedDay.month, 31).isAfter(b)
+                    ? b
+                    : DateTime(focusedDay.year, focusedDay.month, 31),
+                ['yyyy', '', 'mm', '', 'dd']);
 
-            if (DateTime.now().difference(b).inDays > 0){
+            mealStatus.startDate = startDate;
+            mealStatus.endDate = endDate;
+            mealStatus.calendarType = c;
+
+            if (DateTime.now().difference(b).inDays > 0) {
               mealStatus.setDayList({});
               return;
             }
 
+//            print("startdate");
+//            print(startDate);
+//            print(endDate);
+//            print(oldStartDate);
+//            print(oldEndDate);
+//            print(a.compareTo(oldStartDate));
+//            print(DateTime(focusedDay.year, focusedDay.month, 31).isAfter(b) ? b : DateTime(focusedDay.year, focusedDay.month, 31).compareTo(oldEndDate));
+//            if (a.compareTo(oldStartDate) >= 0 && DateTime(focusedDay.year, focusedDay.month, 31).isAfter(b)
+//                ? b
+//                : DateTime(focusedDay.year, focusedDay.month, 31).compareTo(oldEndDate) <= 0) {
+//              print("ssdflkjskldfjskldfjksdajfklsdakfsjdkfsdklfjskld");
+//              return;
+//            }
 
-            mealStatus.setIsLoadingFavorite(true);
+//            if(a == oldStartDate && ((c == CalendarFormat.week)|| (c != CalendarFormat.month && oldCalendarType == CalendarFormat.month))){
+//              return;
+//            }
 
-            http.Response res = await  getWithToken(
-                '${currentHost}/meals/rating/favorite?startDate=${startDate}&endDate=${endDate}',
-                );
-            print(res.statusCode);
-            if (res.statusCode == 200) {
-              print(jsonDecode(res.body));
-              Map<dynamic, dynamic> jsonBody = jsonDecode(res.body)["data"];
-              setState(() {
-                if (jsonBody != null) {
-                  mealStatus.setDayList(jsonBody);
-                } else {}
-              });
-            } else {
-              mealStatus.setDayList({});
-            }
 
-            mealStatus.setIsLoadingFavorite(false);
+            mealStatus.setFavoriteListWithRange();
           },
 
           builders: _calendarBuilders(),
@@ -133,8 +145,9 @@ class MealCalendar extends State<MealCalState> {
       // },
       todayDayBuilder: (context, date, _) {
         return GestureDetector(
-          onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => MealDetailState(date)));
+          onTap: () async {
+            await Navigator.push(context, MaterialPageRoute(builder: (context) => MealDetailState(date)));
+            mealStatus.setFavoriteListWithRange();
           },
           child: Container(
             child: Column(
@@ -150,8 +163,9 @@ class MealCalendar extends State<MealCalState> {
       },
       dayBuilder: (_context, date, _) {
         return GestureDetector(
-          onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => MealDetailState(date)));
+          onTap: () async {
+            await Navigator.push(context, MaterialPageRoute(builder: (context) => MealDetailState(date)));
+            mealStatus.setFavoriteListWithRange();
           },
           child: Container(
             child: Column(

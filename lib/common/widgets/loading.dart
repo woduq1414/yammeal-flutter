@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import '../color.dart';
@@ -21,6 +22,25 @@ class LoadingModal extends StatelessWidget {
     return  ModalProgressHUD(
       child: child,
       inAsyncCall: userStatus.isLoading,
+      progressIndicator: CircularProgressIndicator(),
+      opacity: 0.2,
+    );
+  }
+}
+
+class LoadingMealModal extends StatelessWidget {
+
+  Widget child;
+
+  LoadingMealModal({this.child});
+
+
+  @override
+  Widget build(BuildContext context) {
+    MealStatus mealStatus = Provider.of<MealStatus>(context);
+    return ModalProgressHUD(
+      child: child,
+      inAsyncCall: mealStatus.isLoading,
       progressIndicator: CircularProgressIndicator(),
       opacity: 0.2,
     );

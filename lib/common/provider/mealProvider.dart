@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 
@@ -7,51 +8,84 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:table_calendar/table_calendar.dart';
+
+import "../../common/ip.dart";
 
 class MealStatus with ChangeNotifier {
+  bool isLoading = false;
+
   Map<dynamic, dynamic> dayList = Map<dynamic, dynamic>();
   String selectedEmoji;
   bool isLoadingFavorite = false;
 
   String isSaveMenuStorage;
 
+  var startDate = formatDate(DateTime(DateTime.now().year,DateTime.now().month,01), ['yyyy', '', 'mm', '', 'dd']);
+  var endDate =  formatDate(DateTime(DateTime.now().year,DateTime.now().month,32), ['yyyy', '', 'mm', '', 'dd']);
+  var calendarType = CalendarFormat.month;
 
-  setIsLoadingFavorite(value){
-    isLoadingFavorite = value;
+  setFavoriteListWithRange() async{
+    print(startDate);
+    print("start");
+    setIsLoadingFavorite(true);
+    notifyListeners();
+    var res = await  getWithToken(
+      '${currentHost}/meals/rating/favorite?startDate=${startDate}&endDate=${endDate}',
+    );
+    print(res.statusCode);
+    if (res.statusCode == 200) {
+      print(jsonDecode(res.body));
+      Map<dynamic, dynamic> jsonBody = jsonDecode(res.body)["data"];
+      if (jsonBody != null) {
+        setDayList(jsonBody);
+      } else {}
+    } else {
+      setDayList({});
+    }
+
+    setIsLoadingFavorite(false);
     notifyListeners();
   }
 
+
+  setIsLoadingFavorite(value) {
+    isLoadingFavorite = value;
+    notifyListeners();
+  }
 
   MealStatus() {
     init();
   }
 
-  init() async{
+  init() async {
     var storage = FlutterSecureStorage();
     String favoriteEmoji = await storage.read(key: "favoriteEmoji");
     String _isSaveMenuStorage = await storage.read(key: "isSaveMenuStorage");
 
-    if(favoriteEmoji != null){
+    if (favoriteEmoji != null) {
       setSelectedEmoji(favoriteEmoji);
-    }else{
+    } else {
       setSelectedEmoji("selected");
     }
 
-    if(_isSaveMenuStorage != null){
+    if (_isSaveMenuStorage != null) {
       isSaveMenuStorage = _isSaveMenuStorage;
       notifyListeners();
-    }else{
+    } else {
       isSaveMenuStorage = "true";
       notifyListeners();
-      storage.write(key: "isSaveMenuStorage", value : "true");
+      storage.write(key: "isSaveMenuStorage", value: "true");
     }
 
 //    setSelectedEmoji()
   }
 
-
-
-
+  void setIsLoading(bool value) {
+    isLoading = value;
+    notifyListeners();
+  }
 
   void setDayList(Map m) {
     dayList = m;
@@ -85,8 +119,7 @@ class MealStatus with ChangeNotifier {
     }
   }
 
-  void setSelectedEmoji(String s) async{
-
+  void setSelectedEmoji(String s) async {
     var storage = FlutterSecureStorage();
     storage.write(key: "favoriteEmoji", value: s);
 
@@ -94,15 +127,10 @@ class MealStatus with ChangeNotifier {
     notifyListeners();
   }
 
-
-  void setIsSaveMenuStorage(String s) async{
-
+  void setIsSaveMenuStorage(String s) async {
     var storage = FlutterSecureStorage();
     storage.write(key: "isSaveMenuStorage", value: s);
     isSaveMenuStorage = s;
     notifyListeners();
   }
-
-
-
 }

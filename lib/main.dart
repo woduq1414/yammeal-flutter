@@ -63,7 +63,7 @@ class KakaoLoginTest extends StatelessWidget {
         ],
         child: MaterialApp(
           navigatorKey: navigatorKey,
-          title: 'Flutter Demo',
+          title: 'YAMMEAL',
           routes: <String, WidgetBuilder>{
             '/FirstPage': (BuildContext context) => new FirstPage(),
           },
