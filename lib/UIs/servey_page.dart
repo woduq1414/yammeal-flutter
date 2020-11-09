@@ -242,6 +242,7 @@ class _MealSurveyState extends State<MealSurvey> {
     if (res.statusCode == 200) {
       //print(jsonDecode(res.body));
       List<dynamic> jsonBody = jsonDecode(res.body)["data"];
+      print(jsonBody);
       setState(() {
         if (jsonBody != null) {
           for (int i = 0; i < jsonBody.length; i++) {
@@ -252,6 +253,7 @@ class _MealSurveyState extends State<MealSurvey> {
           }
           setState(() {
             _questions = menuQ;
+            print(menuQ);
           });
         } else {}
       });
@@ -266,12 +268,15 @@ class _MealSurveyState extends State<MealSurvey> {
   Future getMenuAvgRatings() async {
     http.Response res = await getWithToken('$currentHost/meals/rating/star?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}');
     print(res.statusCode);
+    print(10000000000000000 + res.statusCode);
     if (res.statusCode == 200) {
       List<dynamic> jsonBody = jsonDecode(res.body)["data"];
+      print(jsonBody);
       setState(() {
         if (jsonBody != null) {
           setState(() {
             _avgRatings = jsonBody;
+            print(_avgRatings);
           });
         } else {}
       });
