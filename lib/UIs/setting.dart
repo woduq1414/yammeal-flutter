@@ -16,6 +16,7 @@ import 'dart:io';
 
 import '../login_page.dart';
 import '../set_allergy_page.dart';
+import "../common/ip.dart";
 
 class Setting extends StatefulWidget {
   @override
@@ -218,6 +219,59 @@ class _SettingState extends State<Setting> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
+                              '즐겨찾기 메뉴 초기화',
+                              style: TextStyle(fontSize: fs.s6),
+                            ),
+                          ],
+                        ),
+                        RaisedButton(
+                          color: primaryRedDark,
+                          onPressed: () async {
+                            showCustomDialog(
+                                context: context,
+                                title: "초기화 할까요?",
+                                content: "다시 되돌릴 수 없어요.",
+                                cancelButtonText: "취소",
+                                confirmButtonText: "초기화",
+                                cancelButtonAction: () {
+                                  Navigator.pop(context);
+                                },
+                                confirmButtonAction: () async {
+                                  Navigator.pop(context);
+                                  mealStatus.setIsLoading(true);
+                                  var deleteResult = await deleteWithToken('$currentHost/meals/rating/favorite-all');
+                                  mealStatus.setIsLoading(false);
+                                  if (deleteResult.statusCode == 200) {
+                                    mealStatus.setDayList({});
+                                    showCustomAlert(
+                                      context: context,
+                                      isSuccess: true,
+                                      title: "초기화 완료!",
+                                      duration: Duration(seconds: 1),
+                                    );
+
+
+                                  }
+                                });
+                          },
+                          child: Text(
+                            "초기화",
+                            style: TextStyle(fontSize: fs.s7),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+//                  SizedBox(height: 5),
+                  SizedBox(height: 15),
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
                               '알레르기 정보',
                               style: TextStyle(fontSize: fs.s6),
                             ),
@@ -225,8 +279,7 @@ class _SettingState extends State<Setting> {
                         ),
                         RaisedButton(
                           color: primaryRedDark,
-                          onPressed: () async{
-
+                          onPressed: () async {
                             Navigator.push(context, MaterialPageRoute(builder: (context) => SetAllergyPage()));
                           },
                           child: Text(
@@ -275,23 +328,35 @@ class _SettingState extends State<Setting> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              '저장된 메뉴 초기화',
+                              '앱에 저장된 메뉴 초기화',
                               style: TextStyle(fontSize: fs.s6),
                             ),
                           ],
                         ),
                         RaisedButton(
                           color: primaryRedDark,
-                          onPressed: () async{
-                            bool deleteResult = await DBHelper.delete("meals", "");
-                            if(deleteResult == true){
-                              showCustomAlert(
+                          onPressed: () async {
+                            showCustomDialog(
                                 context: context,
-                                isSuccess: true,
-                                title: "초기화 완료!",
-                                duration: Duration(seconds: 1),
-                              );
-                            }
+                                title: "초기화 할까요?",
+                                content: "다시 되돌릴 수 없어요.",
+                                cancelButtonText: "취소",
+                                confirmButtonText: "초기화",
+                                cancelButtonAction: () {
+                                  Navigator.pop(context);
+                                },
+                                confirmButtonAction: () async {
+                                  Navigator.pop(context);
+                                  bool deleteResult = await DBHelper.delete("meals", "");
+                                  if (deleteResult == true) {
+                                    showCustomAlert(
+                                      context: context,
+                                      isSuccess: true,
+                                      title: "초기화 완료!",
+                                      duration: Duration(seconds: 1),
+                                    );
+                                  }
+                                });
 
                           },
                           child: Text(
@@ -299,7 +364,6 @@ class _SettingState extends State<Setting> {
                             style: TextStyle(fontSize: fs.s7),
                           ),
                         )
-
                       ],
                     ),
                   ),

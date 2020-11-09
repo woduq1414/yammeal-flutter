@@ -96,14 +96,17 @@ class _MealSurveyState extends State<MealSurvey> {
         _isQuestionAnswered = true;
         _questions = jsonBody;
       });
-    } else {
-      setState(() {
-        _isQuestionAnswered = false;
-      });
       btnController.animateToPage(1, duration: Duration(milliseconds: 500), curve: Curves.ease);
       setState(() {
         _selectedTabIndex = 1;
       });
+
+
+    } else {
+      setState(() {
+        _isQuestionAnswered = false;
+      });
+
       await getQuestion();
     }
   }
@@ -141,19 +144,6 @@ class _MealSurveyState extends State<MealSurvey> {
                     });
                   }),
               items: <Widget>[
-                SingleChildScrollView(
-                  child: Column(
-                    children: <Widget>[
-                      SizedBox(
-                        height: fs.getHeightRatioSize(0.02),
-                      ),
-                      SizedBox(
-                        height: fs.getHeightRatioSize(0.02),
-                      ),
-                      _bulidMenuInfo()
-                    ],
-                  ),
-                ),
                 Align(
 //                  alignment: Alignment.center,
                   child: Container(
@@ -168,12 +158,12 @@ class _MealSurveyState extends State<MealSurvey> {
                                     child: Center(
                                       child: ListView(
                                         shrinkWrap: true,
-                                  children: _questions["answers"] != null ? _questions["answers"].map<Widget>((item) {
+                                        children: _questions["answers"] != null ? _questions["answers"].map<Widget>((item) {
 
-                                    return _buildQuestionItem(item, defaultVal: item["answer"]);
-                                  }).toList()
+                                          return _buildQuestionItem(item, defaultVal: item["answer"]);
+                                        }).toList()
                                             : <Widget>[
-                                         Center(child: CustomLoading(),)
+                                          Center(child: CustomLoading(),)
                                         ],
                                       ),
                                     ),
@@ -195,102 +185,116 @@ class _MealSurveyState extends State<MealSurvey> {
                                 borderRadius: BorderRadius.circular(50),
                               ),
                               onPressed: () async {
-                               
+
                               },
                             ),
                           )
                         ],
                       )
                           : Stack(
-                              children: <Widget>[
-                                Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Expanded(
-                                        child: Center(
-                                          child: ListView(
-                                            shrinkWrap: true,
-                                            children: _questions["questions"] != null
-                                                ? _questions["questions"].map<Widget>((item) {
-                                              if (!_nowQuestions.contains(item["questionSeq"]))
-                                                _nowQuestions.add(item["questionSeq"]);
-                                              return _buildQuestionItem(item);
-                                            }).toList()
-                                                : <Widget>[
-                                              Center(
-                                                child: CustomLoading()
-                                              ),
-                                            ],
+                        children: <Widget>[
+                          Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Center(
+                                      child: ListView(
+                                        shrinkWrap: true,
+                                        children: _questions["questions"] != null
+                                            ? _questions["questions"].map<Widget>((item) {
+                                          if (!_nowQuestions.contains(item["questionSeq"]))
+                                            _nowQuestions.add(item["questionSeq"]);
+                                          return _buildQuestionItem(item);
+                                        }).toList()
+                                            : <Widget>[
+                                          Center(
+                                              child: CustomLoading()
                                           ),
-                                        ),
+                                        ],
                                       ),
-                                      SizedBox(height: 35,),
-                                    ],
-                                  )
-                                ),
-                                Positioned(
-                                  bottom: 10,
-                                  right: 15,
-                                  left: 15,
-                                  child: RaisedButton(
-                                    color: primaryRedDark,
-                                    textColor: Colors.white,
-
-                                    child: Text("평가 제출하기", style: TextStyle(fontSize: fs.s6),),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(50),
                                     ),
-                                    onPressed: () async {
-                                      var temp = [];
-                                      print("길이 ${_nowQuestions.length}");
-                                      for (int i = 0; i < _nowQuestions.length; i++) print(_nowQuestions[i]);
-                                      for (int j = 0; j < _nowQuestions.length; j++) {
-                                        temp.add({
-                                          "questionSeq": _nowQuestions[j],
-                                          "answer": _currentValue[(_nowQuestions[j]).toString()].round()
-                                        });
-                                      }
-                                      setState(() {
-                                        _transferData = temp;
-                                      });
-                                      print("dkdkdkdk");
-                                      print(_transferData);
-                                      if (await postAnswer(context) == true) {
-
-                                        setState(() {
-                                          _questions["answers"] = _questions["questions"];
-                                          for(int i = 0; i < _questions["answers"].length; i++){
-                                            _questions["answers"][i]["answer"] = _transferData[i]["answer"];
-                                          }
-                                        });
-
-                                        showCustomAlert(
-                                          context: context,
-                                          isSuccess: true,
-                                          title: "평가 완료!",
-                                          duration: Duration(seconds: 1),
-                                        );
-
-                                        btnController.animateToPage(0, duration: Duration(milliseconds: 500), curve: Curves.ease);
-                                        setState(() {
-                                          _selectedTabIndex = 0;
-                                        });
-
-                                      } else {
-                                        showCustomAlert(
-                                          context: context,
-                                          isSuccess: false,
-                                          title: "오류",
-                                          duration: Duration(seconds: 1),
-                                        );
-                                      }
-                                    },
                                   ),
-                                )
-                              ],
-                            )),
-                )
+                                  SizedBox(height: 35,),
+                                ],
+                              )
+                          ),
+                          _questions.length > 0 ? Positioned(
+                            bottom: 10,
+                            right: 15,
+                            left: 15,
+                            child: RaisedButton(
+                              color: primaryRedDark,
+                              textColor: Colors.white,
+
+                              child: Text("평가 제출하기", style: TextStyle(fontSize: fs.s6),),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              onPressed: () async {
+                                var temp = [];
+                                print("길이 ${_nowQuestions.length}");
+                                for (int i = 0; i < _nowQuestions.length; i++) print(_nowQuestions[i]);
+                                for (int j = 0; j < _nowQuestions.length; j++) {
+                                  temp.add({
+                                    "questionSeq": _nowQuestions[j],
+                                    "answer": _currentValue[(_nowQuestions[j]).toString()].round()
+                                  });
+                                }
+                                setState(() {
+                                  _transferData = temp;
+                                });
+                                print("dkdkdkdk");
+                                print(_transferData);
+                                if (await postAnswer(context) == true) {
+
+                                  setState(() {
+                                    _questions["answers"] = _questions["questions"];
+                                    for(int i = 0; i < _questions["answers"].length; i++){
+                                      _questions["answers"][i]["answer"] = _transferData[i]["answer"];
+                                    }
+                                  });
+
+                                  showCustomAlert(
+                                    context: context,
+                                    isSuccess: true,
+                                    title: "평가 완료!",
+                                    duration: Duration(seconds: 1),
+                                  );
+
+                                  btnController.animateToPage(1, duration: Duration(milliseconds: 500), curve: Curves.ease);
+                                  setState(() {
+                                    _selectedTabIndex = 1;
+                                  });
+
+                                } else {
+                                  showCustomAlert(
+                                    context: context,
+                                    isSuccess: false,
+                                    title: "오류",
+                                    duration: Duration(seconds: 1),
+                                  );
+                                }
+                              },
+                            ),
+                          ) : Container(),
+                        ],
+                      )),
+                ),
+                SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: fs.getHeightRatioSize(0.02),
+                      ),
+                      SizedBox(
+                        height: fs.getHeightRatioSize(0.02),
+                      ),
+                      _bulidMenuInfo()
+                    ],
+                  ),
+                ),
+
               ],
             ),
           ),
@@ -304,13 +308,14 @@ class _MealSurveyState extends State<MealSurvey> {
           child: BottomNavigationBar(
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                icon: Icon(Icons.dvr),
-                title: Text('메뉴 상세 정보'),
-              ),
-              BottomNavigationBarItem(
                 icon: Icon(Icons.edit),
                 title: Text('메뉴 평가'),
               ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.dvr),
+                title: Text('메뉴 상세 정보'),
+              ),
+
             ],
             currentIndex: _selectedTabIndex,
             onTap: (index) {
@@ -435,7 +440,7 @@ class _MealSurveyState extends State<MealSurvey> {
     if (res.statusCode == 200) {
       //print(jsonDecode(res.body));
       List<dynamic> jsonBody = jsonDecode(res.body)["data"];
-      print(jsonBody);
+//      print(jsonBody);
       setState(() {
         if (jsonBody != null) {
           for (int i = 0; i < jsonBody.length; i++) {
@@ -446,7 +451,7 @@ class _MealSurveyState extends State<MealSurvey> {
           }
           setState(() {
             _questions = menuQ;
-            print(menuQ);
+//            print(menuQ);
           });
         } else {}
       });
@@ -465,12 +470,12 @@ class _MealSurveyState extends State<MealSurvey> {
     print(10000000000000000 + res.statusCode);
     if (res.statusCode == 200) {
       List<dynamic> jsonBody = jsonDecode(res.body)["data"];
-      print(jsonBody);
+//      print(jsonBody);
       setState(() {
         if (jsonBody != null) {
           setState(() {
             _avgRatings = jsonBody;
-            print(_avgRatings);
+//            print(_avgRatings);
           });
         } else {}
       });
