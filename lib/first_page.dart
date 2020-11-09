@@ -36,7 +36,7 @@ class _FirstPageState extends State<FirstPage> {
     var storage = FlutterSecureStorage();
     String token = await getToken();
     int exp;
-    print(token);
+
     try{
       exp = parseJwtPayLoad(token)["exp"];
     }on Exception {

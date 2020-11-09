@@ -69,8 +69,8 @@ class MealCalendar extends State<MealCalState> {
             var oldStartDate = DateTime.parse(mealStatus.startDate);
             var oldEndDate = DateTime.parse(mealStatus.endDate);
             var oldCalendarType = mealStatus.calendarType;
-            print("focus");
-//            print();
+
+
             var focusedDay = _controller.focusedDay;
             var startDate = formatDate(a, ['yyyy', '', 'mm', '', 'dd']);
             var endDate = formatDate(

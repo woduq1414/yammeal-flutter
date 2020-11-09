@@ -79,7 +79,7 @@ class MealDetail extends State<MealDetailState> {
   Widget build(BuildContext context) {
     fs = FontSize(context);
 
-    print("@@@@");
+
     return WillPopScope(
       onWillPop: () async {
         print("hello?");
@@ -107,21 +107,23 @@ class MealDetail extends State<MealDetailState> {
 
 
         },
-        child: Scaffold(
-          appBar: DefaultAppBar(
-            backgroundColor: primaryYellowDark,
-            title: "급식표",
+        child: LoadingMealModal(
+          child: Scaffold(
+            appBar: DefaultAppBar(
+              backgroundColor: primaryYellowDark,
+              title: "급식표",
+            ),
+            backgroundColor: Color(0xffFFBB00),
+            body: Column(children: [
+              Flexible(child: _buildBody(d)),
+              Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 60,
+                  margin: EdgeInsets.only(
+                    bottom: 0,
+                  ))
+            ]),
           ),
-          backgroundColor: Color(0xffFFBB00),
-          body: Column(children: [
-            Flexible(child: _buildBody(d)),
-            Container(
-                width: MediaQuery.of(context).size.width,
-                height: 60,
-                margin: EdgeInsets.only(
-                  bottom: 0,
-                ))
-          ]),
         ),
       ),
     );
@@ -224,13 +226,16 @@ class MealDetail extends State<MealDetailState> {
       builder: (context) {
         MealStatus mealStatus = Provider.of<MealStatus>(context);
 
-        void toggleFavorite() {
+        void toggleFavorite() async {
+          mealStatus.setIsLoading(true);
+
           if (mealStatus.updateSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), menu)) {
-            postSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
+            await postSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
           } else {
             print('딜리딜리딜리트');
-            deleteSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
+            await deleteSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
           }
+          mealStatus.setIsLoading(false);
         }
 
         return Column(
