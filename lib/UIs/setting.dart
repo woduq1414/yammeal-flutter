@@ -1,12 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:meal_flutter/common/asset_path.dart';
 import 'package:meal_flutter/common/color.dart';
 import 'package:meal_flutter/common/db.dart';
 import 'package:meal_flutter/common/font.dart';
 import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:meal_flutter/common/push.dart';
 import 'package:meal_flutter/common/widgets/dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:yaml/yaml.dart';
@@ -32,6 +34,8 @@ class _SettingState extends State<Setting> {
     UserStatus userStatus = Provider.of<UserStatus>(context);
     MealStatus mealStatus = Provider.of<MealStatus>(context);
     final List emojiList = ['selected', 'pretzel', 'pan', 'icecream'];
+
+    PushManager pm = PushManager();
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 10),
@@ -160,7 +164,122 @@ class _SettingState extends State<Setting> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    "개인 설정",
+                    "알림 설정",
+                    style: TextStyle(fontSize: fs.s5),
+                    textAlign: TextAlign.left,
+                  ),
+                  Divider(),
+                  SizedBox(height: 0),
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              "알림 켜기",
+                              style: TextStyle(fontSize: fs.s6),
+                            ),
+                            Text(
+                              '푸쉬 알림을 받아보세요',
+                              style: TextStyle(fontSize: fs.s7),
+                            ),
+                          ],
+                        ),
+                        Switch(
+                          value: mealStatus.isReceivePush,
+                          onChanged: (value) {
+                            mealStatus.setIsReceivePush(value);
+                          },
+                          activeTrackColor: primaryRed,
+                          activeColor: primaryRedDark,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 10,),
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              '즐겨찾기 알림 시간',
+                              style: TextStyle(fontSize: fs.s6),
+                            ),
+                            Text(
+                              '${mealStatus.pushHour.toString().padLeft(2, "0")}:${mealStatus.pushMinute.toString().padLeft(2, "0")}에 알림을 보내드려요',
+                              style: TextStyle(fontSize: fs.s7),
+                            ),
+                          ],
+                        ),
+                        RaisedButton(
+                          color: primaryRedDark,
+                          onPressed: () async {
+                            Future<TimeOfDay> selectedTime = showTimePicker(
+                              initialTime: TimeOfDay(hour: mealStatus.pushHour, minute: mealStatus.pushMinute),
+                              context: context,
+
+                            );
+
+                            selectedTime.then((timeOfDay) async {
+                              print(timeOfDay);
+                              
+                              var pushList = await pm.getScheduledPush();
+                              for(PendingNotificationRequest push in pushList){
+                                DateTime d = DateTime.parse(push.id.toString());
+
+                                pm.cancelScheduledPush(push.id);
+                                pm.schedulePush(
+                                  datetime: DateTime(d.year, d.month, d.day, timeOfDay.hour, timeOfDay.minute, 0), id: push.id, title: push.title, body: push.body, payload: push.payload
+                                );
+                              }
+                              
+                              
+                              
+                              
+                              mealStatus.setPushTime(timeOfDay.hour, timeOfDay.minute);
+                              showCustomAlert(
+                                context: context,
+                                isSuccess: true,
+                                title: "설정 완료!",
+                                duration: Duration(seconds: 1),
+                              );
+
+
+                              pm.printScheduledPush();
+
+
+
+                              
+                            });
+                          },
+                          child: Text(
+                            "설정",
+                            style: TextStyle(fontSize: fs.s7),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              )),
+          SizedBox(
+            height: 15,
+          ),
+          Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.3),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    "기타 설정",
                     style: TextStyle(fontSize: fs.s5),
                     textAlign: TextAlign.left,
                   ),
@@ -249,9 +368,10 @@ class _SettingState extends State<Setting> {
                                       title: "초기화 완료!",
                                       duration: Duration(seconds: 1),
                                     );
-
-
                                   }
+
+                                  pm.cancelAllScheduledPush();
+
                                 });
                           },
                           child: Text(
@@ -309,13 +429,14 @@ class _SettingState extends State<Setting> {
                             ),
                           ],
                         ),
-                        Checkbox(
-                          activeColor: primaryRedDark,
+                        Switch(
                           value: mealStatus.isSaveMenuStorage == "true" ? true : false,
-                          onChanged: (bool value) {
+                          onChanged: (value) {
                             mealStatus.setIsSaveMenuStorage(value ? "true" : "false");
                           },
-                        )
+                          activeTrackColor: primaryRed,
+                          activeColor: primaryRedDark,
+                        ),
                       ],
                     ),
                   ),
@@ -357,7 +478,6 @@ class _SettingState extends State<Setting> {
                                     );
                                   }
                                 });
-
                           },
                           child: Text(
                             "초기화",

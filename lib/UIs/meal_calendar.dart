@@ -144,22 +144,50 @@ class MealCalendar extends State<MealCalState> {
       //       child: Image.asset(getEmoji(emojiList[randomNum()]), width: 50));
       // },
       todayDayBuilder: (context, date, _) {
+
         return GestureDetector(
           onTap: () async {
             await Navigator.push(context, MaterialPageRoute(builder: (context) => MealDetailState(date)));
             mealStatus.setFavoriteListWithRange();
           },
           child: Container(
+            margin: EdgeInsets.only(bottom: 5, left: 0, right:  0),
+            decoration: BoxDecoration(
+              color: primaryYellow,
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+            ),
             child: Column(
               children: <Widget>[
-                Text(date.day.toString()),
-                ColorFiltered(
-                    colorFilter: ColorFilter.mode(primaryYellow, BlendMode.modulate),
-                    child: Image.asset(getEmoji("dishes"), width: 33))
+                Text(date.day.toString(), style: TextStyle(color : Colors.white),),
+                (!mealStatus.dayList.containsKey(formatDate(date, ['yyyy', '', 'mm', '', 'dd']))
+                    ? Image.asset(
+                  getEmoji("dishes"),
+                  width: 33,
+                )
+                    : Image.asset(getEmoji(mealStatus.selectedEmoji), width: 33))
               ],
             ),
           ),
         );
+
+
+
+        // return GestureDetector(
+        //   onTap: () async {
+        //     await Navigator.push(context, MaterialPageRoute(builder: (context) => MealDetailState(date)));
+        //     mealStatus.setFavoriteListWithRange();
+        //   },
+        //   child: Container(
+        //     child: Column(
+        //       children: <Widget>[
+        //         Text(date.day.toString()),
+        //         ColorFiltered(
+        //             colorFilter: ColorFilter.mode(primaryYellow, BlendMode.modulate),
+        //             child: Image.asset(getEmoji("dishes"), width: 33))
+        //       ],
+        //     ),
+        //   ),
+        // );
       },
       dayBuilder: (_context, date, _) {
         return GestureDetector(
@@ -168,6 +196,8 @@ class MealCalendar extends State<MealCalState> {
             mealStatus.setFavoriteListWithRange();
           },
           child: Container(
+
+            margin: EdgeInsets.only(bottom: 5, left: 0, right:  0),
             child: Column(
               children: <Widget>[
                 Text(date.day.toString()),

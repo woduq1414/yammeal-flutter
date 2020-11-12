@@ -12,26 +12,69 @@ import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import "../../common/ip.dart";
+import '../func.dart';
+
+import "../../common/push.dart";
 
 class MealStatus with ChangeNotifier {
   bool isLoading = false;
+
+
+
+
 
   Map<dynamic, dynamic> dayList = Map<dynamic, dynamic>();
   String selectedEmoji;
   bool isLoadingFavorite = false;
 
   String isSaveMenuStorage;
+  bool isReceivePush;
+  int pushHour;
+  int pushMinute;
 
-  var startDate = formatDate(DateTime(DateTime.now().year,DateTime.now().month,01), ['yyyy', '', 'mm', '', 'dd']);
-  var endDate =  formatDate(DateTime(DateTime.now().year,DateTime.now().month,32), ['yyyy', '', 'mm', '', 'dd']);
+  var startDate = formatDate(DateTime(DateTime.now().year, DateTime.now().month, 01), ['yyyy', '', 'mm', '', 'dd']);
+  var endDate = formatDate(DateTime(DateTime.now().year, DateTime.now().month, 32), ['yyyy', '', 'mm', '', 'dd']);
   var calendarType = CalendarFormat.month;
 
-  setFavoriteListWithRange() async{
+
+  refreshFavoritePush(jsonBody) async {
+
+    int PUSH_HOUR = pushHour;
+    int PUSH_MINUTE = pushMinute;
+    
+    PushManager pm = PushManager();
+    var pushList = await pm.getScheduledPush();
+    for (String dateString in jsonBody.keys) {
+      DateTime d = DateTime.parse(dateString);
+      DateTime now = DateTime.now();
+      if (d.difference(DateTime.now()) <= Duration(days: 7)) {
+        print(dateString);
+        pm.cancelScheduledPush(int.parse(formatDate(d, ['yyyy', '', 'mm', '', 'dd'])));
+        pm.schedulePush(
+            id: int.parse(formatDate(d, ['yyyy', '', 'mm', '', 'dd'])),
+            datetime: DateTime(d.year, d.month, d.day, PUSH_HOUR, PUSH_MINUTE, 0),
+            title: getRandomPushTitle(),
+            body: "오늘은 ${getRandomElement(jsonBody[dateString])} 나오는 날~",
+            payload: formatDate(d, ['yyyy', '', 'mm', '', 'dd']) + "%" + jsonBody[dateString].join(","));
+      }
+    }
+    print(await pm.getScheduledPush());
+  }
+
+
+
+
+  setFavoriteListWithRange() async {
+
+
+
+
     print(startDate);
     print("start");
     setIsLoadingFavorite(true);
     notifyListeners();
-    var res = await  getWithToken(
+
+    var res = await getWithToken(
       '${currentHost}/meals/rating/favorite?startDate=${startDate}&endDate=${endDate}',
     );
     print(res.statusCode);
@@ -40,15 +83,44 @@ class MealStatus with ChangeNotifier {
       Map<dynamic, dynamic> jsonBody = jsonDecode(res.body)["data"];
       if (jsonBody != null) {
         setDayList(jsonBody);
+
+        if(isReceivePush){
+          int PUSH_HOUR = pushHour;
+          int PUSH_MINUTE = pushMinute;
+
+          PushManager pm = PushManager();
+          var pushList = await pm.getScheduledPush();
+          for (String dateString in jsonBody.keys) {
+            DateTime d = DateTime.parse(dateString);
+            DateTime now = DateTime.now();
+            if (d.difference(DateTime.now()) <= Duration(days: 7)) {
+              print(dateString);
+              pm.cancelScheduledPush(int.parse(formatDate(d, ['yyyy', '', 'mm', '', 'dd'])));
+              pm.schedulePush(
+                  id: int.parse(formatDate(d, ['yyyy', '', 'mm', '', 'dd'])),
+                  datetime: DateTime(d.year, d.month, d.day, PUSH_HOUR, PUSH_MINUTE, 0),
+                  title: getRandomPushTitle(),
+                  body: "오늘은 ${getRandomElement(jsonBody[dateString])} 나오는 날~",
+                  payload: formatDate(d, ['yyyy', '', 'mm', '', 'dd']) + "%" + jsonBody[dateString].join(","));
+            }
+          }
+          print(await pm.getScheduledPush());
+        }
+
+
+
+
       } else {}
     } else {
       setDayList({});
     }
 
+
+
+
     setIsLoadingFavorite(false);
     notifyListeners();
   }
-
 
   setIsLoadingFavorite(value) {
     isLoadingFavorite = value;
@@ -63,6 +135,10 @@ class MealStatus with ChangeNotifier {
     var storage = FlutterSecureStorage();
     String favoriteEmoji = await storage.read(key: "favoriteEmoji");
     String _isSaveMenuStorage = await storage.read(key: "isSaveMenuStorage");
+    String _isReceivePush = await storage.read(key: "isReceivePush");
+    String _pushHour = await storage.read(key: "pushHour");
+    String _pushMinute = await storage.read(key: "pushMinute");
+
 
     if (favoriteEmoji != null) {
       setSelectedEmoji(favoriteEmoji);
@@ -78,6 +154,35 @@ class MealStatus with ChangeNotifier {
       notifyListeners();
       storage.write(key: "isSaveMenuStorage", value: "true");
     }
+
+    if (_isReceivePush != null) {
+      isReceivePush = _isReceivePush == "true" ? true : false;
+      notifyListeners();
+    } else {
+      isReceivePush = true;
+      notifyListeners();
+      storage.write(key: "isSaveMenuStorage", value: "true");
+    }
+
+    if (_pushHour != null) {
+      pushHour = int.parse(_pushHour);
+      notifyListeners();
+    } else {
+      pushHour = 7;
+      notifyListeners();
+      storage.write(key: "pushHour", value: "7");
+    }
+
+    if (_pushMinute != null) {
+      pushMinute = int.parse(_pushMinute);
+      notifyListeners();
+    } else {
+      pushMinute = 0;
+      notifyListeners();
+      storage.write(key: "pushMinute", value: "0");
+    }
+
+
 
 //    setSelectedEmoji()
   }
@@ -133,4 +238,36 @@ class MealStatus with ChangeNotifier {
     isSaveMenuStorage = s;
     notifyListeners();
   }
+
+  void setIsReceivePush(bool s) async {
+    var storage = FlutterSecureStorage();
+    storage.write(key: "isReceivePush", value: s == true ? "true" : "false");
+    isReceivePush = s;
+
+    if(s == false){
+      PushManager pm = PushManager();
+      pm.cancelAllScheduledPush();
+    }else{
+      PushManager pm = PushManager();
+      
+      pm.pushNow(id: 0, title: "알림 받는 것을 허용했어요!", body: "알림을 이제 받을 수 있어요.");
+      
+      refreshFavoritePush(dayList);
+    }
+
+    notifyListeners();
+  }
+
+  void setPushTime(int hour, int minute) async {
+    var storage = FlutterSecureStorage();
+    storage.write(key: "pushHour", value: hour.toString());
+    storage.write(key: "pushMinute", value: minute.toString());
+
+    pushHour = hour;
+    pushMinute = minute;
+
+    notifyListeners();
+  }
+
+
 }

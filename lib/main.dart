@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:meal_flutter/common/color.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -69,6 +70,7 @@ class KakaoLoginTest extends StatelessWidget {
           },
           theme: ThemeData(
             fontFamily: "GmarketSans",
+            primaryColor: primaryRed,
 
             // This is the theme of your application.
             //

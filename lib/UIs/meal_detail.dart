@@ -2,6 +2,8 @@ import 'dart:convert';
 
 //import 'dart:html';
 
+import 'package:meal_flutter/common/func.dart';
+import 'package:meal_flutter/common/push.dart';
 import 'package:swipedetector/swipedetector.dart';
 
 import 'package:meal_flutter/common/ip.dart';
@@ -43,6 +45,7 @@ class MealDetailState extends StatefulWidget {
 
 class MealDetail extends State<MealDetailState> {
   DateTime d;
+  PushManager pm = PushManager();
 
   MealDetail(DateTime d) {
     this.d = d;
@@ -79,7 +82,6 @@ class MealDetail extends State<MealDetailState> {
   Widget build(BuildContext context) {
     fs = FontSize(context);
 
-
     return WillPopScope(
       onWillPop: () async {
         print("hello?");
@@ -88,24 +90,14 @@ class MealDetail extends State<MealDetailState> {
       child: SwipeDetector(
         onSwipeRight: () {
           DateTime moveDate = widget.d.add(Duration(days: -1));
-          Navigator.of(context).pushReplacement(SlideRightRoute(
-              page : MealDetailState(moveDate)
-          ));
-
-
-
-
+          Navigator.of(context).pushReplacement(SlideRightRoute(page: MealDetailState(moveDate)));
         },
         onSwipeLeft: () {
           DateTime moveDate = widget.d.add(Duration(days: 1));
 
 //          Na
 
-          Navigator.of(context).pushReplacement(SlideLeftRoute(
-              page : MealDetailState(moveDate)
-          ));
-
-
+          Navigator.of(context).pushReplacement(SlideLeftRoute(page: MealDetailState(moveDate)));
         },
         child: LoadingMealModal(
           child: Scaffold(
@@ -183,8 +175,7 @@ class MealDetail extends State<MealDetailState> {
     );
   }
 
-  Widget _buildMenuItem(String menu, List<dynamic> menuAlgList,   bool dd, DateTime d, int index) {
-
+  Widget _buildMenuItem(String menu, List<dynamic> menuAlgList, bool dd, DateTime d, int index) {
 //    print(checkedAlg);
     List<String> allAlgList = [
       "난류(가금류)",
@@ -207,20 +198,16 @@ class MealDetail extends State<MealDetailState> {
       "조개류"
     ];
 
-
     List<String> myAlgList = [];
-    for(int algId in menuAlgList){
-
-      if(algId == null){
+    for (int algId in menuAlgList) {
+      if (algId == null) {
         continue;
       }
 
-      if(checkedAlg[algId]== true){
+      if (checkedAlg[algId] == true) {
         myAlgList.add(allAlgList[algId - 1]);
       }
     }
-
-
 
     return Builder(
       builder: (context) {
@@ -229,10 +216,79 @@ class MealDetail extends State<MealDetailState> {
         void toggleFavorite() async {
           mealStatus.setIsLoading(true);
 
+          int PUSH_HOUR = mealStatus.pushHour;
+          int PUSH_MINUTE = mealStatus.pushMinute;
+
           if (mealStatus.updateSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), menu)) {
+            if (mealStatus.isReceivePush == true) {
+              var pushList = await pm.getScheduledPush();
+              bool isExist = false;
+              String formattedDate = formatDate(d, ['yyyy', '', 'mm', '', 'dd']);
+              for (var push in pushList) {
+                if (push.payload == formattedDate) {
+                  var randomMenu = getRandomElement(push.payload.split("%")[1].split(","));
+
+                  pm.schedulePush(
+                      id: int.parse(formatDate(d, ['yyyy', '', 'mm', '', 'dd'])),
+                      datetime: DateTime(d.year, d.month, d.day, PUSH_HOUR, PUSH_MINUTE, 0),
+                      title: getRandomPushTitle(),
+                      body: "오늘은 ${randomMenu} 나오는 날~",
+                      payload: push.payload + "," + menu);
+
+                  isExist = true;
+                }
+              }
+              if (isExist == false) {
+                pm.schedulePush(
+                    id: int.parse(formatDate(d, ['yyyy', '', 'mm', '', 'dd'])),
+                    datetime: DateTime(d.year, d.month, d.day, PUSH_HOUR, PUSH_MINUTE, 0),
+                    title: getRandomPushTitle(),
+                    body: "오늘은 ${menu} 나오는 날~",
+                    payload: formatDate(d, ['yyyy', '', 'mm', '', 'dd']) + "%" + menu);
+              }
+            }
+
             await postSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
           } else {
             print('딜리딜리딜리트');
+            if (mealStatus.isReceivePush == true) {
+              var pushList = await pm.getScheduledPush();
+              bool isExist = false;
+              String formattedDate = formatDate(d, ['yyyy', '', 'mm', '', 'dd']);
+              for (var push in pushList) {
+                if (push.payload == formattedDate) {
+                  pm.cancelScheduledPush(push.id);
+
+                  var tmp = push.payload.split("%").split(",");
+                  String newMenu = tmp.where((x) => x != menu).toList().join(",");
+
+                  if (newMenu.split(",").length == 0) {
+                  } else {
+                    String randomMenu = getRandomElement(newMenu.split(","));
+                    pm.schedulePush(
+                        id: int.parse(formatDate(d, ['yyyy', '', 'mm', '', 'dd'])),
+                        datetime: DateTime(d.year, d.month, d.day, PUSH_HOUR, PUSH_MINUTE, 0),
+                        title: getRandomPushTitle(),
+                        body: "오늘은 ${randomMenu} 나오는 날~",
+                        payload: formatDate(d, ['yyyy', '', 'mm', '', 'dd']) + "%" + newMenu);
+                  }
+
+                  // print(newBody);
+
+                  isExist = true;
+                }
+              }
+              if (isExist == false) {
+                // pm.schedulePush(
+                //     id: int.parse(formatDate(d, ['yyyy', '', 'mm', '', 'dd'])),
+                //     datetime: DateTime(d.year, d.month, d.day, 7, 0, 0),
+                //     title: "오늘 급식 뭐 나오냐",
+                //     body: menu,
+                //     payload: formatDate(d, ['yyyy', '', 'mm', '', 'dd']));
+              }
+            }
+
+
             await deleteSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
           }
           mealStatus.setIsLoading(false);
@@ -272,25 +328,25 @@ class MealDetail extends State<MealDetailState> {
                     onTap: () {
                       toggleFavorite();
                     },
-                    child: myAlgList.length > 0?
-                    StrikeThroughWidget(
-                      child: Text(
-                        menu,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: fs.s5,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ) : Text(
-                      menu,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: fs.s5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-
+                    child: myAlgList.length > 0
+                        ? StrikeThroughWidget(
+                            child: Text(
+                              menu,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: fs.s5,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          )
+                        : Text(
+                            menu,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: fs.s5,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                   ),
                 ),
 //                SizedBox(width: 50,),
@@ -310,19 +366,21 @@ class MealDetail extends State<MealDetailState> {
                 ),
               ],
             ),
-
-            myAlgList.length > 0?
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-
-                Text("ㄴ", style: TextStyle(fontSize: fs.s7, color: primaryRedDark),),
-                Text(myAlgList.join(", "), style: TextStyle(fontSize: fs.s7, color: primaryRedDark),),
-
-              ],
-            ): Container(),
-
+            myAlgList.length > 0
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        "ㄴ",
+                        style: TextStyle(fontSize: fs.s7, color: primaryRedDark),
+                      ),
+                      Text(
+                        myAlgList.join(", "),
+                        style: TextStyle(fontSize: fs.s7, color: primaryRedDark),
+                      ),
+                    ],
+                  )
+                : Container(),
           ],
         );
       },
@@ -385,14 +443,14 @@ class MealDetail extends State<MealDetailState> {
       setState(() {
         String menus_data = sqlRes[0]["menus"];
 
-        for(var menu_data in menus_data.split("~")){
+        for (var menu_data in menus_data.split("~")) {
           String menuName = menu_data.split(";")[0];
           List<int> menuAlgList = [];
           if (menu_data.split(";").length >= 2) {
             menuAlgList = menu_data.split(";")[1].split("^").map((x) {
-              if(x != ""){
+              if (x != "") {
                 return int.parse(x);
-              }else{
+              } else {
                 return null;
               }
             }).toList();
@@ -404,8 +462,6 @@ class MealDetail extends State<MealDetailState> {
 
           print(menuAlgList);
         }
-
-
 
 //        _mealList = sqlRes[0]["menus"].split("~");
       });
@@ -457,7 +513,6 @@ class MealDetail extends State<MealDetailState> {
   }
 }
 
-
 class StrikeThroughWidget extends StatelessWidget {
   final Widget _child;
 
@@ -476,4 +531,3 @@ class StrikeThroughWidget extends StatelessWidget {
     );
   }
 }
-

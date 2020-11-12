@@ -129,18 +129,16 @@ class MealUI extends State<MealState> {
 
   PushManager pm;
 
-
-
   List<int> _ratingStarList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
   @override
   void initState() {
-
     pm = PushManager();
+
+    // pm.schedulePush(, title, body);
 //    pm.NotificationAt();
 //    pm.showNotification();
 //    pm.dailyAtTimeNotification();
-
 
 //    adMob.init();
     _bannerAd = adMob.createBannerAd();
@@ -152,7 +150,7 @@ class MealUI extends State<MealState> {
 //      });
     super.initState();
     getNowMealMenu();
-    getSelectedMealMenu(DateTime.now().year, DateTime.now().month);
+    // getSelectedMealMenu(DateTime.now().year, DateTime.now().month);
 
     getMyRatedStar();
   }
@@ -196,11 +194,9 @@ class MealUI extends State<MealState> {
 
   @override
   void dispose() {
-    try{
+    try {
       _bannerAd?.dispose();
-    }on Exception {
-
-    }
+    } on Exception {}
 
     super.dispose();
   }
@@ -214,14 +210,19 @@ class MealUI extends State<MealState> {
 //    print(fs.s1());
     fs = FontSize(context);
     MealStatus mealStatus = Provider.of<MealStatus>(context);
+
+
+
+
+
+
+
     print("!!!!!!!!1");
 //    print(_mealList);
 
 //    print(getWidgetSize(_underMenuKey));
 
-    _mealList.map((menu) {
-//      print(menu);
-    });
+
     return WillPopScope(
       onWillPop: () async {
         showCustomDialog(
@@ -363,10 +364,12 @@ class MealUI extends State<MealState> {
                       setState(() {
                         _nowTab = index;
                         if (_nowTab == 1 && !_iscalled) {
+                          mealStatus.setFavoriteListWithRange();
                           mealStatus.setDayList(dayList);
                           setState(() {
                             _iscalled = true;
                           });
+
                         }
                       });
                     }),
@@ -402,9 +405,9 @@ class MealUI extends State<MealState> {
                                       ),
                                       SizedBox(width: 5),
                                       GestureDetector(
-//                                      onDoubleTap: () {
-//                                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-//                                      },
+                                        onDoubleTap: () {
+
+                                        },
                                         child: Text('오늘의 메뉴',
                                             style: TextStyle(fontSize: fs.s3, color: Colors.white, shadows: [
                                               Shadow(offset: Offset(0, 4.0), blurRadius: 10.0, color: Colors.black38),
@@ -418,7 +421,8 @@ class MealUI extends State<MealState> {
                                     ],
                                   ),
                                   SizedBox(height: 8),
-                                  Text('점심', style: TextStyle(fontSize: fs.s6, color: Colors.white, fontWeight: Font.normal)),
+                                  Text('점심',
+                                      style: TextStyle(fontSize: fs.s6, color: Colors.white, fontWeight: Font.normal)),
                                   Text(formatDate(DateTime.now(), [yyyy, '.', mm, '.', dd]),
                                       style: TextStyle(fontSize: fs.s7, color: Colors.white)),
                                 ],
@@ -576,10 +580,8 @@ class MealUI extends State<MealState> {
                   _selectedIndex = index;
                   _bubbleOpened = true;
                 });
-
               },
               onTapUp: (TapUpDetails t) {
-
                 setState(() {
                   _openInfo = false;
                 });
