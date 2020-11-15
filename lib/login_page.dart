@@ -4,6 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as Math;
+import 'package:ads/ads.dart';
+import 'dart:io' show Platform;
+import 'package:firebase_admob/firebase_admob.dart';
 
 import 'dart:convert';
 
@@ -38,10 +41,23 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _idController = TextEditingController();
   final _passwordController = TextEditingController();
-  AdMobManager adMob = AdMobManager();
+  // AdMobManager adMob = AdMobManager();
+
 
   @override
-  void initState() {}
+  void initState() {
+    // var _bannerAd = adMob.createBannerAd();
+    // _bannerAd?.dispose();
+    // var _bannerAd = adMob.createBannerAd();
+    // _bannerAd.dispose();
+    // adMob = AdMobManager();
+    // adMob.dispose();
+
+
+
+
+
+  }
 
   void goKakaoRegisterPage() {
     Navigator.push(
@@ -73,18 +89,23 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     UserStatus userStatus = Provider.of<UserStatus>(context);
-//    var _bannerAd = adMob.createBannerAd();
-//    try{
-//      _bannerAd.dispose();
-//    }on Exception{
-//
-//    }
+
+
+
+   // var _bannerAd = adMob.createBannerAd();
+   // try{
+   //   _bannerAd.dispose();
+   // }on Exception{
+   //
+   // }
 
     fs = FontSize(context);
 
     return LoadingModal(
       child: WillPopScope(
         onWillPop: () async {
+
+
           showCustomDialog(
               context: context,
               title: "앱을 종료할까요?",
@@ -114,23 +135,30 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       SizedBox(height: MediaQuery.of(context).size.height * 0.18),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(color: primaryYellow.withOpacity(0.8)),
+                        padding: EdgeInsets.only(left: 30, right: 30, bottom: 3),
+                        decoration: BoxDecoration(border: Border(
+                          bottom: BorderSide(
+                            color: primaryRed, width: 3
+                          )
+                        )),
                         child: Text(
-                          "모두의 급식 앱",
-                          style: TextStyle(fontSize: fs.s6, fontWeight: Font.normal, letterSpacing: 8),
+                          "모두의 급식",
+                          style: TextStyle(fontSize: fs.s6, fontWeight: Font.normal, letterSpacing: 8, color: primaryRed),
                         ),
                       ),
                       SizedBox(
                         height: 10,
                       ),
-                      Container(
-                        child: Text(
-                          "YAMMEAL",
-                          style: TextStyle(
-                            fontSize: fs.s2,
-                            fontWeight: Font.bold,
-                            letterSpacing: 8,
+                      GestureDetector(
+                        onTap: (){Ads.showBannerAd(state: this);},
+                        child: Container(
+                          child: Text(
+                            "YAMMEAL",
+                            style: TextStyle(
+                              fontSize: fs.s2,
+                              fontWeight: Font.bold,
+                              letterSpacing: 8,
+                            ),
                           ),
                         ),
                       ),
@@ -218,6 +246,9 @@ class _LoginPageState extends State<LoginPage> {
                       print(loginResult);
                       if (loginResult == true) {
                         goMainPage();
+                      }else{
+                        Scaffold.of(context)
+                            .showSnackBar(SnackBar(content: Text("이메일 또는 비밀번호가 올바르지 않습니다!"), duration: Duration(seconds: 2),));
                       }
                     },
                   ),
@@ -361,13 +392,13 @@ class _LoginPageState extends State<LoginPage> {
         return Stack(
           children: <Widget>[
             CustomPaint(
-              size: MediaQuery.of(context).size,
+              size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height * 0.7),
               painter: Painter2(),
             ),
             Opacity(
               opacity: 0.7,
               child: CustomPaint(
-                size: MediaQuery.of(context).size,
+                size:Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height * 0.7),
                 painter: Painter1(),
               ),
             ),

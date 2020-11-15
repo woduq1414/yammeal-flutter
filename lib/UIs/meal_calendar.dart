@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:month_picker_dialog/month_picker_dialog.dart';
+
 import "../common/ip.dart";
 
 import 'package:date_format/date_format.dart';
@@ -17,6 +19,7 @@ import '../common/provider/mealProvider.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 FontSize fs;
 
@@ -113,7 +116,21 @@ class MealCalendar extends State<MealCalState> {
           builders: _calendarBuilders(),
 
           headerVisible: true,
+          onHeaderTapped: (d){
+            showMonthPicker(
+              context: context,
+              firstDate: DateTime(DateTime.now().year - 1, 5),
+              lastDate: DateTime(DateTime.now().year + 1, 9),
+              initialDate: d,
 
+
+            ).then((date) {
+              if (date != null) {
+                _controller.setSelectedDay(date);
+              }
+            });
+
+          },
           headerStyle: HeaderStyle(
             centerHeaderTitle: true,
             formatButtonVisible: false,

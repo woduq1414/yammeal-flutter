@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:meal_flutter/common/asset_path.dart';
 import 'package:meal_flutter/common/color.dart';
 import 'package:meal_flutter/common/font.dart';
+import 'package:meal_flutter/common/func.dart';
 import 'package:meal_flutter/common/ip.dart';
 import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
@@ -20,25 +21,36 @@ import 'main_page.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class MealSurvey extends StatefulWidget {
+  DateTime date;
   int menuSeq;
   String meal;
 
-  MealSurvey(int index, String meal) {
+  MealSurvey(DateTime date, int index, String meal) {
+    this.date = date;
     this.menuSeq = index;
     this.meal = meal;
   }
 
   @override
-  _MealSurveyState createState() => _MealSurveyState(menuSeq, meal);
+  _MealSurveyState createState() => _MealSurveyState(date, menuSeq, meal);
 }
 
 class _MealSurveyState extends State<MealSurvey> {
   int menuSeq;
   String meal;
+  DateTime date;
+  bool isToday;
 
-  _MealSurveyState(int menuSeq, String meal) {
+  _MealSurveyState(DateTime date, int menuSeq, String meal) {
+    this.date = date;
     this.menuSeq = menuSeq;
     this.meal = meal;
+
+    if (DateTime.now().year == date.year && DateTime.now().month == date.month && DateTime.now().day == date.day) {
+      isToday = true;
+    } else {
+      isToday = false;
+    }
   }
 
   FontSize fs;
@@ -68,7 +80,7 @@ class _MealSurveyState extends State<MealSurvey> {
   bool _isGetAvgStar = false;
   bool _isGetAvgAnswer = false;
   bool _postIsEnd = false;
-
+  int changedStar;
   bool _isQuestionAnswered = false;
 
   @override
@@ -77,22 +89,19 @@ class _MealSurveyState extends State<MealSurvey> {
     _postIsEnd = false;
     _avgRatings = [];
 
-    getIsQuestionAnswered();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      getIsQuestionAnswered();
 
-    getMenuAvgStar();
-    getMenuAvgAnswer();
+      getMenuAvgStar(context);
+      getMenuAvgAnswer();
+    });
 
     print(_questions);
   }
 
   getIsQuestionAnswered() async {
-    http.Response res = await getWithToken('$currentHost/meals/rating/answer/my?menuDate=${formatDate(DateTime.now(), [
-      yyyy,
-      '',
-      mm,
-      '',
-      dd
-    ])}&menuSeq=${menuSeq}');
+    http.Response res = await getWithToken(
+        '$currentHost/meals/rating/answer/my?menuDate=${formatDate(date, [yyyy, '', mm, '', dd])}&menuSeq=${menuSeq}');
 
     if (res.statusCode == 200) {
       Map<String, dynamic> jsonBody = jsonDecode(res.body)["data"];
@@ -102,6 +111,8 @@ class _MealSurveyState extends State<MealSurvey> {
         _questions = jsonBody;
       });
       btnController.animateToPage(1, duration: Duration(milliseconds: 500), curve: Curves.ease);
+      // showRateStarSheet(context, true);
+
       setState(() {
         _selectedTabIndex = 1;
       });
@@ -109,7 +120,9 @@ class _MealSurveyState extends State<MealSurvey> {
       setState(() {
         _isQuestionAnswered = false;
       });
-
+      if (!isSameDate(date, DateTime.now())) {
+        btnController.animateToPage(1, duration: Duration(milliseconds: 500), curve: Curves.ease);
+      }
       await getQuestion();
     }
   }
@@ -118,222 +131,219 @@ class _MealSurveyState extends State<MealSurvey> {
   Widget build(BuildContext context) {
     fs = FontSize(context);
 
-    return LoadingMealModal(
-      child: Scaffold(
-        backgroundColor: Color(0xffFFBB00),
-        body: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-          SizedBox(height: fs.getHeightRatioSize(0.07)),
-          Text(
-            meal,
-            style: TextStyle(fontSize: fs.s2),
-          ),
-          Expanded(
-            child: CarouselSlider(
-              carouselController: btnController,
-              options: CarouselOptions(
-                  enableInfiniteScroll: false,
-                  autoPlay: false,
-                  height: MediaQuery.of(context).size.height,
-                  viewportFraction: 1,
-                  onPageChanged: (index, CarouselPageChangedReason c) {
-                    if (index == 0) {
-                      print("@!#!@#");
-                      if (_isGetAvgStar == false) {
-                        getMenuAvgStar();
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.of(context).pop({"menuSeq" : menuSeq, "changedStar" : changedStar});
+        return true;
+      }
+      ,
+      child: LoadingMealModal(
+        child: Scaffold(
+          backgroundColor: Color(0xffFFBB00),
+          body: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+            SizedBox(height: fs.getHeightRatioSize(0.07)),
+            Text(
+              meal,
+              style: TextStyle(fontSize: fs.s2),
+            ),
+            Expanded(
+              child: CarouselSlider(
+                carouselController: btnController,
+                options: CarouselOptions(
+                    enableInfiniteScroll: false,
+                    autoPlay: false,
+                    height: MediaQuery.of(context).size.height,
+                    viewportFraction: 1,
+                    onPageChanged: (index, CarouselPageChangedReason c) {
+                      if (index == 0) {
+                        print("@!#!@#");
+                        if (_isGetAvgStar == false) {
+                          getMenuAvgStar(context);
+                        }
                       }
-                    }
-                    setState(() {
-                      _selectedTabIndex = index;
-                    });
-                  }),
-              items: <Widget>[
-                Align(
+                      setState(() {
+                        _selectedTabIndex = index;
+                      });
+                    }),
+                items: <Widget>[
+                  Align(
 //                  alignment: Alignment.center,
-                  child: Container(
-                      child: _isQuestionAnswered
-                          ? Stack(
-                              children: <Widget>[
-                                Center(
-                                    child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Expanded(
-                                      child: Center(
-                                        child: ListView(
-                                          shrinkWrap: true,
-                                          children: _questions["answers"] != null
-                                              ? _questions["answers"].map<Widget>((item) {
-                                                  return _buildQuestionItem(item, defaultVal: item["answer"]);
-                                                }).toList()
-                                              : <Widget>[
-                                                  Center(
-                                                    child: CustomLoading(),
-                                                  )
-                                                ],
+                    child: Container(
+                        child: _isQuestionAnswered
+                            ? Stack(
+                                children: <Widget>[
+                                  Center(
+                                      child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: Center(
+                                          child: ListView(
+                                            shrinkWrap: true,
+                                            children: _questions["answers"] != null
+                                                ? _questions["answers"].map<Widget>((item) {
+                                                    return _buildQuestionItem(item, defaultVal: item["answer"]);
+                                                  }).toList()
+                                                : <Widget>[
+                                                    Center(
+                                                      child: CustomLoading(),
+                                                    )
+                                                  ],
+                                          ),
                                         ),
                                       ),
+                                      SizedBox(
+                                        height: 35,
+                                      ),
+                                    ],
+                                  )),
+                                  Positioned(
+                                    bottom: 10,
+                                    right: 15,
+                                    left: 15,
+                                    child: RaisedButton(
+                                      color: Colors.grey[400],
+                                      textColor: Colors.black,
+                                      child: Text(
+                                        "이미 평가 했어요!",
+                                        style: TextStyle(fontSize: fs.s6),
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(50),
+                                      ),
+                                      onPressed: () async {},
                                     ),
-                                    SizedBox(
-                                      height: 35,
-                                    ),
-                                  ],
-                                )),
-                                Positioned(
-                                  bottom: 10,
-                                  right: 15,
-                                  left: 15,
-                                  child: RaisedButton(
-                                    color: Colors.grey[400],
-                                    textColor: Colors.black,
-                                    child: Text(
-                                      "이미 평가 했어요!",
-                                      style: TextStyle(fontSize: fs.s6),
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(50),
-                                    ),
-                                    onPressed: () async {},
-                                  ),
-                                )
-                              ],
-                            )
-                          : Stack(
-                              children: <Widget>[
-                                Center(
-                                    child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Expanded(
-                                      child: Center(
-                                        child: ListView(
-                                          shrinkWrap: true,
-                                          children: _questions["questions"] != null
-                                              ? _questions["questions"].map<Widget>((item) {
-                                                  if (!_nowQuestions.contains(item["questionSeq"]))
-                                                    _nowQuestions.add(item["questionSeq"]);
-                                                  return _buildQuestionItem(item);
-                                                }).toList()
-                                              : <Widget>[
-                                                  Center(child: CustomLoading()),
-                                                ],
+                                  )
+                                ],
+                              )
+                            : Stack(
+                                children: <Widget>[
+                                  Center(
+                                      child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: Center(
+                                          child: ListView(
+                                            shrinkWrap: true,
+                                            children: _questions["questions"] != null
+                                                ? _questions["questions"].map<Widget>((item) {
+                                                    if (!_nowQuestions.contains(item["questionSeq"]))
+                                                      _nowQuestions.add(item["questionSeq"]);
+                                                    return _buildQuestionItem(item);
+                                                  }).toList()
+                                                : <Widget>[
+                                                    Center(child: CustomLoading()),
+                                                  ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    SizedBox(
-                                      height: 35,
-                                    ),
-                                  ],
-                                )),
-                                _questions.length > 0
-                                    ? Positioned(
-                                        bottom: 10,
-                                        right: 15,
-                                        left: 15,
-                                        child: RaisedButton(
-                                          color: primaryRedDark,
-                                          textColor: Colors.white,
-                                          child: Text(
-                                            "평가 제출하기",
-                                            style: TextStyle(fontSize: fs.s6),
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(50),
-                                          ),
-                                          onPressed: () async {
-                                            var temp = [];
-                                            print("길이 ${_nowQuestions.length}");
-                                            for (int i = 0; i < _nowQuestions.length; i++) print(_nowQuestions[i]);
-                                            for (int j = 0; j < _nowQuestions.length; j++) {
-                                              temp.add({
-                                                "questionSeq": _nowQuestions[j],
-                                                "answer": _currentValue[(_nowQuestions[j]).toString()].round()
-                                              });
-                                            }
-                                            setState(() {
-                                              _transferData = temp;
-                                            });
+                                      SizedBox(
+                                        height: 35,
+                                      ),
+                                    ],
+                                  )),
+                                  _questions.length > 0
+                                      ? isToday
+                                          ? Positioned(
+                                              bottom: 10,
+                                              right: 15,
+                                              left: 15,
+                                              child: RaisedButton(
+                                                color: primaryRedDark,
+                                                textColor: Colors.white,
+                                                child: Text(
+                                                  "평가 제출하기",
+                                                  style: TextStyle(fontSize: fs.s6),
+                                                ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(50),
+                                                ),
+                                                onPressed: () async {
+                                                  MealStatus mealStatus = Provider.of<MealStatus>(context);
+                                                  double avgStar = -1;
 
-
-
-                                            print("dkdkdkdk");
-                                            print(_transferData);
-                                            if (await postAnswer(context) == true) {
-                                              setState(() {
-                                                _questions["answers"] = _questions["questions"];
-                                                for (int i = 0; i < _questions["answers"].length; i++) {
-                                                  _questions["answers"][i]["answer"] = _transferData[i]["answer"];
-                                                }
-                                              });
-
-                                              showCustomAlert(
-                                                context: context,
-                                                isSuccess: true,
-                                                title: "평가 완료!",
-                                                duration: Duration(seconds: 1),
-                                              );
-                                              getMenuAvgAnswer();
-
-                                              btnController.animateToPage(1,
-                                                  duration: Duration(milliseconds: 500), curve: Curves.ease);
-                                              setState(() {
-                                                _selectedTabIndex = 1;
-                                              });
-                                            } else {
-                                              showCustomAlert(
-                                                context: context,
-                                                isSuccess: false,
-                                                title: "오류",
-                                                duration: Duration(seconds: 1),
-                                              );
-                                            }
-                                          },
-                                        ),
-                                      )
-                                    : Container(),
-                              ],
-                            )),
-                ),
-                SingleChildScrollView(
-                  child: Column(
-                    children: <Widget>[
-                      SizedBox(
-                        height: fs.getHeightRatioSize(0.02),
-                      ),
-                      SizedBox(
-                        height: fs.getHeightRatioSize(0.02),
-                      ),
-                      _bulidMenuInfo()
-                    ],
+                                                  //if (_isCalled) {
+                                                  for (int i = 0; i < _avgRatings.length; i++) {
+                                                    if (_avgRatings[i]["menuSeq"] == menuSeq) {
+                                                      // menuName = _avgRatings[i]["menuName"];
+                                                      avgStar = _avgRatings[i]["averageStar"].toDouble();
+                                                      break;
+                                                    }
+                                                  }
+                                                  if (avgStar == -1) {
+                                                    showRateStarSheet(context, false);
+                                                  } else {
+                                                    submitAnswer(context);
+                                                  }
+                                                },
+                                              ),
+                                            )
+                                          : Positioned(
+                                              bottom: 10,
+                                              right: 15,
+                                              left: 15,
+                                              child: RaisedButton(
+                                                color: Colors.grey[400],
+                                                textColor: Colors.white,
+                                                child: Text(
+                                                  "당일에만 평가할 수 있어요!",
+                                                  style: TextStyle(fontSize: fs.s6),
+                                                ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(50),
+                                                ),
+                                                onPressed: () async {},
+                                              ),
+                                            )
+                                      : Container(),
+                                ],
+                              )),
                   ),
+                  Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    Expanded(
+                      child: ListView(
+                        children: <Widget>[
+                          SizedBox(
+                            height: fs.getHeightRatioSize(0.02),
+                          ),
+
+                          _bulidMenuInfo(),
+
+                          // SizedBox(height: 100,)
+                        ],
+                      ),
+                    ),
+                  ]),
+                ],
+              ),
+            ),
+          ]),
+          bottomNavigationBar: Theme(
+            data: Theme.of(context).copyWith(
+              canvasColor: primaryYellowDark,
+              primaryColor: primaryRed,
+              textTheme: Theme.of(context).textTheme.copyWith(caption: TextStyle(color: Colors.black)),
+            ),
+            child: BottomNavigationBar(
+              items: <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.edit),
+                  title: Text('메뉴 평가'),
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.dvr),
+                  title: Text('메뉴 상세 정보'),
                 ),
               ],
+              currentIndex: _selectedTabIndex,
+              onTap: (index) {
+                btnController.animateToPage(index, duration: Duration(milliseconds: 500), curve: Curves.ease);
+                setState(() {
+                  _selectedTabIndex = index;
+                });
+              },
             ),
-          ),
-        ]),
-        bottomNavigationBar: Theme(
-          data: Theme.of(context).copyWith(
-            canvasColor: primaryYellowDark,
-            primaryColor: primaryRed,
-            textTheme: Theme.of(context).textTheme.copyWith(caption: TextStyle(color: Colors.black)),
-          ),
-          child: BottomNavigationBar(
-            items: <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(Icons.edit),
-                title: Text('메뉴 평가'),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.dvr),
-                title: Text('메뉴 상세 정보'),
-              ),
-            ],
-            currentIndex: _selectedTabIndex,
-            onTap: (index) {
-              btnController.animateToPage(index, duration: Duration(milliseconds: 500), curve: Curves.ease);
-              setState(() {
-                _selectedTabIndex = index;
-              });
-            },
           ),
         ),
       ),
@@ -421,7 +431,7 @@ class _MealSurveyState extends State<MealSurvey> {
     //}
     return Container(
       width: fs.getWidthRatioSize(0.9),
-      height: fs.getHeightRatioSize(0.6),
+      // height: fs.getHeightRatioSize(0.6),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.3),
       ),
@@ -436,7 +446,7 @@ class _MealSurveyState extends State<MealSurvey> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            "평균 별점(이모지) 점수 : ",
+                            "별점(이모지) 점수 : ",
                             style: TextStyle(fontSize: fs.s6),
                           ),
                           Center(
@@ -452,10 +462,13 @@ class _MealSurveyState extends State<MealSurvey> {
                         ],
                       ),
                     )
-                  : Text(
+                  : isToday ? Text(
                       '별점(이모지)를 평가하고 별점 결과를 볼 수 있습니다!',
                       style: TextStyle(fontSize: avgStar != -1 ? fs.s5 : fs.s6),
-                    )
+                    )  : Text(
+            '별점(이모지) 평과 결과가 없습니다.',
+            style: TextStyle(fontSize: avgStar != -1 ? fs.s5 : fs.s6),
+          )
               : CustomLoading(),
           SizedBox(
             height: 25,
@@ -467,10 +480,12 @@ class _MealSurveyState extends State<MealSurvey> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                               Text(
-                                "질문 평가 평균 : ",
+                                "질문 평가 결과 : ",
                                 style: TextStyle(fontSize: fs.s6),
                               ),
-                              SizedBox(height: 10,)
+                              SizedBox(
+                                height: 10,
+                              )
                             ] +
                             _avgAnswers.map((answer) {
                               return Column(
@@ -480,36 +495,52 @@ class _MealSurveyState extends State<MealSurvey> {
                                     style: TextStyle(fontSize: fs.s6),
                                   ),
                                   Center(
-                                    child:  Slider(
-                                        value: answer["answerMean"],
-                                        min: 1,
-                                        max: answer["options"].length.toDouble(),
-                                        divisions: 100,
-                                        label: answer["options"][answer["answerMean"].round() - 1],
-                                        activeColor: Color(0xffff4600),
-                                        inactiveColor: Color(0xffff4600),
-                                        onChanged: (d){},
-                                        // onChanged: null
+                                    child: Slider(
+                                      value: answer["answerMean"],
+                                      min: 1,
+                                      max: answer["options"].length.toDouble(),
+                                      divisions: 100,
+                                      label: answer["options"][answer["answerMean"].round() - 1],
+                                      activeColor: Color(0xffff4600),
+                                      inactiveColor: Color(0xffff4600),
+                                      onChanged: (d) {},
+                                      // onChanged: null
                                     ),
                                   ),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
-                                      Text(answer["options"][0], style: TextStyle(fontSize: fs.s6, color: primaryRed),),
-                                      Text(answer["options"][ answer["options"].length - 1], style: TextStyle(fontSize: fs.s6,  color: primaryRed),)
+                                      Text(
+                                        answer["options"][0],
+                                        style: TextStyle(fontSize: fs.s6, color: primaryRed),
+                                      ),
+                                      Text(
+                                        answer["options"][answer["options"].length - 1],
+                                        style: TextStyle(fontSize: fs.s6, color: primaryRed),
+                                      )
                                     ],
                                   ),
-                                  SizedBox(height: 10,)
+                                  SizedBox(
+                                    height: 10,
+                                  )
                                 ],
                               );
                             }).toList(),
                       ),
                     )
-                  : Text(
-                      '급식 질문에 대해 평가하고 질문 평가 결과를 볼 수 있습니다!',
-                      style: TextStyle(fontSize: fs.s6),
-                    )
+                  : isToday
+                      ? Text(
+                          '급식 질문에 대해 평가하고 질문 평가 결과를 볼 수 있습니다!',
+                          style: TextStyle(fontSize: fs.s6),
+                        )
+                      : Text(
+                          '질문 평가 결과가 없습니다.',
+                          style: TextStyle(fontSize: fs.s6),
+                        )
               : CustomLoading(),
+          SizedBox(
+            height: 20,
+          )
         ],
       ),
     );
@@ -519,8 +550,8 @@ class _MealSurveyState extends State<MealSurvey> {
   Future getQuestion() async {
     var menuQ = {};
 
-    http.Response res = await getWithToken(
-        '$currentHost/meals/rating/question?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}');
+    http.Response res =
+        await getWithToken('$currentHost/meals/rating/question?menuDate=${formatDate(date, [yyyy, '', mm, '', dd])}');
     print(res.statusCode);
     if (res.statusCode == 200) {
       //print(jsonDecode(res.body));
@@ -548,9 +579,9 @@ class _MealSurveyState extends State<MealSurvey> {
     }
   }
 
-  Future getMenuAvgStar() async {
+  Future getMenuAvgStar(context) async {
     http.Response res =
-        await getWithToken('$currentHost/meals/rating/star?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}');
+        await getWithToken('$currentHost/meals/rating/star?menuDate=${formatDate(date, [yyyy, '', mm, '', dd])}');
     print(res.statusCode);
     print(10000000000000000 + res.statusCode);
     if (res.statusCode == 200) {
@@ -560,6 +591,22 @@ class _MealSurveyState extends State<MealSurvey> {
         if (jsonBody != null) {
           setState(() {
             _avgRatings = jsonBody;
+            print(jsonBody);
+            double avgStar = -1;
+
+            //if (_isCalled) {
+            for (int i = 0; i < _avgRatings.length; i++) {
+              if (_avgRatings[i]["menuSeq"] == menuSeq) {
+                // menuName = _avgRatings[i]["menuName"];
+                avgStar = _avgRatings[i]["averageStar"].toDouble();
+                break;
+              }
+            }
+
+            if (avgStar == -1) {
+              // showRateStarSheet(context, true);
+            }
+
 //            print(_avgRatings);
           });
         } else {}
@@ -575,13 +622,8 @@ class _MealSurveyState extends State<MealSurvey> {
   }
 
   Future getMenuAvgAnswer() async {
-    http.Response res = await getWithToken('$currentHost/meals/rating/answer?menuDate=${formatDate(DateTime.now(), [
-      yyyy,
-      '',
-      mm,
-      '',
-      dd
-    ])}&menuSeq=${menuSeq}');
+    http.Response res = await getWithToken(
+        '$currentHost/meals/rating/answer?menuDate=${formatDate(date, [yyyy, '', mm, '', dd])}&menuSeq=${menuSeq}');
     print(res.statusCode);
 
     if (res.statusCode == 200) {
@@ -611,7 +653,7 @@ class _MealSurveyState extends State<MealSurvey> {
 
     print('여기 들어오긴 오냐');
     http.Response res = await postWithToken('$currentHost/meals/rating/answer', body: {
-      "menuDate": formatDate(DateTime.now(), [yyyy, '', mm, '', dd]),
+      "menuDate": formatDate(date, [yyyy, '', mm, '', dd]),
       "menu": {"menuSeq": menuSeq, "questions": _transferData}
     });
     print('포스트');
@@ -629,5 +671,166 @@ class _MealSurveyState extends State<MealSurvey> {
     } else {
       return false;
     }
+  }
+
+  submitAnswer(context) async {
+    var temp = [];
+    print("길이 ${_nowQuestions.length}");
+    for (int i = 0; i < _nowQuestions.length; i++) print(_nowQuestions[i]);
+    for (int j = 0; j < _nowQuestions.length; j++) {
+      temp.add({"questionSeq": _nowQuestions[j], "answer": _currentValue[(_nowQuestions[j]).toString()].round()});
+    }
+    setState(() {
+      _transferData = temp;
+    });
+
+    print("dkdkdkdk");
+    print(_transferData);
+    if (await postAnswer(context) == true) {
+      setState(() {
+        _questions["answers"] = _questions["questions"];
+        for (int i = 0; i < _questions["answers"].length; i++) {
+          _questions["answers"][i]["answer"] = _transferData[i]["answer"];
+        }
+      });
+
+      showCustomAlert(
+        context: context,
+        isSuccess: true,
+        title: "평가 완료!",
+        duration: Duration(seconds: 1),
+      );
+      getMenuAvgAnswer();
+
+      btnController.animateToPage(1, duration: Duration(milliseconds: 500), curve: Curves.ease);
+      setState(() {
+        _selectedTabIndex = 1;
+      });
+    } else {
+      showCustomAlert(
+        context: context,
+        isSuccess: false,
+        title: "ERROR!",
+        duration: Duration(seconds: 1),
+      );
+    }
+  }
+
+  showRateStarSheet(context, isAnswerCompleted) {
+    MealStatus mealStatus = Provider.of<MealStatus>(context);
+    var ratingEmojiList = ["spice", "cold", "soso", "good", "love"];
+    showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+        ),
+        context: context,
+        builder: (BuildContext bc) {
+          return StatefulBuilder(builder: (BuildContext bc, StateSetter state) {
+            return Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(15)),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              child: new Wrap(
+                children: <Widget>[
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "전체적인 메뉴의 만족도는 어땠나요?",
+                        style: TextStyle(fontSize: fs.s6),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: ratingEmojiList.map((x) {
+                          return Material(
+                            borderRadius: BorderRadius.all(Radius.circular(100)),
+                            child: InkWell(
+                              borderRadius: BorderRadius.all(Radius.circular(100)),
+                              onTap: () async {
+                                int star = ratingEmojiList.indexOf(x) + 1;
+                                Future rateStar(int menuSeq, int star) async {
+//    print(date);
+                                  http.Response res = await postWithToken('${currentHost}/meals/rating/star', body: {
+                                    "menuDate": formatDate(date, [yyyy, '', mm, '', dd]),
+                                    "menus": [
+                                      {"menuSeq": menuSeq, "star": star}
+                                    ]
+                                  });
+                                  print('포스트');
+                                  print(res.statusCode);
+                                  if (res.statusCode == 200) {
+                                    print('포스트 성공');
+                                    mealStatus.setRatingStarList(menuSeq, star);
+                                    return true;
+                                  } else {
+                                    return false;
+                                  }
+                                }
+
+                                mealStatus.setIsLoading(true);
+                                Navigator.pop(context);
+                                bool rateResult = await rateStar(menuSeq, star);
+
+                                mealStatus.setIsLoading(false);
+
+
+
+
+                                if (rateResult == true) {
+
+                                  setState(() {
+                                    changedStar = star;
+                                  });
+                                  getMenuAvgStar(context);
+                                  if (!isAnswerCompleted) {
+                                    submitAnswer(context);
+                                  }
+                                }else{
+                                  showCustomAlert(
+                                    context: context,
+                                    isSuccess: false,
+                                    title: "ERROR!",
+                                    duration: Duration(seconds: 1),
+                                  );
+                                }
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.all(Radius.circular(100)),
+                                ),
+                                padding: EdgeInsets.all(2),
+                                margin: EdgeInsets.symmetric(horizontal: 3),
+                                child: Image.asset(
+                                  getEmoji(x),
+                                  width: 40,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      SizedBox(
+                        height: 30,
+                      )
+                    ],
+                  )
+
+//                                                  SizedBox(height : 70)
+
+//                    )
+                ],
+              ),
+            );
+          });
+        });
   }
 }

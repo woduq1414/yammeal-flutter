@@ -10,15 +10,22 @@ import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:meal_flutter/common/push.dart';
 import 'package:meal_flutter/common/widgets/dialog.dart';
+import 'package:meal_flutter/find_all_favorite.dart';
+import 'package:meal_flutter/firebase.dart';
 import 'package:provider/provider.dart';
 import 'package:yaml/yaml.dart';
 
+// import 'package:webview_flutter/webview_flutter.dart';
 import 'package:package_info/package_info.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'main_page.dart';
+
 import 'dart:io';
 
 import '../login_page.dart';
 import '../set_allergy_page.dart';
 import "../common/ip.dart";
+import 'esteregg.dart';
 
 class Setting extends StatefulWidget {
   @override
@@ -137,15 +144,17 @@ class _SettingState extends State<Setting> {
                                 confirmButtonAction: () {
                                   Navigator.pop(context);
                                   Navigator.popUntil(context, (route) => route.isFirst);
-//                                  print(Navigator);
+                                  print(Navigator);
+
                                   Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
                                   userStatus.logout();
+
+                                  AdManager.hideBanner();
+
+                                  pm.cancelAllScheduledPush();
                                 });
                           },
-                          child: Text(
-                            "로그아웃",
-                            style: TextStyle(fontSize: fs.s7),
-                          ),
+                          child: Text("로그아웃", style: TextStyle(fontSize: fs.s7)),
                         )
                       ],
                     ),
@@ -198,7 +207,9 @@ class _SettingState extends State<Setting> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 10,),
+                  SizedBox(
+                    height: 10,
+                  ),
                   Container(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -222,25 +233,28 @@ class _SettingState extends State<Setting> {
                             Future<TimeOfDay> selectedTime = showTimePicker(
                               initialTime: TimeOfDay(hour: mealStatus.pushHour, minute: mealStatus.pushMinute),
                               context: context,
-
                             );
 
                             selectedTime.then((timeOfDay) async {
-                              print(timeOfDay);
-                              
-                              var pushList = await pm.getScheduledPush();
-                              for(PendingNotificationRequest push in pushList){
-                                DateTime d = DateTime.parse(push.id.toString());
+                              if (timeOfDay == null) {
+                                return;
+                              }
 
+                              print(timeOfDay);
+
+                              var pushList = await pm.getScheduledPush();
+                              for (PendingNotificationRequest push in pushList) {
+                                DateTime d = DateTime.parse(push.id.toString());
+                                print("SDHFksdfjlksdjkf");
                                 pm.cancelScheduledPush(push.id);
                                 pm.schedulePush(
-                                  datetime: DateTime(d.year, d.month, d.day, timeOfDay.hour, timeOfDay.minute, 0), id: push.id, title: push.title, body: push.body, payload: push.payload
-                                );
+                                    datetime: DateTime(d.year, d.month, d.day, timeOfDay.hour, timeOfDay.minute, 0),
+                                    id: push.id,
+                                    title: push.title,
+                                    body: push.body,
+                                    payload: push.payload);
                               }
-                              
-                              
-                              
-                              
+
                               mealStatus.setPushTime(timeOfDay.hour, timeOfDay.minute);
                               showCustomAlert(
                                 context: context,
@@ -248,13 +262,8 @@ class _SettingState extends State<Setting> {
                                 title: "설정 완료!",
                                 duration: Duration(seconds: 1),
                               );
-
-
+                              print("PUSHES!!!!!");
                               pm.printScheduledPush();
-
-
-
-                              
                             });
                           },
                           child: Text(
@@ -329,7 +338,42 @@ class _SettingState extends State<Setting> {
                       );
                     }).toList(),
                   ),
+
                   SizedBox(height: 15),
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              '즐겨찾기 메뉴 보기',
+                              style: TextStyle(fontSize: fs.s6),
+                            ),
+                          ],
+                        ),
+                        RaisedButton(
+                          color: primaryRedDark,
+                          onPressed: () async {
+
+                            AdManager.hideBanner();
+                            await Navigator.push(context, MaterialPageRoute(builder: (context) => FindAllFavoritePage()));
+                            AdManager.showBanner();
+                            
+                            mealStatus.setFavoriteListWithRange();
+
+                          },
+                          child: Text(
+                            '이동',
+                            style: TextStyle(fontSize: fs.s7),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 10),
                   Container(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -371,7 +415,6 @@ class _SettingState extends State<Setting> {
                                   }
 
                                   pm.cancelAllScheduledPush();
-
                                 });
                           },
                           child: Text(
@@ -400,7 +443,9 @@ class _SettingState extends State<Setting> {
                         RaisedButton(
                           color: primaryRedDark,
                           onPressed: () async {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => SetAllergyPage()));
+                            AdManager.hideBanner();
+                            await Navigator.push(context, MaterialPageRoute(builder: (context) => SetAllergyPage()));
+                            AdManager.showBanner();
                           },
                           child: Text(
                             "설정",
@@ -519,16 +564,55 @@ class _SettingState extends State<Setting> {
                                 version = yaml["version"];
                               }
 
-                              return Container(
-                                child: Text(
-                                  '앱 버전: $version',
-                                  style: TextStyle(fontSize: fs.s7),
+                              return GestureDetector(
+                                onLongPressEnd: (x) {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => EasterEgg()));
+                                },
+                                child: Container(
+                                  child: Text(
+                                    '앱 버전: $version',
+                                    style: TextStyle(fontSize: fs.s7),
+                                  ),
                                 ),
                               );
                             }),
                       ],
                     ),
-                  )
+                  ),
+                  SizedBox(height: 5),
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        RaisedButton(
+                          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                          color: primaryRedDark,
+                          onPressed: () async {
+                            launchURL() async {
+                              const url =
+                                  'https://docs.google.com/forms/d/e/1FAIpQLSfTMdFKFo1riLfdOlLv8AhTUL47sa8KjJxo5whE4iyzUsbgFg/viewform';
+                              if (await canLaunch(url)) {
+                                await launch(
+                                  url,
+                                  forceSafariVC: true,
+                                  enableJavaScript: true,
+                                );
+                              } else {
+                                throw 'Could not launch $url';
+                              }
+                            }
+
+                            launchURL();
+                          },
+                          child: Text(
+                            '건의 / 오류 신고',
+                            style: TextStyle(fontSize: fs.s7),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 5),
                 ],
               ))
         ],

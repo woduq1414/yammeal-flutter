@@ -798,7 +798,7 @@ class _SchoolInfoRegisterPageState extends State<SchoolInfoRegisterPage> {
                                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
                                               actions: <Widget>[
                                                 new FlatButton(
-                                                  child: new Text("Close"),
+                                                  child: new Text("닫기"),
                                                   onPressed: () {
                                                     Navigator.pop(context);
                                                   },

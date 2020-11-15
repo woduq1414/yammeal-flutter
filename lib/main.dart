@@ -25,7 +25,10 @@ import 'login_page.dart';
 import 'first_page.dart';
 import 'kakao_register_page.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class MyHttpOverrides extends HttpOverrides{
   @override
@@ -35,8 +38,17 @@ class MyHttpOverrides extends HttpOverrides{
   }
 }
 
+
+
 void main() async{
   HttpOverrides.global = new MyHttpOverrides();
+  // Crashlytics.instance.enableInDevMode = true;
+  // // Pass all uncaught errors from the framework to Crashlytics.
+  // FlutterError.onError = Crashlytics.instance.recordFlutterError;
+
+  // Crashlytics.instance.crash();
+
+
 
   return runApp(KakaoLoginTest()) ;
 }
@@ -71,6 +83,7 @@ class KakaoLoginTest extends StatelessWidget {
           theme: ThemeData(
             fontFamily: "GmarketSans",
             primaryColor: primaryRed,
+            accentColor: primaryRedDark
 
             // This is the theme of your application.
             //

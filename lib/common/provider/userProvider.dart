@@ -710,7 +710,18 @@ postWithToken(url, {body}) async {
       url,body: jsonEncode(body),
       headers: {"Content-Type": "application/json",  "Authorization": token,},
     );
+
+    if(res.statusCode == 401){
+      navigatorKey.currentState.popUntil( (route) => route.isFirst);
+
+      navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
+      return null;
+    }
+
     return res;
+
+
+
   }else{
 
     navigatorKey.currentState.popUntil( (route) => route.isFirst);
@@ -751,6 +762,13 @@ postWithToken(url, {body}) async {
       "Authorization": token,
     }
     );
+    if(res.statusCode == 401){
+      navigatorKey.currentState.popUntil( (route) => route.isFirst);
+
+      navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
+      return null;
+    }
+
     return res;
   }else{
 

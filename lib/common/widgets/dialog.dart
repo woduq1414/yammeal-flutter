@@ -16,6 +16,7 @@ void showCustomAlert({
 //  return;
   showDialog(
     context: context,
+    useRootNavigator: false,
     builder: (BuildContext context) {
       Future.delayed(duration, () {
         Navigator.pop(context);
@@ -39,7 +40,7 @@ void showCustomAlert({
                 SizedBox(height: 15),
                 Text(
                   title,
-                  style: TextStyle(fontSize: 24, fontWeight: Font.bold),
+                  style: TextStyle(fontSize: 24),
                 )
               ],
             ),
@@ -85,7 +86,7 @@ void showCustomDialog(
                      margin: EdgeInsets.only(left: 5),
                      child: Text(
                          title,
-                         style: TextStyle(fontSize: 20,  fontWeight: Font.bold, ),
+                         style: TextStyle(fontSize: 20 ),
                      ),
                     ),
                     SizedBox(height: 10),
@@ -93,7 +94,7 @@ void showCustomDialog(
                       margin: EdgeInsets.only(bottom: 10),
                       child: Text(
                         content,
-                        style: TextStyle(fontSize: 15, fontWeight: Font.bold),
+                        style: TextStyle(fontSize: 15),
                         textAlign: TextAlign.left,
                       ),
                     ) else Container(),

@@ -46,3 +46,12 @@ getFromStorage(String key) async {
   var value = await storage.read(key: key);
   return value;
 }
+
+
+bool isSameDate(DateTime a, DateTime b){
+  if(a.year == b.year && a.month == b.month && a.day == b.day){
+    return true;
+  }else{
+    return false;
+  }
+}

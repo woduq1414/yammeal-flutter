@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:540510354791:android:77672a7db49d40df01c3c2",
         "android_client_info": {
-          "package_name": "com.aperture.yammealtest"
+          "package_name": "com.aperture.yammeal"
         }
       },
       "oauth_client": [
@@ -39,7 +39,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:540510354791:android:e53ba38c78de9e8801c3c2",
         "android_client_info": {
-          "package_name": "com.aperture.yammealtest"
+          "package_name": "com.aperture.yammeal"
         }
       },
       "oauth_client": [

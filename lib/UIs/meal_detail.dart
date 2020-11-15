@@ -2,6 +2,7 @@ import 'dart:convert';
 
 //import 'dart:html';
 
+import 'package:meal_flutter/UIs/servey_page.dart';
 import 'package:meal_flutter/common/func.dart';
 import 'package:meal_flutter/common/push.dart';
 import 'package:swipedetector/swipedetector.dart';
@@ -46,6 +47,8 @@ class MealDetailState extends StatefulWidget {
 class MealDetail extends State<MealDetailState> {
   DateTime d;
   PushManager pm = PushManager();
+  var ratingEmojiList = ["spice", "cold", "soso", "good", "love"];
+  var _ratedStarList = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
 
   MealDetail(DateTime d) {
     this.d = d;
@@ -69,6 +72,23 @@ class MealDetail extends State<MealDetailState> {
       });
     }
   }
+
+  getRatedStarList() async {
+    http.Response res =
+    await getWithToken('${currentHost}/meals/rating/star/my?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}');
+    print(res.statusCode);
+    if (res.statusCode == 200) {
+      print('안녕');
+      print(jsonDecode(res.body));
+      List<dynamic> jsonBody = jsonDecode(res.body)["data"];
+      for(var menu in jsonBody){
+        setState(() {
+          _ratedStarList[menu["menuSeq"]] =  menu["star"];
+        });
+      }
+    }
+  }
+
 
   @override
   void initState() {
@@ -135,9 +155,16 @@ class MealDetail extends State<MealDetailState> {
                 height: 30,
               ),
               Center(
-                child: Text(
-                  formatDate(d, [yyyy, '.', mm, '.', dd]),
-                  style: TextStyle(fontSize: fs.s2, color: Colors.white),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: primaryYellowDark,
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                  child: Text(
+                    formatDate(d, [yyyy, '.', mm, '.', dd]) + " (" + [ "월", "화", "수", "목", "금", "토", "일"][d.weekday - 1]+ ")",
+                    style: TextStyle(fontSize: fs.s3, color: Colors.white),
+                  ),
                 ),
               ),
               SizedBox(
@@ -311,13 +338,13 @@ class MealDetail extends State<MealDetailState> {
                     height: 40,
                     child: dd
                         ? Image.asset(
-                            getEmoji("meat"),
+                            getEmoji(mealStatus.selectedEmoji == "selected" ? "meat" : mealStatus.selectedEmoji),
                             width: 40,
                           )
                         : ColorFiltered(
                             colorFilter: ColorFilter.mode(Colors.grey[600], BlendMode.modulate),
                             child: Image.asset(
-                              getEmoji("meat"),
+                              getEmoji(mealStatus.selectedEmoji == "selected" ? "meat" : mealStatus.selectedEmoji),
                               width: 40,
                             )),
                   ),
@@ -325,8 +352,15 @@ class MealDetail extends State<MealDetailState> {
                 SizedBox(width: 10),
                 Flexible(
                   child: GestureDetector(
-                    onTap: () {
-                      toggleFavorite();
+                    onTap: () async {
+                      // toggleFavorite();
+                      print(_mealList);
+                      var popResult = await Navigator.push(context, MaterialPageRoute(builder: (context) => MealSurvey(d, index, _mealList[index]["menu_name"])));
+                      if(popResult["changedStar"] != null){
+                        setState(() {
+                          _ratedStarList[index] = popResult["changedStar"];
+                        });
+                      }
                     },
                     child: myAlgList.length > 0
                         ? StrikeThroughWidget(
@@ -354,16 +388,17 @@ class MealDetail extends State<MealDetailState> {
                 SizedBox(
                   width: 15,
                 ),
+                _ratedStarList[index] != -1?
                 SpeechBubble(
                   width: 50,
                   nipLocation: NipLocation.LEFT,
                   color: Colors.white,
                   borderRadius: 50,
                   child: Image.asset(
-                    getEmoji("good"),
+                    getEmoji(ratingEmojiList[_ratedStarList[index] - 1]),
                     width: 40,
                   ),
-                ),
+                ) : Container(width: 0,),
               ],
             ),
             myAlgList.length > 0
@@ -472,7 +507,7 @@ class MealDetail extends State<MealDetailState> {
 //      "menuDate": formattedDate,
 //      "menus" : "aa/ss/sssdf"
 //    });
-
+    getRatedStarList();
     setState(() {
       _isLoading = false;
     });

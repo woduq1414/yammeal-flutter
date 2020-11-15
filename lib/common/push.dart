@@ -7,11 +7,18 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter/services.dart';
 
 class PushManager{
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
+
 
   PushManager(){
-
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    var initializationSettingsAndroid = new AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettingsIOS = new IOSInitializationSettings();
+    var initializationSettings = new InitializationSettings(
+        android : initializationSettingsAndroid, iOS : initializationSettingsIOS);
+    FlutterLocalNotificationsPlugin().initialize(initializationSettings);
   }
 
   getScheduledPush() async {
@@ -48,7 +55,9 @@ class PushManager{
             'full screen channel description',
             priority: Priority.high,
             importance: Importance.high,
-            fullScreenIntent: true)),);
+            fullScreenIntent: true)),
+
+    );
   }
 
 
@@ -82,7 +91,7 @@ class PushManager{
                 fullScreenIntent: true)),
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation:
-        UILocalNotificationDateInterpretation.absoluteTime,
+        UILocalNotificationDateInterpretation.wallClockTime,
         payload: payload);
   }
 

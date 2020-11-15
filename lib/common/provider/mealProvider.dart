@@ -16,9 +16,15 @@ import '../func.dart';
 
 import "../../common/push.dart";
 
+
+import 'package:http/http.dart' as http;
+
+import '../ip.dart';
+
 class MealStatus with ChangeNotifier {
   bool isLoading = false;
 
+  String test ="hello";
 
 
 
@@ -37,6 +43,34 @@ class MealStatus with ChangeNotifier {
   var calendarType = CalendarFormat.month;
 
 
+  List<int> ratingStarList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+  getMyRatedStar() async {
+    http.Response res = await getWithToken(
+        '${currentHost}/meals/rating/star/my?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}');
+    print(res.statusCode);
+    if (res.statusCode == 200) {
+//      print(jsonDecode(res.body));
+      var jsonBody = jsonDecode(res.body)["data"];
+      for (var rating in jsonBody) {
+
+        ratingStarList[rating["menuSeq"]] = rating["star"];
+
+
+      }
+      notifyListeners();
+      return;
+    } else {
+      return;
+    }
+  }
+
+
+  setRatingStarList(index, value){
+    ratingStarList[index] = value;
+    notifyListeners();
+  }
+
   refreshFavoritePush(jsonBody) async {
 
     int PUSH_HOUR = pushHour;
@@ -48,17 +82,19 @@ class MealStatus with ChangeNotifier {
       DateTime d = DateTime.parse(dateString);
       DateTime now = DateTime.now();
       if (d.difference(DateTime.now()) <= Duration(days: 7)) {
-        print(dateString);
-        pm.cancelScheduledPush(int.parse(formatDate(d, ['yyyy', '', 'mm', '', 'dd'])));
+        print("abc" + dateString);
+        // pm.cancelScheduledPush(int.parse(formatDate(d, ['yyyy', '', 'mm', '', 'dd'])));
         pm.schedulePush(
             id: int.parse(formatDate(d, ['yyyy', '', 'mm', '', 'dd'])),
             datetime: DateTime(d.year, d.month, d.day, PUSH_HOUR, PUSH_MINUTE, 0),
             title: getRandomPushTitle(),
             body: "오늘은 ${getRandomElement(jsonBody[dateString])} 나오는 날~",
             payload: formatDate(d, ['yyyy', '', 'mm', '', 'dd']) + "%" + jsonBody[dateString].join(","));
+        print(formatDate(d, ['yyyy', '', 'mm', '', 'dd']) + "%" + jsonBody[dateString].join(","));
       }
+
     }
-    print(await pm.getScheduledPush());
+    pm.printScheduledPush();
   }
 
 

@@ -5,4 +5,4 @@ class Host {
   static const String vultrAddress = "https://yammeal.com/api";
 }
 
-String currentHost = Host.herokuAddress;
+String currentHost = Host.vultrAddress;
