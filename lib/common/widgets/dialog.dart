@@ -17,6 +17,8 @@ void showCustomAlert({
   showDialog(
     context: context,
     useRootNavigator: false,
+    barrierDismissible: false,
+
     builder: (BuildContext context) {
       Future.delayed(duration, () {
         Navigator.pop(context);
