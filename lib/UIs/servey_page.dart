@@ -24,15 +24,21 @@ class MealSurvey extends StatefulWidget {
   DateTime date;
   int menuSeq;
   String meal;
+  String menuTime;
 
-  MealSurvey(DateTime date, int index, String meal) {
+  MealSurvey(DateTime date, int index, String meal, {String menuTime}) {
     this.date = date;
     this.menuSeq = index;
     this.meal = meal;
+    if (menuTime == null) {
+      this.menuTime = "중식";
+    } else {
+      this.menuTime = menuTime;
+    }
   }
 
   @override
-  _MealSurveyState createState() => _MealSurveyState(date, menuSeq, meal);
+  _MealSurveyState createState() => _MealSurveyState(date, menuSeq, meal, menuTime);
 }
 
 class _MealSurveyState extends State<MealSurvey> {
@@ -40,11 +46,13 @@ class _MealSurveyState extends State<MealSurvey> {
   String meal;
   DateTime date;
   bool isToday;
+  String menuTime;
 
-  _MealSurveyState(DateTime date, int menuSeq, String meal) {
+  _MealSurveyState(DateTime date, int menuSeq, String meal, String menuTime) {
     this.date = date;
     this.menuSeq = menuSeq;
     this.meal = meal;
+    this.menuTime = menuTime;
 
     if (DateTime.now().year == date.year && DateTime.now().month == date.month && DateTime.now().day == date.day) {
       isToday = true;
@@ -101,7 +109,7 @@ class _MealSurveyState extends State<MealSurvey> {
 
   getIsQuestionAnswered() async {
     http.Response res = await getWithToken(
-        '$currentHost/meals/rating/answer/my?menuDate=${formatDate(date, [yyyy, '', mm, '', dd])}&menuSeq=${menuSeq}');
+        '$currentHost/meals/rating/answer/my?menuDate=${formatDate(date, [yyyy, '', mm, '', dd])}&menuSeq=${menuSeq}&menuTime=${menuTime}');
 
     if (res.statusCode == 200) {
       Map<String, dynamic> jsonBody = jsonDecode(res.body)["data"];
@@ -145,6 +153,19 @@ class _MealSurveyState extends State<MealSurvey> {
             Text(
               meal,
               style: TextStyle(fontSize: fs.s2),
+            ),
+            Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: primaryRed,
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                child: Text(
+                  menuTime,
+                  style: TextStyle(fontSize: fs.s6, color: Colors.white),
+                ),
+              ),
             ),
             Expanded(
               child: CarouselSlider(
@@ -551,7 +572,7 @@ class _MealSurveyState extends State<MealSurvey> {
     var menuQ = {};
 
     http.Response res =
-        await getWithToken('$currentHost/meals/rating/question?menuDate=${formatDate(date, [yyyy, '', mm, '', dd])}');
+        await getWithToken('$currentHost/meals/rating/question?menuDate=${formatDate(date, [yyyy, '', mm, '', dd])}&menuTime=${menuTime}');
     print(res.statusCode);
     if (res.statusCode == 200) {
       //print(jsonDecode(res.body));
@@ -581,7 +602,7 @@ class _MealSurveyState extends State<MealSurvey> {
 
   Future getMenuAvgStar(context) async {
     http.Response res =
-        await getWithToken('$currentHost/meals/rating/star?menuDate=${formatDate(date, [yyyy, '', mm, '', dd])}');
+        await getWithToken('$currentHost/meals/rating/star?menuDate=${formatDate(date, [yyyy, '', mm, '', dd])}&menuTime=${menuTime}');
     print(res.statusCode);
     print(10000000000000000 + res.statusCode);
     if (res.statusCode == 200) {
@@ -623,7 +644,7 @@ class _MealSurveyState extends State<MealSurvey> {
 
   Future getMenuAvgAnswer() async {
     http.Response res = await getWithToken(
-        '$currentHost/meals/rating/answer?menuDate=${formatDate(date, [yyyy, '', mm, '', dd])}&menuSeq=${menuSeq}');
+        '$currentHost/meals/rating/answer?menuDate=${formatDate(date, [yyyy, '', mm, '', dd])}&menuSeq=${menuSeq}&menuTime=${menuTime}');
     print(res.statusCode);
 
     if (res.statusCode == 200) {
@@ -653,7 +674,7 @@ class _MealSurveyState extends State<MealSurvey> {
 
     print('여기 들어오긴 오냐');
     http.Response res = await postWithToken('$currentHost/meals/rating/answer', body: {
-      "menuDate": formatDate(date, [yyyy, '', mm, '', dd]),
+      "menuDate": formatDate(date, [yyyy, '', mm, '', dd]), "menuTime" : menuTime,
       "menu": {"menuSeq": menuSeq, "questions": _transferData}
     });
     print('포스트');
@@ -759,6 +780,7 @@ class _MealSurveyState extends State<MealSurvey> {
                                 Future rateStar(int menuSeq, int star) async {
 //    print(date);
                                   http.Response res = await postWithToken('${currentHost}/meals/rating/star', body: {
+                                    "menuTime" : menuTime,
                                     "menuDate": formatDate(date, [yyyy, '', mm, '', dd]),
                                     "menus": [
                                       {"menuSeq": menuSeq, "star": star}

@@ -64,7 +64,9 @@ class MealCalendar extends State<MealCalState> {
         SizedBox(
           height: 10,
         ),
+
         TableCalendar(
+          rowHeight: fs.getHeightRatioSize(0.073),
           calendarController: _controller,
 //          locale: "ko_KR",
 
@@ -179,9 +181,9 @@ class MealCalendar extends State<MealCalState> {
                 (!mealStatus.dayList.containsKey(formatDate(date, ['yyyy', '', 'mm', '', 'dd']))
                     ? Image.asset(
                   getEmoji("dishes"),
-                  width: 33,
+                  width: fs.getWidthRatioSize(0.08),
                 )
-                    : Image.asset(getEmoji(mealStatus.selectedEmoji), width: 33))
+                    : Image.asset(getEmoji(mealStatus.selectedEmoji), width: fs.getWidthRatioSize(0.08),))
               ],
             ),
           ),
@@ -214,6 +216,7 @@ class MealCalendar extends State<MealCalState> {
           },
           child: Container(
 
+
             margin: EdgeInsets.only(bottom: 5, left: 0, right:  0),
             child: Column(
               children: <Widget>[
@@ -222,12 +225,12 @@ class MealCalendar extends State<MealCalState> {
                     ? (!mealStatus.dayList.containsKey(formatDate(date, ['yyyy', '', 'mm', '', 'dd']))
                         ? Image.asset(
                             getEmoji("dishes"),
-                            width: 33,
+                            width: fs.getWidthRatioSize(0.08),
                           )
-                        : Image.asset(getEmoji(mealStatus.selectedEmoji), width: 33))
+                        : Image.asset(getEmoji(mealStatus.selectedEmoji), width: fs.getWidthRatioSize(0.08),))
                     : ColorFiltered(
                         colorFilter: ColorFilter.mode(Colors.grey[400], BlendMode.modulate),
-                        child: Image.asset(getEmoji("dishes"), width: 33))
+                        child: Image.asset(getEmoji("dishes"), width: fs.getWidthRatioSize(0.08),))
               ],
             ),
           ),

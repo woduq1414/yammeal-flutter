@@ -35,10 +35,10 @@ class DBHelper {
 
 
 
-    return sql.openDatabase(path.join(dbPath, 'yammeal.db'), // join() 메서드는 경로와 생성할 DB 파일의 이름을 매개변수로 받아 데이터베이스를 생성합니다
+    return sql.openDatabase(path.join(dbPath, 'yammeal_v2.db'), // join() 메서드는 경로와 생성할 DB 파일의 이름을 매개변수로 받아 데이터베이스를 생성합니다
         onCreate: (db, version) {
           return db.execute(
-              'CREATE TABLE meals(mealSeq INTEGER PRIMARY KEY, schoolId INTEGER, menuDate TEXT, menus TEXT)');
+              'CREATE TABLE meals(mealSeq INTEGER PRIMARY KEY, schoolId INTEGER, menuDate TEXT, menuTime TEXT,  menus TEXT)');
         },
 
         onUpgrade: (Database db, int oldVersion, int newVersion) async {
@@ -50,7 +50,7 @@ class DBHelper {
         }
         try {
           db.execute(
-              'CREATE TABLE meals(mealSeq INTEGER PRIMARY KEY, schoolId INTEGER, menuDate TEXT, menus TEXT)');
+              'CREATE TABLE meals(mealSeq INTEGER PRIMARY KEY, schoolId INTEGER, menuDate TEXT, menuTime TEXT, menus TEXT)');
         } on Exception {
 
         }

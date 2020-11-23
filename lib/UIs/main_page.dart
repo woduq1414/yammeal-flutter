@@ -8,10 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:meal_flutter/UIs/servey_page.dart';
 import 'package:meal_flutter/UIs/setting.dart';
 import 'package:meal_flutter/common/asset_path.dart';
+import 'package:meal_flutter/common/db.dart';
 import 'package:meal_flutter/common/ip.dart';
 import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
@@ -37,7 +39,6 @@ import 'meal_detail.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 
 import 'package:ads/ads.dart';
-
 
 GlobalKey _containerKey = GlobalKey();
 FontSize fs;
@@ -108,6 +109,7 @@ Size getWidgetSize(GlobalKey key) {
   final size = renderBoxRed.size;
   return size;
 }
+
 BannerAd bannerAd;
 
 class MealUI extends State<MealState> {
@@ -124,19 +126,69 @@ class MealUI extends State<MealState> {
   bool _bubbleOpened = false;
   bool _getNowMealFail = false;
 
+  String _menuTime;
+
   String tmp;
 
   var tabList = ["soup", "calendar", "setting"];
 
   var ratingEmojiList = ["spice", "cold", "soso", "good", "love"];
 
-
-
   int _count = 1;
 
   PushManager pm;
 
-  List<int> _ratingStarList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  List<int> _ratingStarList = [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ];
+
+  List<bool> checkedAlg = List.generate(20, (_) => false);
+
+  getAlgFromStorage() async {
+    var storage = FlutterSecureStorage();
+    var saved_list = await storage.read(key: "algList");
+    if (saved_list == null) {
+      return;
+    }
+    for (var i in saved_list.split(",")) {
+      setState(() {
+        checkedAlg[int.parse(i)] = true;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -147,30 +199,59 @@ class MealUI extends State<MealState> {
 //    pm.showNotification();
 //    pm.dailyAtTimeNotification();
 
-      AdManager.showBanner();
-   // adMob.init();
-   // bannerAd = adMob.createBannerAd();
-   // bannerAd
-   //   ..load().then((loaded) {
-   //     if (loaded && this.mounted) {
-   //       bannerAd..show();
-   //     }
-   //   });
+    AdManager.showBanner();
+    // adMob.init();
+    // bannerAd = adMob.createBannerAd();
+    // bannerAd
+    //   ..load().then((loaded) {
+    //     if (loaded && this.mounted) {
+    //       bannerAd..show();
+    //     }
+    //   });
     super.initState();
-    getNowMealMenu();
+    getAlgFromStorage();
     // getSelectedMealMenu(DateTime.now().year, DateTime.now().month);
 
     // getMyRatedStar();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       MealStatus mealStatus = Provider.of<MealStatus>(context);
-      mealStatus.getMyRatedStar();
+
+      List menuTimeList = mealStatus.menuTimeList;
+      DateTime now = DateTime.now();
+      DateTime morningEnd = DateTime(now.year, now.month, now.day, 9, 0, 0);
+      DateTime lunchEnd = DateTime(now.year, now.month, now.day, 14, 30, 0);
+
+      String menuTime;
+
+      print(menuTimeList);
+
+      if (menuTimeList.contains("조식") && now.isBefore(morningEnd)) {
+        menuTime = "조식";
+      } else if (menuTimeList.contains("석식") && now.isAfter(lunchEnd)) {
+        print("tjrtlr!!");
+        menuTime = "석식";
+      } else if (menuTimeList.contains("중식")){
+        menuTime = "중식";
+      }
+
+      setState(() {
+        _menuTime = menuTime;
+      });
+
+      getNowMealMenu();
+      mealStatus.getMyRatedStar(_menuTime);
     });
   }
 
   Future getMyRatedStar() async {
-    http.Response res = await getWithToken(
-        '${currentHost}/meals/rating/star/my?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}');
+    http.Response res = await getWithToken('${currentHost}/meals/rating/star/my?menuDate=${formatDate(DateTime.now(), [
+      yyyy,
+      '',
+      mm,
+      '',
+      dd
+    ])}&menuTime=${_menuTime}');
     print(res.statusCode);
     if (res.statusCode == 200) {
 //      print(jsonDecode(res.body));
@@ -189,6 +270,7 @@ class MealUI extends State<MealState> {
   Future rateStar(int menuSeq, int star) async {
 //    print(date);
     http.Response res = await postWithToken('${currentHost}/meals/rating/star', body: {
+      "menuTime": _menuTime,
       "menuDate": formatDate(DateTime.now(), [yyyy, '', mm, '', dd]),
       "menus": [
         {"menuSeq": menuSeq, "star": star}
@@ -245,7 +327,6 @@ class MealUI extends State<MealState> {
                 bannerAd = null;
                 print("dssssssssss");
               });
-
             },
             confirmButtonAction: () {
               Navigator.pop(context);
@@ -379,7 +460,7 @@ class MealUI extends State<MealState> {
                         _nowTab = index;
                         if (_nowTab == 1 && !_iscalled) {
                           mealStatus.setFavoriteListWithRange();
-                          mealStatus.setDayList(dayList);
+                          // mealStatus.setDayList(dayList);
                           setState(() {
                             _iscalled = true;
                           });
@@ -427,9 +508,30 @@ class MealUI extends State<MealState> {
                                     ],
                                   ),
                                   SizedBox(height: 8),
-                                  Text('점심',
-                                      style: TextStyle(fontSize: fs.s6, color: Colors.white, fontWeight: Font.normal)),
-                                  Text(formatDate(DateTime.now(), [yyyy, '.', mm, '.', dd]),
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        List<String> menuTimeList = mealStatus.menuTimeList;
+                                        _menuTime = menuTimeList[
+                                            (menuTimeList.indexOf(_menuTime) + 1 + menuTimeList.length) %
+                                                menuTimeList.length];
+                                        _getMealDataSuccess = false;
+
+                                        _iscalled = false;
+
+                                        getNowMealMenu();
+                                        mealStatus.getMyRatedStar(_menuTime);
+                                      });
+                                    },
+                                    child: Text(_menuTime == "조식" ? "아침" : (_menuTime == "중식" ? "점심" : "저녁"),
+                                        style: TextStyle(fontSize: fs.s5, color: Colors.white, fontWeight: Font.normal)),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                      formatDate(DateTime.now(), [yyyy, '.', mm, '.', dd]) +
+                                          " (" +
+                                          ["월", "화", "수", "목", "금", "토", "일"][DateTime.now().weekday - 1] +
+                                          ")",
                                       style: TextStyle(fontSize: fs.s7, color: Colors.white)),
                                 ],
                               ),
@@ -449,9 +551,11 @@ class MealUI extends State<MealState> {
                                                       height: fs.getWidthRatioSize(0.15),
                                                     )
                                                   ] +
-                                                  (_mealList).map<Widget>((menu) {
+                                                  (_mealList).map<Widget>((menuData) {
+                                                    String menuName = menuData["menu_name"];
                                                     print('덩기덕 쿵덕');
-                                                    return _buildMealItem(menu, _mealList.indexOf(menu));
+                                                    return _buildMealItem(
+                                                        menuData["menu_name"], menuData["alg"], _mealList.indexOf(menuData));
                                                   }).toList() +
                                                   <Widget>[
                                                     SizedBox(
@@ -568,7 +672,39 @@ class MealUI extends State<MealState> {
     );
   }
 
-  Widget _buildMealItem(String mealName, int index) {
+  Widget _buildMealItem(String mealName, List<dynamic> menuAlgList, int index) {
+    List<String> allAlgList = [
+      "난류(가금류)",
+      "우유",
+      "메밀",
+      "땅콩",
+      "대두",
+      "밀",
+      "고등어",
+      "게",
+      "새우",
+      "돼지고기",
+      "복숭아",
+      "토마토",
+      "아황산염",
+      "호두",
+      "닭고기",
+      "쇠고기",
+      "오징어",
+      "조개류"
+    ];
+
+    List<String> myAlgList = [];
+    for (int algId in menuAlgList) {
+      if (algId == null || !(1 <= algId && algId <= allAlgList.length)) {
+        continue;
+      }
+
+      if (checkedAlg[algId] == true) {
+        myAlgList.add(allAlgList[algId - 1]);
+      }
+    }
+
     GlobalKey _key = GlobalKey();
     return Container(
         key: _key,
@@ -578,21 +714,39 @@ class MealUI extends State<MealState> {
             SizedBox(
               height: fs.s7,
             ),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _openInfo = true;
-                  _selectedTop = getWidgetPos(_key).dy - getWidgetPos(_containerKey).dy + 47;
-                  _selectedIndex = index;
-                  _bubbleOpened = true;
-                });
-              },
-              onTapUp: (TapUpDetails t) {
-                setState(() {
-                  _openInfo = false;
-                });
-              },
-              child: Text(mealName, style: TextStyle(fontSize: fs.s5, color: Colors.white)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                myAlgList.length > 0
+                    ? Row(
+                        children: [
+                          Icon(
+                              Icons.assignment_late,
+                              color: primaryYellow
+                          ),
+                          SizedBox(
+                            width: 3,
+                          )
+                        ],
+                      )
+                    : Container(),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _openInfo = true;
+                      _selectedTop = getWidgetPos(_key).dy - getWidgetPos(_containerKey).dy + 47;
+                      _selectedIndex = index;
+                      _bubbleOpened = true;
+                    });
+                  },
+                  onTapUp: (TapUpDetails t) {
+                    setState(() {
+                      _openInfo = false;
+                    });
+                  },
+                  child: Text(mealName, style: TextStyle(fontSize: fs.s5, color: Colors.white)),
+                )
+              ],
             ),
             SizedBox(
               height: 7,
@@ -749,8 +903,13 @@ class MealUI extends State<MealState> {
             })
             .toList()
             .map((x) {
+              var menuSet = Set();
+              for (var time in mealStatus.dayList[x].keys) {
+                menuSet.addAll(mealStatus.dayList[x][time]);
+              }
+
               print(x);
-              return _buildDDayListItem(x, mealStatus.dayList[x], i++);
+              return _buildDDayListItem(x, menuSet.toList(), i++);
             })
             .toList());
 
@@ -762,6 +921,8 @@ class MealUI extends State<MealState> {
   }
 
   Widget _buildDDayListItem(String date, List menus, index) {
+    print(menus);
+
     DateTime dParsed = DateTime.parse(date);
     var now = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     int dday = dParsed.difference(now).inDays;
@@ -802,7 +963,7 @@ class MealUI extends State<MealState> {
                   child: Center(
                     child: Text(
                       'D-${dday == 0 ? 'Day' : dday}',
-                      style: TextStyle(fontSize: 20, color: Colors.white),
+                      style: TextStyle(fontSize: fs.s6, color: Colors.white),
                     ),
                   ),
                   decoration: BoxDecoration(
@@ -824,6 +985,8 @@ class MealUI extends State<MealState> {
 
   // api 가져오는 지역
   Future getNowMealMenu() async {
+    print(_menuTime);
+
     Timer(const Duration(milliseconds: 7000), () {
       print('이거 되긴 되냐');
       if (!_getMealDataSuccess) {
@@ -836,7 +999,7 @@ class MealUI extends State<MealState> {
     });
 
     http.Response res = await getWithToken(
-      '${currentHost}/meals/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}',
+      '${currentHost}/meals/v2/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}&menuTime=${_menuTime}',
     );
     print(res.statusCode);
     if (res.statusCode == 200) {
@@ -849,9 +1012,11 @@ class MealUI extends State<MealState> {
         if (jsonBody != null) {
           _getMealDataSuccess = true;
           _mealList = jsonBody;
+          print("aaaaaaa");
         } else {
           _getMealDataSuccess = true;
           _mealList = null;
+          print("aaaaaaabbbbbbbbbbbbb");
         }
       });
 
@@ -859,6 +1024,103 @@ class MealUI extends State<MealState> {
     } else {
       return;
     }
+  }
+
+  Future getDayMealMenu() async {
+    var storage = FlutterSecureStorage();
+    var isSaveMenuStorage = await storage.read(key: "isSaveMenuStorage");
+    print('이거 되긴 되냐');
+    if (!_getMealDataSuccess) {
+      setState(() {
+        _getNowMealFail = true;
+      });
+    } else {
+      _getNowMealFail = false;
+    }
+    print((await getUserInfo()));
+
+    var schoolId = (await getUserInfo())["school"]["schoolId"];
+    var formattedDate = formatDate(DateTime.now(), [yyyy, '', mm, '', dd]);
+
+    var sqlRes;
+    if (isSaveMenuStorage == "true") {
+      sqlRes = await DBHelper.select(
+          "meals", "WHERE schoolID= $schoolId and menuDate ='$formattedDate' and menuTime ='$_menuTime'");
+      print(sqlRes);
+    }
+
+    if (sqlRes == null || sqlRes.length == 0) {
+      http.Response res = await getWithToken(
+          '${currentHost}/meals/v2/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}&menuTime=$_menuTime');
+      print(res.statusCode);
+      if (res.statusCode == 200) {
+        print('안녕');
+        print(jsonDecode(res.body));
+        List<dynamic> jsonBody = jsonDecode(res.body)["data"];
+        print("ss");
+        print(jsonBody);
+
+        setState(() {
+          if (jsonBody != null) {
+            _mealList = jsonBody;
+
+            if (isSaveMenuStorage == "true") {
+              String menu_str = "";
+              for (var menu in _mealList) {
+                menu_str += menu["menu_name"];
+                menu_str += ";";
+                menu_str += menu["alg"].join("^");
+
+                if (menu != _mealList[_mealList.length - 1]) {
+                  menu_str += "~";
+                }
+              }
+
+              DBHelper.insert(
+                  "meals", {"schoolId": schoolId, "menuDate": formattedDate, "menus": menu_str, "menuTime": _menuTime});
+            }
+          } else {
+            _mealList = null;
+          }
+        });
+      } else {}
+    } else {
+      setState(() {
+        String menus_data = sqlRes[0]["menus"];
+
+        for (var menu_data in menus_data.split("~")) {
+          String menuName = menu_data.split(";")[0];
+          List<int> menuAlgList = [];
+          if (menu_data.split(";").length >= 2) {
+            menuAlgList = menu_data.split(";")[1].split("^").map((x) {
+              if (x != "") {
+                return int.parse(x);
+              } else {
+                return null;
+              }
+            }).toList();
+          }
+
+          setState(() {
+            _mealList.add({"menu_name": menuName, "alg": menuAlgList});
+          });
+
+          print(menuAlgList);
+        }
+
+//        _mealList = sqlRes[0]["menus"].split("~");
+      });
+    }
+
+    setState(() {
+      _getMealDataSuccess = true;
+    });
+
+//    DBHelper.insert("meals", {
+//      "schoolId": schoolId,
+//      "menuDate": formattedDate,
+//      "menus" : "aa/ss/sssdf"
+//    });
   }
 
   Future getSelectedMealMenu(year, month) async {

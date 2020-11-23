@@ -35,23 +35,31 @@ FontSize fs;
 
 class MealDetailState extends StatefulWidget {
   DateTime d;
+  String menuTime;
 
-  MealDetailState(DateTime d) {
+  MealDetailState(DateTime d, {String menuTime}) {
     this.d = d;
+    if (menuTime == null) {
+      this.menuTime = "중식";
+    } else {
+      this.menuTime = menuTime;
+    }
   }
 
   @override
-  MealDetail createState() => MealDetail(d);
+  MealDetail createState() => MealDetail(d, menuTime);
 }
 
 class MealDetail extends State<MealDetailState> {
   DateTime d;
+  String menuTime;
   PushManager pm = PushManager();
   var ratingEmojiList = ["spice", "cold", "soso", "good", "love"];
-  var _ratedStarList = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
+  var _ratedStarList = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
 
-  MealDetail(DateTime d) {
+  MealDetail(DateTime d, String menuTime) {
     this.d = d;
+    this.menuTime = menuTime;
   }
 
   var _mealList = [];
@@ -74,21 +82,20 @@ class MealDetail extends State<MealDetailState> {
   }
 
   getRatedStarList() async {
-    http.Response res =
-    await getWithToken('${currentHost}/meals/rating/star/my?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}');
+    http.Response res = await getWithToken(
+        '${currentHost}/meals/rating/star/my?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}&menuTime=${menuTime}');
     print(res.statusCode);
     if (res.statusCode == 200) {
       print('안녕');
       print(jsonDecode(res.body));
       List<dynamic> jsonBody = jsonDecode(res.body)["data"];
-      for(var menu in jsonBody){
+      for (var menu in jsonBody) {
         setState(() {
-          _ratedStarList[menu["menuSeq"]] =  menu["star"];
+          _ratedStarList[menu["menuSeq"]] = menu["star"];
         });
       }
     }
   }
-
 
   @override
   void initState() {
@@ -100,14 +107,30 @@ class MealDetail extends State<MealDetailState> {
 
   @override
   Widget build(BuildContext context) {
-    fs = FontSize(context);
+    List<String> menuTimeList = ["조식", "중식", "석식"];
 
+    fs = FontSize(context);
+    MealStatus mealStatus = Provider.of<MealStatus>(context);
     return WillPopScope(
       onWillPop: () async {
         print("hello?");
         return true;
       },
       child: SwipeDetector(
+        onSwipeUp: () {
+          Navigator.of(context).pushReplacement(SlideUpRoute(
+              page: MealDetailState(
+            d,
+            menuTime: menuTimeList[(menuTimeList.indexOf(menuTime) + 1) % menuTimeList.length],
+          )));
+        },
+        onSwipeDown: () {
+          Navigator.of(context).pushReplacement(SlideDownRoute(
+              page: MealDetailState(
+            d,
+            menuTime: menuTimeList[(menuTimeList.indexOf(menuTime) - 1 + menuTimeList.length) % menuTimeList.length],
+          )));
+        },
         onSwipeRight: () {
           DateTime moveDate = widget.d.add(Duration(days: -1));
           Navigator.of(context).pushReplacement(SlideRightRoute(page: MealDetailState(moveDate)));
@@ -121,10 +144,10 @@ class MealDetail extends State<MealDetailState> {
         },
         child: LoadingMealModal(
           child: Scaffold(
-            appBar: DefaultAppBar(
-              backgroundColor: primaryYellowDark,
-              title: "급식표",
-            ),
+            // appBar: DefaultAppBar(
+            //   backgroundColor: primaryYellowDark,
+            //   title: "급식표",
+            // ),
             backgroundColor: Color(0xffFFBB00),
             body: Column(children: [
               Flexible(child: _buildBody(d)),
@@ -152,7 +175,7 @@ class MealDetail extends State<MealDetailState> {
             //crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               SizedBox(
-                height: 30,
+                height: fs.getHeightRatioSize(0.08),
               ),
               Center(
                 child: Container(
@@ -162,13 +185,42 @@ class MealDetail extends State<MealDetailState> {
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                   ),
                   child: Text(
-                    formatDate(d, [yyyy, '.', mm, '.', dd]) + " (" + [ "월", "화", "수", "목", "금", "토", "일"][d.weekday - 1]+ ")",
+                    formatDate(d, [yyyy, '.', mm, '.', dd]) +
+                        " (" +
+                        ["월", "화", "수", "목", "금", "토", "일"][d.weekday - 1] +
+                        ")",
                     style: TextStyle(fontSize: fs.s3, color: Colors.white),
                   ),
                 ),
               ),
               SizedBox(
-                height: 15,
+                height: 5,
+              ),
+              Center(
+                child: GestureDetector(
+                  onTap: () {
+                    List<String> menuTimeList = ["조식", "중식", "석식"];
+                    Navigator.of(context).pushReplacement(SlideUpRoute(
+                        page: MealDetailState(
+                      d,
+                      menuTime: menuTimeList[(menuTimeList.indexOf(menuTime) + 1) % menuTimeList.length],
+                    )));
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: primaryRed,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    child: Text(
+                      menuTime,
+                      style: TextStyle(fontSize: fs.s6, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 5,
               ),
               if (!_isLoading)
                 _mealList != null
@@ -180,7 +232,8 @@ class MealDetail extends State<MealDetailState> {
                             menuName,
                             menuData["alg"],
                             mealStatus.dayList.containsKey(formatDate(d, [yyyy, '', mm, '', dd])) &&
-                                mealStatus.dayList[formatDate(d, [yyyy, '', mm, '', dd])].contains(menuName),
+                                mealStatus.dayList[formatDate(d, [yyyy, '', mm, '', dd])].containsKey(menuTime) &&
+                                mealStatus.dayList[formatDate(d, [yyyy, '', mm, '', dd])][menuTime].contains(menuName),
                             d,
                             _mealList.indexOf(menuData));
                       }).toList())
@@ -227,7 +280,7 @@ class MealDetail extends State<MealDetailState> {
 
     List<String> myAlgList = [];
     for (int algId in menuAlgList) {
-      if (algId == null) {
+      if (algId == null || !(1 <= algId && algId <= allAlgList.length)) {
         continue;
       }
 
@@ -246,7 +299,7 @@ class MealDetail extends State<MealDetailState> {
           int PUSH_HOUR = mealStatus.pushHour;
           int PUSH_MINUTE = mealStatus.pushMinute;
 
-          if (mealStatus.updateSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), menu)) {
+          if (mealStatus.updateSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), menu, menuTime)) {
             if (mealStatus.isReceivePush == true) {
               var pushList = await pm.getScheduledPush();
               bool isExist = false;
@@ -315,7 +368,6 @@ class MealDetail extends State<MealDetailState> {
               }
             }
 
-
             await deleteSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
           }
           mealStatus.setIsLoading(false);
@@ -355,8 +407,16 @@ class MealDetail extends State<MealDetailState> {
                     onTap: () async {
                       // toggleFavorite();
                       print(_mealList);
-                      var popResult = await Navigator.push(context, MaterialPageRoute(builder: (context) => MealSurvey(d, index, _mealList[index]["menu_name"])));
-                      if(popResult["changedStar"] != null){
+                      var popResult = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MealSurvey(
+                                    d,
+                                    index,
+                                    _mealList[index]["menu_name"],
+                                    menuTime: menuTime,
+                                  )));
+                      if (popResult["changedStar"] != null) {
                         setState(() {
                           _ratedStarList[index] = popResult["changedStar"];
                         });
@@ -388,17 +448,20 @@ class MealDetail extends State<MealDetailState> {
                 SizedBox(
                   width: 15,
                 ),
-                _ratedStarList[index] != -1?
-                SpeechBubble(
-                  width: 50,
-                  nipLocation: NipLocation.LEFT,
-                  color: Colors.white,
-                  borderRadius: 50,
-                  child: Image.asset(
-                    getEmoji(ratingEmojiList[_ratedStarList[index] - 1]),
-                    width: 40,
-                  ),
-                ) : Container(width: 0,),
+                _ratedStarList[index] != -1
+                    ? SpeechBubble(
+                        width: 50,
+                        nipLocation: NipLocation.LEFT,
+                        color: Colors.white,
+                        borderRadius: 50,
+                        child: Image.asset(
+                          getEmoji(ratingEmojiList[_ratedStarList[index] - 1]),
+                          width: 40,
+                        ),
+                      )
+                    : Container(
+                        width: 0,
+                      ),
               ],
             ),
             myAlgList.length > 0
@@ -436,13 +499,14 @@ class MealDetail extends State<MealDetailState> {
 
     var sqlRes;
     if (isSaveMenuStorage == "true") {
-      sqlRes = await DBHelper.select("meals", "WHERE schoolID= $schoolId and menuDate = $formattedDate");
+      sqlRes = await DBHelper.select(
+          "meals", "WHERE schoolID= $schoolId and menuDate ='$formattedDate' and menuTime ='$menuTime'");
       print(sqlRes);
     }
 
     if (sqlRes == null || sqlRes.length == 0) {
-      http.Response res =
-          await getWithToken('${currentHost}/meals/v2/menu?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}');
+      http.Response res = await getWithToken(
+          '${currentHost}/meals/v2/menu?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}&menuTime=$menuTime');
       print(res.statusCode);
       if (res.statusCode == 200) {
         print('안녕');
@@ -467,7 +531,8 @@ class MealDetail extends State<MealDetailState> {
                 }
               }
 
-              DBHelper.insert("meals", {"schoolId": schoolId, "menuDate": formattedDate, "menus": menu_str});
+              DBHelper.insert(
+                  "meals", {"schoolId": schoolId, "menuDate": formattedDate, "menus": menu_str, "menuTime": menuTime});
             }
           } else {
             _mealList = null;
@@ -516,10 +581,11 @@ class MealDetail extends State<MealDetailState> {
   Future postSelectedDay(String date, int menuSeq) async {
     print(date);
     http.Response res = await postWithToken(
-      '${currentHost}/meals/rating/favorite',
-      body: {"menuDate": date, "menuSeq": menuSeq},
+      '${currentHost}/meals/v2/rating/favorite',
+      body: {"menuDate": date, "menuSeq": menuSeq, "menuTime": menuTime},
     );
     print('포스트');
+    print(menuTime);
     print(res.statusCode);
     if (res.statusCode == 200) {
       print('포스트 성공');
@@ -534,7 +600,7 @@ class MealDetail extends State<MealDetailState> {
     print(date);
     print(menuSeq);
     http.Response res = await deleteWithToken(
-      '${currentHost}/meals/rating/favorite?menuDate=${date}&menuSeq=${menuSeq}',
+      '${currentHost}/meals/v2/rating/favorite?menuDate=${date}&menuSeq=${menuSeq}&menuTime=${menuTime}',
     );
     print('딜리트');
     print(res.statusCode);

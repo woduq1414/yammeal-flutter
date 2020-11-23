@@ -1,4 +1,4 @@
-package com.aperture.yammeal
+package com.aperture.yammealtest
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -12,6 +12,7 @@ import 'package:meal_flutter/common/push.dart';
 import 'package:meal_flutter/common/widgets/dialog.dart';
 import 'package:meal_flutter/find_all_favorite.dart';
 import 'package:meal_flutter/firebase.dart';
+import 'package:meal_flutter/first_page.dart';
 import 'package:provider/provider.dart';
 import 'package:yaml/yaml.dart';
 
@@ -35,6 +36,20 @@ class Setting extends StatefulWidget {
 FontSize fs;
 
 class _SettingState extends State<Setting> {
+
+  // var _mealTimeBoolList = [false, false, false];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+
+    });
+
+
+  }
+
   @override
   Widget build(BuildContext context) {
     fs = FontSize(context);
@@ -297,6 +312,186 @@ class _SettingState extends State<Setting> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              "오늘의 급식",
+                              style: TextStyle(fontSize: fs.s6),
+                            ),
+                            Text(
+                              '특정 시간 급식만 보기',
+                              style: TextStyle(fontSize: fs.s7),
+                            ),
+                          ],
+                        ),
+                        RaisedButton(
+                          color: primaryRedDark,
+                          onPressed: () async {
+                            showDialog(context: context,
+                              barrierDismissible: true,
+                              builder: (BuildContext context) {
+                                MealStatus mealStatus = Provider.of<MealStatus>(context);
+                                List<bool> _mealTimeBoolList = [false, false, false];
+                                _mealTimeBoolList[0] = mealStatus.menuTimeList.contains("조식");
+                                _mealTimeBoolList[1] = mealStatus.menuTimeList.contains("중식");
+                                _mealTimeBoolList[2] = mealStatus.menuTimeList.contains("석식");
+
+                                return StatefulBuilder(builder: (BuildContext bc, StateSetter state) {
+                                  return Center(
+                                    child: Material(
+                                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                                          color: Colors.white,
+                                        ),
+                                        width: 300,
+                                        // height: 150,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: <Widget>[
+
+                                            Container(
+
+
+                                              padding: EdgeInsets.only(left: 20, right: 5),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: <Widget>[
+                                                  Flexible(
+                                                      child: Text(
+                                                        "조식",
+                                                        style: TextStyle(fontSize: fs.s6),
+                                                      )),
+                                                  Checkbox(
+                                                    activeColor: primaryRedDark,
+                                                    value: _mealTimeBoolList[0],
+                                                    onChanged: (bool value) {
+                                                      state(() {
+                                                        _mealTimeBoolList[0] = !_mealTimeBoolList[0];
+                                                      });
+                                                    },
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                            Container(
+
+
+                                              padding: EdgeInsets.only(left: 20, right: 5),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: <Widget>[
+                                                  Flexible(
+                                                      child: Text(
+                                                        "중식",
+                                                        style: TextStyle(fontSize: fs.s6),
+                                                      )),
+                                                  Checkbox(
+                                                    activeColor: primaryRedDark,
+                                                    value: _mealTimeBoolList[1],
+                                                    onChanged: (bool value) {
+                                                      state(() {
+                                                        _mealTimeBoolList[1] = !_mealTimeBoolList[1];
+                                                      });
+                                                    },
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                            Container(
+
+
+                                              padding: EdgeInsets.only(left: 20, right: 5),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: <Widget>[
+                                                  Flexible(
+                                                      child: Text(
+                                                        "석식",
+                                                        style: TextStyle(fontSize: fs.s6),
+                                                      )),
+                                                  Checkbox(
+                                                    activeColor: primaryRedDark,
+                                                    value: _mealTimeBoolList[2],
+                                                    onChanged: (bool value) {
+                                                      state(() {
+                                                        _mealTimeBoolList[2] = !_mealTimeBoolList[2];
+                                                      });
+                                                    },
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+
+                                            Container(
+                                              // margin: EdgeInsets.only(right: 15),
+                                              // alignment: Alignment.centerRight,
+                                              child:  RaisedButton(
+                                                color: primaryRedDark,
+                                                onPressed: () async {
+
+                                                  var _mealTimeList = [];
+                                                  if(_mealTimeBoolList[0]){
+                                                    _mealTimeList.add("조식");
+                                                  }
+                                                  if(_mealTimeBoolList[1]){
+                                                    _mealTimeList.add("중식");
+                                                  }
+                                                  if(_mealTimeBoolList[2]){
+                                                    _mealTimeList.add("석식");
+                                                  }
+
+                                                  if(_mealTimeList.length == 0){
+                                                    _mealTimeList.add("중식");
+                                                  }
+
+
+                                                  mealStatus.setMenuTimeList(_mealTimeList.join("/"));
+                                                  print(_mealTimeList);
+                                                  Navigator.of(context).pop();
+                                                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => FirstPage()));
+                                                },
+                                                child: Text(
+                                                  '저장',
+                                                  style: TextStyle(fontSize: fs.s7),
+                                                ),
+                                              )
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                });
+                              }
+                            );
+                           
+
+                          },
+                          child: Text(
+                            '설정',
+                            style: TextStyle(fontSize: fs.s7),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+
+                 
+
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
                         Text(
                           '즐겨찾기 이모지',
                           style: TextStyle(fontSize: fs.s6),
@@ -360,7 +555,7 @@ class _SettingState extends State<Setting> {
                             AdManager.hideBanner();
                             await Navigator.push(context, MaterialPageRoute(builder: (context) => FindAllFavoritePage()));
                             AdManager.showBanner();
-                            
+
                             mealStatus.setFavoriteListWithRange();
 
                           },

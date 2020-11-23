@@ -16,7 +16,6 @@ import '../func.dart';
 
 import "../../common/push.dart";
 
-
 import 'package:http/http.dart' as http;
 
 import '../ip.dart';
@@ -24,10 +23,7 @@ import '../ip.dart';
 class MealStatus with ChangeNotifier {
   bool isLoading = false;
 
-  String test ="hello";
-
-
-
+  String test = "hello";
 
   Map<dynamic, dynamic> dayList = Map<dynamic, dynamic>();
   String selectedEmoji;
@@ -38,26 +34,66 @@ class MealStatus with ChangeNotifier {
   int pushHour;
   int pushMinute;
 
+  List<String> menuTimeList = [];
+
   var startDate = formatDate(DateTime(DateTime.now().year, DateTime.now().month, 01), ['yyyy', '', 'mm', '', 'dd']);
   var endDate = formatDate(DateTime(DateTime.now().year, DateTime.now().month, 32), ['yyyy', '', 'mm', '', 'dd']);
   var calendarType = CalendarFormat.month;
 
+  List<int> ratingStarList = [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ];
 
-  List<int> ratingStarList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-  getMyRatedStar() async {
-    http.Response res = await getWithToken(
-        '${currentHost}/meals/rating/star/my?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}');
+  getMyRatedStar(String menuTime) async {
+    ratingStarList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    http.Response res = await getWithToken('${currentHost}/meals/rating/star/my?menuDate=${formatDate(DateTime.now(), [
+      yyyy,
+      '',
+      mm,
+      '',
+      dd
+    ])}&menuTime=${menuTime}');
     print(res.statusCode);
     if (res.statusCode == 200) {
 //      print(jsonDecode(res.body));
       var jsonBody = jsonDecode(res.body)["data"];
       for (var rating in jsonBody) {
-
         ratingStarList[rating["menuSeq"]] = rating["star"];
-
-
       }
+      print(ratingStarList);
       notifyListeners();
       return;
     } else {
@@ -65,17 +101,15 @@ class MealStatus with ChangeNotifier {
     }
   }
 
-
-  setRatingStarList(index, value){
+  setRatingStarList(index, value) {
     ratingStarList[index] = value;
     notifyListeners();
   }
 
   refreshFavoritePush(jsonBody) async {
-
     int PUSH_HOUR = pushHour;
     int PUSH_MINUTE = pushMinute;
-    
+
     PushManager pm = PushManager();
     var pushList = await pm.getScheduledPush();
     for (String dateString in jsonBody.keys) {
@@ -92,26 +126,18 @@ class MealStatus with ChangeNotifier {
             payload: formatDate(d, ['yyyy', '', 'mm', '', 'dd']) + "%" + jsonBody[dateString].join(","));
         print(formatDate(d, ['yyyy', '', 'mm', '', 'dd']) + "%" + jsonBody[dateString].join(","));
       }
-
     }
     pm.printScheduledPush();
   }
 
-
-
-
   setFavoriteListWithRange() async {
-
-
-
-
     print(startDate);
     print("start");
     setIsLoadingFavorite(true);
     notifyListeners();
 
     var res = await getWithToken(
-      '${currentHost}/meals/rating/favorite?startDate=${startDate}&endDate=${endDate}',
+      '${currentHost}/meals/v2/rating/favorite?startDate=${startDate}&endDate=${endDate}',
     );
     print(res.statusCode);
     if (res.statusCode == 200) {
@@ -120,7 +146,7 @@ class MealStatus with ChangeNotifier {
       if (jsonBody != null) {
         setDayList(jsonBody);
 
-        if(isReceivePush){
+        if (isReceivePush && true) {
           int PUSH_HOUR = pushHour;
           int PUSH_MINUTE = pushMinute;
 
@@ -132,27 +158,26 @@ class MealStatus with ChangeNotifier {
             if (d.difference(DateTime.now()) <= Duration(days: 7)) {
               print(dateString);
               pm.cancelScheduledPush(int.parse(formatDate(d, ['yyyy', '', 'mm', '', 'dd'])));
+
+              var menuSet = Set();
+              for (var time in dayList[dateString].keys) {
+                menuSet.addAll(dayList[dateString][time]);
+              }
+
               pm.schedulePush(
                   id: int.parse(formatDate(d, ['yyyy', '', 'mm', '', 'dd'])),
                   datetime: DateTime(d.year, d.month, d.day, PUSH_HOUR, PUSH_MINUTE, 0),
                   title: getRandomPushTitle(),
-                  body: "오늘은 ${getRandomElement(jsonBody[dateString])} 나오는 날~",
-                  payload: formatDate(d, ['yyyy', '', 'mm', '', 'dd']) + "%" + jsonBody[dateString].join(","));
+                  body: "오늘은 ${getRandomElement(menuSet.toList())} 나오는 날~",
+                  payload: formatDate(d, ['yyyy', '', 'mm', '', 'dd']) + "%" + menuSet.toList().join(","));
             }
           }
           print(await pm.getScheduledPush());
         }
-
-
-
-
       } else {}
     } else {
       setDayList({});
     }
-
-
-
 
     setIsLoadingFavorite(false);
     notifyListeners();
@@ -174,7 +199,7 @@ class MealStatus with ChangeNotifier {
     String _isReceivePush = await storage.read(key: "isReceivePush");
     String _pushHour = await storage.read(key: "pushHour");
     String _pushMinute = await storage.read(key: "pushMinute");
-
+    String _menuTimeList = await storage.read(key: "menuTimeList");
 
     if (favoriteEmoji != null) {
       setSelectedEmoji(favoriteEmoji);
@@ -218,7 +243,14 @@ class MealStatus with ChangeNotifier {
       storage.write(key: "pushMinute", value: "0");
     }
 
-
+    if (_menuTimeList != null) {
+      menuTimeList = _menuTimeList.split("/");
+      notifyListeners();
+    } else {
+      menuTimeList = ["조식", "중식", "석식"];
+      notifyListeners();
+      storage.write(key: "menuTimeList", value: "조식/중식/석식");
+    }
 
 //    setSelectedEmoji()
   }
@@ -230,30 +262,59 @@ class MealStatus with ChangeNotifier {
 
   void setDayList(Map m) {
     dayList = m;
+
     print(dayList);
     print('아이고...');
     print(dayList[0]);
     notifyListeners();
   }
 
-  bool updateSelectedDay(String date, String menu) {
+  bool updateSelectedDay(String date, String menu, String menuTime) {
     //true - 추가, false - 삭제
+
+    // if (!dayList.containsKey(date)) {
+    //   List<String> menuList = [];
+    //   menuList.add(menu);
+    //   dayList[date] = menuList;
+    //   notifyListeners();
+    //   return true;
+    // } else {
+    //   if (dayList[date].contains(menu)) {
+    //     dayList[date].remove(menu);
+    //     if (dayList[date].length == 0) {
+    //       dayList.remove(date);
+    //     }
+    //     notifyListeners();
+    //     return false;
+    //   } else {
+    //     dayList[date].add(menu);
+    //     notifyListeners();
+    //     return true;
+    //   }
+    // }
+
     if (!dayList.containsKey(date)) {
-      List<String> menuList = [];
-      menuList.add(menu);
-      dayList[date] = menuList;
+      dayList[date] = {};
+      dayList[date][menuTime] = [menu];
+
       notifyListeners();
       return true;
     } else {
-      if (dayList[date].contains(menu)) {
-        dayList[date].remove(menu);
-        if (dayList[date].length == 0) {
-          dayList.remove(date);
+      if (dayList[date].containsKey(menuTime)) {
+        if (dayList[date][menuTime].contains(menu)) {
+          dayList[date][menuTime].remove(menu);
+          if (dayList[date][menuTime].length == 0) {
+            // dayList.remove(date);
+          }
+          notifyListeners();
+          return false;
+        } else {
+          dayList[date][menuTime].add(menu);
+          notifyListeners();
+          return true;
         }
-        notifyListeners();
-        return false;
       } else {
-        dayList[date].add(menu);
+        dayList[date][menuTime] = [menu];
         notifyListeners();
         return true;
       }
@@ -275,19 +336,29 @@ class MealStatus with ChangeNotifier {
     notifyListeners();
   }
 
+  void setMenuTimeList(String s) async {
+    var storage = FlutterSecureStorage();
+    storage.write(key: "menuTimeList", value: s);
+    menuTimeList = s.split("/");
+    notifyListeners();
+  }
+
+
+
+
   void setIsReceivePush(bool s) async {
     var storage = FlutterSecureStorage();
     storage.write(key: "isReceivePush", value: s == true ? "true" : "false");
     isReceivePush = s;
 
-    if(s == false){
+    if (s == false) {
       PushManager pm = PushManager();
       pm.cancelAllScheduledPush();
-    }else{
+    } else {
       PushManager pm = PushManager();
-      
+
       pm.pushNow(id: 0, title: "알림 받는 것을 허용했어요!", body: "알림을 이제 받을 수 있어요.");
-      
+
       refreshFavoritePush(dayList);
     }
 
@@ -304,6 +375,4 @@ class MealStatus with ChangeNotifier {
 
     notifyListeners();
   }
-
-
 }

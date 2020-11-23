@@ -78,7 +78,7 @@ class AdManager {
         ? 'ca-app-pub-3940256099942544~1458002511' // iOS Test App ID
         : 'ca-app-pub-2755450101712612~8101773189'; // Android Test App ID
 
-    bool isDebug = false;
+    bool isDebug = true;
 
 
     String bannerID = "ca-app-pub-2755450101712612/4676699347";
@@ -113,7 +113,7 @@ class AdManager {
   }
 
   static showBanner(){
-    Ads.showBannerAd();
+    // Ads.showBannerAd();
   }
 
   static hideBanner(){
