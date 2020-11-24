@@ -1,18 +1,9 @@
 import 'dart:io';
+import 'dart:math' as Math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:math' as Math;
-import 'package:ads/ads.dart';
-import 'dart:io' show Platform;
-import 'package:firebase_admob/firebase_admob.dart';
-
-import 'dart:convert';
-
-import 'package:kakao_flutter_sdk/auth.dart';
-import 'package:kakao_flutter_sdk/user.dart';
-import 'package:http/http.dart' as http;
 import 'package:meal_flutter/common/widgets/loading.dart';
 import 'package:meal_flutter/find_email_page.dart';
 import 'package:meal_flutter/register_page.dart';
@@ -20,11 +11,12 @@ import 'package:provider/provider.dart';
 
 import './common/provider/userProvider.dart';
 import './common/route_transition.dart';
-import './kakao_register_page.dart';
 import 'UIs/main_page.dart';
 import 'common/color.dart';
-
 import 'common/font.dart';
+import 'common/widgets/dialog.dart';
+import 'find_password_page.dart';
+import 'firebas;
 
 import 'common/widgets/dialog.dart';
 import 'find_password_page.dart';
@@ -41,23 +33,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _idController = TextEditingController();
   final _passwordController = TextEditingController();
-  // AdMobManager adMob = AdMobManager();
-
-
-  @override
-  void initState() {
-    // var _bannerAd = adMob.createBannerAd();
-    // _bannerAd?.dispose();
-    // var _bannerAd = adMob.createBannerAd();
-    // _bannerAd.dispose();
-    // adMob = AdMobManager();
-    // adMob.dispose();
-
-
-
-
-
-  }
 
   void goKakaoRegisterPage() {
     Navigator.push(
@@ -89,15 +64,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     UserStatus userStatus = Provider.of<UserStatus>(context);
-
-
-
-   // var _bannerAd = adMob.createBannerAd();
-   // try{
-   //   _bannerAd.dispose();
-   // }on Exception{
-   //
-   // }
 
     fs = FontSize(context);
 
@@ -243,7 +209,6 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () async {
                       UserStatus userStatus = Provider.of<UserStatus>(context);
                       bool loginResult = await userStatus.loginDefault(_idController.text, _passwordController.text);
-                      print(loginResult);
                       if (loginResult == true) {
                         goMainPage();
                       }else{
@@ -338,15 +303,9 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () async {
                       UserStatus userStatus = Provider.of<UserStatus>(context);
                       userStatus.setIsKakao(true);
-//                  goKakaoRegisterPage();
-//                      userStatus.setIsLoading(true);
                       bool loginResult = await userStatus.loginWithKakao();
-                      print(loginResult);
-//                      userStatus.setIsLoading(false);
 
                       if (loginResult == true) {
-//                      userStatus.loginWithKakao();
-                        print('성공');
                         goMainPage();
                       } else {
                         goKakaoRegisterPage();

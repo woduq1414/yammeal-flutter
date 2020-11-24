@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
-import 'package:meal_flutter/common/widgets/dialog.dart';
 import 'package:shake/shake.dart';
 
 class EasterEgg extends StatefulWidget {
@@ -46,7 +45,6 @@ class _EasterEggState extends State<EasterEgg>  with SingleTickerProviderStateMi
                               onTap: () {
                                 setState(() {
                                   _counter = _counter + 10;
-                                  print((sin(_counter) * 50 + 400));
                                 });
                               },
                               child: Image.asset(

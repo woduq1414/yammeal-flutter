@@ -1,5 +1,6 @@
 
 import 'dart:io' show Platform;
+
 import 'package:ads/ads.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 
@@ -49,7 +50,6 @@ class AdMobManager {
       size: AdSize.banner,
       targetingInfo: targetingInfo,
       listener: (MobileAdEvent event) {
-        print("BannerAd event is $event");
       },
     );
   }
@@ -59,7 +59,6 @@ class AdMobManager {
       adUnitId: interstitialID,
       targetingInfo: targetingInfo,
       listener: (MobileAdEvent event) {
-        print("BannerAd event is $event");
       },
     );
   }
@@ -72,7 +71,6 @@ class AdMobManager {
 class AdManager {
   AdManager(){
     var eventListener = (MobileAdEvent event) {
-      if (event == MobileAdEvent.opened) print("Returned to the app.");
     };
     String appID = Platform.isIOS
         ? 'ca-app-pub-3940256099942544~1458002511' // iOS Test App ID

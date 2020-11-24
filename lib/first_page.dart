@@ -1,23 +1,15 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:kakao_flutter_sdk/auth.dart';
-import 'package:kakao_flutter_sdk/user.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:meal_flutter/common/color.dart';
 import 'package:meal_flutter/common/font.dart';
 import 'package:meal_flutter/common/widgets/loading.dart';
 import 'package:meal_flutter/login_page.dart';
-import 'package:meal_flutter/register_page.dart';
-import 'package:provider/provider.dart';
 
 import './common/provider/userProvider.dart';
 import 'UIs/main_page.dart';
 import 'common/route_transition.dart';
-import 'kakao_register_page.dart';
-import 'common/ip.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class FirstPage extends StatefulWidget {
   @override
@@ -52,8 +44,6 @@ class _FirstPageState extends State<FirstPage> {
 
 
     int now = (DateTime.now().millisecondsSinceEpoch / 1000).toInt();
-    print(exp);
-    print(now);
 
     if (exp >= now) {
       setState(() {
@@ -72,43 +62,12 @@ class _FirstPageState extends State<FirstPage> {
         );
       });
     }
-
-//    final res = await http.get(
-//      "${currentHost}/auth",
-//      headers: {"Content-Type": "application/json", "Authorization" : token},
-//    );
-//
-//
-//
-//
-//    print(res.statusCode);
-////    if
-//    if(res.statusCode == 200) {
-//      setState(() {
-//        _isLogined = true;
-//        Navigator.push(
-//          context,
-//          FadeRoute(page: MealState()),
-//        );
-//      });
-//    }else{
-//      setState(() {
-//        _isLogined = false;
-//        Navigator.push(
-//          context,
-//          FadeRoute(page: LoginPage()),
-//        );
-//      });
-//    }
   }
 
   @override
   void initState() {
     getIsLogined();
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      // add your code here.
-
-      print("!");
     });
   }
 

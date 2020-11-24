@@ -1,23 +1,17 @@
-import 'dart:convert';
-
-import 'package:month_picker_dialog/month_picker_dialog.dart';
-
-import "../common/ip.dart";
+import 'dart:math';
 
 import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:meal_flutter/UIs/meal_detail.dart';
 import 'package:meal_flutter/common/asset_path.dart';
 import 'package:meal_flutter/common/color.dart';
 import 'package:meal_flutter/common/font.dart';
-import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'dart:math'; // 그냥 api 가져오기 전에 이모티콘 다양하게 하려 랜덤쓰려고 함. 나중에 지울 것
-import '../common/provider/mealProvider.dart';
-import 'package:http/http.dart' as http;
-import 'package:intl/date_symbol_data_local.dart';
+
+import '../common/provider/mealProviderkage:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -40,13 +34,6 @@ class MealCalendar extends State<MealCalState> {
     _controller = CalendarController();
   }
 
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   MealStatus mealStatus = Provider.of<MealStatus>(context);
-  //   mealStatus.setDayList(dayList);
-  // }
-
   @override
   void dispose() {
     _controller.dispose();
@@ -68,8 +55,6 @@ class MealCalendar extends State<MealCalState> {
         TableCalendar(
           rowHeight: fs.getHeightRatioSize(0.073),
           calendarController: _controller,
-//          locale: "ko_KR",
-
           onVisibleDaysChanged: (a, b, c) async {
             var oldStartDate = DateTime.parse(mealStatus.startDate);
             var oldEndDate = DateTime.parse(mealStatus.endDate);
@@ -92,26 +77,6 @@ class MealCalendar extends State<MealCalState> {
               mealStatus.setDayList({});
               return;
             }
-
-//            print("startdate");
-//            print(startDate);
-//            print(endDate);
-//            print(oldStartDate);
-//            print(oldEndDate);
-//            print(a.compareTo(oldStartDate));
-//            print(DateTime(focusedDay.year, focusedDay.month, 31).isAfter(b) ? b : DateTime(focusedDay.year, focusedDay.month, 31).compareTo(oldEndDate));
-//            if (a.compareTo(oldStartDate) >= 0 && DateTime(focusedDay.year, focusedDay.month, 31).isAfter(b)
-//                ? b
-//                : DateTime(focusedDay.year, focusedDay.month, 31).compareTo(oldEndDate) <= 0) {
-//              print("ssdflkjskldfjskldfjksdajfklsdakfsjdkfsdklfjskld");
-//              return;
-//            }
-
-//            if(a == oldStartDate && ((c == CalendarFormat.week)|| (c != CalendarFormat.month && oldCalendarType == CalendarFormat.month))){
-//              return;
-//            }
-
-
             mealStatus.setFavoriteListWithRange();
           },
 
@@ -158,10 +123,6 @@ class MealCalendar extends State<MealCalState> {
     MealStatus mealStatus = Provider.of<MealStatus>(context);
 
     return CalendarBuilders(
-      // selectedDayBuilder: (context, date, _) {
-      //   return Container(
-      //       child: Image.asset(getEmoji(emojiList[randomNum()]), width: 50));
-      // },
       todayDayBuilder: (context, date, _) {
 
         return GestureDetector(
@@ -188,25 +149,6 @@ class MealCalendar extends State<MealCalState> {
             ),
           ),
         );
-
-
-
-        // return GestureDetector(
-        //   onTap: () async {
-        //     await Navigator.push(context, MaterialPageRoute(builder: (context) => MealDetailState(date)));
-        //     mealStatus.setFavoriteListWithRange();
-        //   },
-        //   child: Container(
-        //     child: Column(
-        //       children: <Widget>[
-        //         Text(date.day.toString()),
-        //         ColorFiltered(
-        //             colorFilter: ColorFilter.mode(primaryYellow, BlendMode.modulate),
-        //             child: Image.asset(getEmoji("dishes"), width: 33))
-        //       ],
-        //     ),
-        //   ),
-        // );
       },
       dayBuilder: (_context, date, _) {
         return GestureDetector(

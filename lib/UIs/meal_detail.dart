@@ -1,33 +1,26 @@
 import 'dart:convert';
 
-//import 'dart:html';
-
-import 'package:meal_flutter/UIs/servey_page.dart';
-import 'package:meal_flutter/common/func.dart';
-import 'package:meal_flutter/common/push.dart';
-import 'package:swipedetector/swipedetector.dart';
-
-import 'package:meal_flutter/common/ip.dart';
-import 'package:swipeable_page_route/swipeable_page_route.dart';
-
+import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
-import 'package:date_format/date_format.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:meal_flutter/common/asset_path.dart';
 import 'package:meal_flutter/common/color.dart';
+import 'package:meal_flutter/common/func.dart';
+import 'package:meal_flutter/common/ip.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:meal_flutter/common/push.dart';
 import 'package:meal_flutter/common/widgets/appbar.dart';
 import 'package:meal_flutter/common/widgets/loading.dart';
-import 'package:speech_bubble/speech_bubble.dart';
-import 'package:http/http.dart' as http;
-import '../common/provider/mealProvider.dart';
-import '../common/font.dart';
-
-import '../common/routes.dart';
-
 import 'package:provider/provider.dart';
+import 'package:speech_bubble/speech_bubble.dart';
+import 'package:swipedetector/swipedetector.dart';
+
+import "../common/db.dart";
+import '../common/font.dart';
+import '../common/provider/mealProvider.dart';
+import '../common/routes.dart'rovider/provider.dart';
 
 import "../common/db.dart";
 
@@ -86,8 +79,6 @@ class MealDetail extends State<MealDetailState> {
         '${currentHost}/meals/rating/star/my?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}&menuTime=${menuTime}');
     print(res.statusCode);
     if (res.statusCode == 200) {
-      print('안녕');
-      print(jsonDecode(res.body));
       List<dynamic> jsonBody = jsonDecode(res.body)["data"];
       for (var menu in jsonBody) {
         setState(() {
@@ -113,7 +104,6 @@ class MealDetail extends State<MealDetailState> {
     MealStatus mealStatus = Provider.of<MealStatus>(context);
     return WillPopScope(
       onWillPop: () async {
-        print("hello?");
         return true;
       },
       child: SwipeDetector(
@@ -137,17 +127,10 @@ class MealDetail extends State<MealDetailState> {
         },
         onSwipeLeft: () {
           DateTime moveDate = widget.d.add(Duration(days: 1));
-
-//          Na
-
           Navigator.of(context).pushReplacement(SlideLeftRoute(page: MealDetailState(moveDate)));
         },
         child: LoadingMealModal(
           child: Scaffold(
-            // appBar: DefaultAppBar(
-            //   backgroundColor: primaryYellowDark,
-            //   title: "급식표",
-            // ),
             backgroundColor: Color(0xffFFBB00),
             body: Column(children: [
               Flexible(child: _buildBody(d)),
@@ -172,7 +155,6 @@ class MealDetail extends State<MealDetailState> {
         MealStatus mealStatus = Provider.of<MealStatus>(context);
         return SingleChildScrollView(
           child: Column(
-            //crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               SizedBox(
                 height: fs.getHeightRatioSize(0.08),
@@ -256,7 +238,6 @@ class MealDetail extends State<MealDetailState> {
   }
 
   Widget _buildMenuItem(String menu, List<dynamic> menuAlgList, bool dd, DateTime d, int index) {
-//    print(checkedAlg);
     List<String> allAlgList = [
       "난류(가금류)",
       "우유",
@@ -330,7 +311,6 @@ class MealDetail extends State<MealDetailState> {
 
             await postSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
           } else {
-            print('딜리딜리딜리트');
             if (mealStatus.isReceivePush == true) {
               var pushList = await pm.getScheduledPush();
               bool isExist = false;
@@ -352,22 +332,10 @@ class MealDetail extends State<MealDetailState> {
                         body: "오늘은 ${randomMenu} 나오는 날~",
                         payload: formatDate(d, ['yyyy', '', 'mm', '', 'dd']) + "%" + newMenu);
                   }
-
-                  // print(newBody);
-
                   isExist = true;
                 }
               }
-              if (isExist == false) {
-                // pm.schedulePush(
-                //     id: int.parse(formatDate(d, ['yyyy', '', 'mm', '', 'dd'])),
-                //     datetime: DateTime(d.year, d.month, d.day, 7, 0, 0),
-                //     title: "오늘 급식 뭐 나오냐",
-                //     body: menu,
-                //     payload: formatDate(d, ['yyyy', '', 'mm', '', 'dd']));
-              }
             }
-
             await deleteSelectedDay(formatDate(d, ['yyyy', '', 'mm', '', 'dd']), index);
           }
           mealStatus.setIsLoading(false);
@@ -405,8 +373,6 @@ class MealDetail extends State<MealDetailState> {
                 Flexible(
                   child: GestureDetector(
                     onTap: () async {
-                      // toggleFavorite();
-                      print(_mealList);
                       var popResult = await Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -443,8 +409,6 @@ class MealDetail extends State<MealDetailState> {
                           ),
                   ),
                 ),
-//                SizedBox(width: 50,),
-
                 SizedBox(
                   width: 15,
                 ),
@@ -492,7 +456,6 @@ class MealDetail extends State<MealDetailState> {
     setState(() {
       _isLoading = true;
     });
-    print((await getUserInfo()));
 
     var schoolId = (await getUserInfo())["school"]["schoolId"];
     var formattedDate = formatDate(d, [yyyy, '', mm, '', dd]);
@@ -501,7 +464,6 @@ class MealDetail extends State<MealDetailState> {
     if (isSaveMenuStorage == "true") {
       sqlRes = await DBHelper.select(
           "meals", "WHERE schoolID= $schoolId and menuDate ='$formattedDate' and menuTime ='$menuTime'");
-      print(sqlRes);
     }
 
     if (sqlRes == null || sqlRes.length == 0) {
@@ -509,12 +471,7 @@ class MealDetail extends State<MealDetailState> {
           '${currentHost}/meals/v2/menu?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}&menuTime=$menuTime');
       print(res.statusCode);
       if (res.statusCode == 200) {
-        print('안녕');
-        print(jsonDecode(res.body));
         List<dynamic> jsonBody = jsonDecode(res.body)["data"];
-        print("ss");
-        print(jsonBody);
-
         setState(() {
           if (jsonBody != null) {
             _mealList = jsonBody;
@@ -559,19 +516,9 @@ class MealDetail extends State<MealDetailState> {
           setState(() {
             _mealList.add({"menu_name": menuName, "alg": menuAlgList});
           });
-
-          print(menuAlgList);
         }
-
-//        _mealList = sqlRes[0]["menus"].split("~");
       });
     }
-
-//    DBHelper.insert("meals", {
-//      "schoolId": schoolId,
-//      "menuDate": formattedDate,
-//      "menus" : "aa/ss/sssdf"
-//    });
     getRatedStarList();
     setState(() {
       _isLoading = false;
@@ -579,17 +526,13 @@ class MealDetail extends State<MealDetailState> {
   }
 
   Future postSelectedDay(String date, int menuSeq) async {
-    print(date);
     http.Response res = await postWithToken(
-      '${currentHost}/meals/v2/rating/favorite',
+      '$currentHost/meals/v2/rating/favorite',
       body: {"menuDate": date, "menuSeq": menuSeq, "menuTime": menuTime},
     );
-    print('포스트');
-    print(menuTime);
     print(res.statusCode);
     if (res.statusCode == 200) {
       print('포스트 성공');
-
       return;
     } else {
       return;
@@ -597,12 +540,9 @@ class MealDetail extends State<MealDetailState> {
   }
 
   Future deleteSelectedDay(String date, int menuSeq) async {
-    print(date);
-    print(menuSeq);
     http.Response res = await deleteWithToken(
-      '${currentHost}/meals/v2/rating/favorite?menuDate=${date}&menuSeq=${menuSeq}&menuTime=${menuTime}',
+      '$currentHost/meals/v2/rating/favorite?menuDate=$date&menuSeq=$menuSeq&menuTime=$menuTime',
     );
-    print('딜리트');
     print(res.statusCode);
     if (res.statusCode == 200) {
       print('딜리트 성공');

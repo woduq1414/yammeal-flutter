@@ -1,3 +1,4 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,13 +11,12 @@ import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:meal_flutter/common/push.dart';
 import 'package:meal_flutter/common/widgets/dialog.dart';
-import 'package:meal_flutter/find_all_favorite.dart';
-import 'package:meal_flutter/firebase.dart';
-import 'package:meal_flutter/first_page.dart';
 import 'package:provider/provider.dart';
 import 'package:yaml/yaml.dart';
 
-// import 'package:webview_flutter/webview_flutter.dart';
+import "../common/ip.dart";
+import '../login_page.dart';
+import '../set_allergy_page.dart'kage:webview_flutter/webview_flutter.dart';
 import 'package:package_info/package_info.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'main_page.dart';
@@ -36,18 +36,12 @@ class Setting extends StatefulWidget {
 FontSize fs;
 
 class _SettingState extends State<Setting> {
-
-  // var _mealTimeBoolList = [false, false, false];
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-
     });
-
-
   }
 
   @override
@@ -254,13 +248,9 @@ class _SettingState extends State<Setting> {
                               if (timeOfDay == null) {
                                 return;
                               }
-
-                              print(timeOfDay);
-
                               var pushList = await pm.getScheduledPush();
                               for (PendingNotificationRequest push in pushList) {
                                 DateTime d = DateTime.parse(push.id.toString());
-                                print("SDHFksdfjlksdjkf");
                                 pm.cancelScheduledPush(push.id);
                                 pm.schedulePush(
                                     datetime: DateTime(d.year, d.month, d.day, timeOfDay.hour, timeOfDay.minute, 0),
@@ -277,7 +267,6 @@ class _SettingState extends State<Setting> {
                                 title: "설정 완료!",
                                 duration: Duration(seconds: 1),
                               );
-                              print("PUSHES!!!!!");
                               pm.printScheduledPush();
                             });
                           },
@@ -354,8 +343,6 @@ class _SettingState extends State<Setting> {
                                           children: <Widget>[
 
                                             Container(
-
-
                                               padding: EdgeInsets.only(left: 20, right: 5),
                                               child: Row(
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -379,8 +366,6 @@ class _SettingState extends State<Setting> {
                                               ),
                                             ),
                                             Container(
-
-
                                               padding: EdgeInsets.only(left: 20, right: 5),
                                               child: Row(
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -404,8 +389,6 @@ class _SettingState extends State<Setting> {
                                               ),
                                             ),
                                             Container(
-
-
                                               padding: EdgeInsets.only(left: 20, right: 5),
                                               child: Row(
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -428,7 +411,6 @@ class _SettingState extends State<Setting> {
                                                 ],
                                               ),
                                             ),
-
                                             Container(
                                               // margin: EdgeInsets.only(right: 15),
                                               // alignment: Alignment.centerRight,
@@ -453,7 +435,6 @@ class _SettingState extends State<Setting> {
 
 
                                                   mealStatus.setMenuTimeList(_mealTimeList.join("/"));
-                                                  print(_mealTimeList);
                                                   Navigator.of(context).pop();
                                                   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => FirstPage()));
                                                 },
@@ -471,8 +452,6 @@ class _SettingState extends State<Setting> {
                                 });
                               }
                             );
-                           
-
                           },
                           child: Text(
                             '설정',
@@ -485,9 +464,6 @@ class _SettingState extends State<Setting> {
                   SizedBox(
                     height: 10,
                   ),
-
-                 
-
                   Container(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -524,8 +500,6 @@ class _SettingState extends State<Setting> {
                               ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(Radius.circular(1000)),
-
-//                            border: Border.all(color: Colors.black, width: mealStatus.selectedEmoji == item ? 3 : 1),
                               ),
                             ),
                           ),
@@ -567,7 +541,6 @@ class _SettingState extends State<Setting> {
                       ],
                     ),
                   ),
-
                   SizedBox(height: 10),
                   Container(
                     child: Row(
@@ -620,7 +593,6 @@ class _SettingState extends State<Setting> {
                       ],
                     ),
                   ),
-//                  SizedBox(height: 5),
                   SizedBox(height: 15),
                   Container(
                     child: Row(
@@ -813,16 +785,5 @@ class _SettingState extends State<Setting> {
         ],
       ),
     );
-
-//    return Container(
-//      margin: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.55),
-//      child: Column(
-//        mainAxisAlignment: MainAxisAlignment.center,
-//        children: <Widget>[
-//          Text('불쌍한 정재엽을 위해\n 아래 광고 한번 눌러주십쇼...', style: TextStyle(fontSize: fs.s4),),
-//          Text('↓', style: TextStyle(fontSize: 200),)
-//        ],
-//      ),
-//    );
   }
 }

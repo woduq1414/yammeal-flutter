@@ -1,11 +1,5 @@
-import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:meal_flutter/UIs/login_UI.dart';
-import 'package:meal_flutter/UIs/main_page.dart';
-import 'package:meal_flutter/common/push.dart';
-
 import 'common/font.dart';
 import 'common/provider/mealProvider.dart';
 import 'common/provider/userProvider.dart';

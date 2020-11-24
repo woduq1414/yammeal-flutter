@@ -1,50 +1,39 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
+
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:date_format/date_format.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
+import 'package:http/http.dart' as http;
 import 'package:meal_flutter/UIs/servey_page.dart';
 import 'package:meal_flutter/UIs/setting.dart';
 import 'package:meal_flutter/common/asset_path.dart';
 import 'package:meal_flutter/common/db.dart';
+import "package:meal_flutter/common/font.dart";
 import 'package:meal_flutter/common/ip.dart';
 import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:meal_flutter/common/push.dart';
 import 'package:meal_flutter/common/widgets/dialog.dart';
 import 'package:meal_flutter/common/widgets/loading.dart';
-import 'package:meal_flutter/login_page.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
-import 'dart:math' as math;
-import '../firebase.dart';
-import 'esteregg.dart';
-import 'meal_calendar.dart';
-import 'package:date_format/date_format.dart';
-import 'package:http/http.dart' as http;
-import "package:meal_flutter/common/font.dart";
 
 import "../common/color.dart";
-
-import "package:meal_flutter/main.dart";
-
+import '../firebase.dart';
+import 'meal_calendar.dart';
 import 'meal_detail.dart';
-import 'package:month_picker_dialog/month_picker_dialog.dart';
-
-import 'package:ads/ads.dart';
 
 GlobalKey _containerKey = GlobalKey();
 FontSize fs;
-
-//FontSize fs;
-//GlobalKey _underMenuKey = GlobalKey();
 
 class CustomStack extends Stack {
   CustomStack({children}) : super(children: children);
@@ -193,27 +182,9 @@ class MealUI extends State<MealState> {
   @override
   void initState() {
     pm = PushManager();
-
-    // pm.schedulePush(, title, body);
-//    pm.NotificationAt();
-//    pm.showNotification();
-//    pm.dailyAtTimeNotification();
-
     AdManager.showBanner();
-    // adMob.init();
-    // bannerAd = adMob.createBannerAd();
-    // bannerAd
-    //   ..load().then((loaded) {
-    //     if (loaded && this.mounted) {
-    //       bannerAd..show();
-    //     }
-    //   });
     super.initState();
     getAlgFromStorage();
-    // getSelectedMealMenu(DateTime.now().year, DateTime.now().month);
-
-    // getMyRatedStar();
-
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       MealStatus mealStatus = Provider.of<MealStatus>(context);
 
@@ -224,12 +195,9 @@ class MealUI extends State<MealState> {
 
       String menuTime;
 
-      print(menuTimeList);
-
       if (menuTimeList.contains("조식") && now.isBefore(morningEnd)) {
         menuTime = "조식";
       } else if (menuTimeList.contains("석식") && now.isAfter(lunchEnd)) {
-        print("tjrtlr!!");
         menuTime = "석식";
       } else if (menuTimeList.contains("중식")){
         menuTime = "중식";
@@ -254,7 +222,6 @@ class MealUI extends State<MealState> {
     ])}&menuTime=${_menuTime}');
     print(res.statusCode);
     if (res.statusCode == 200) {
-//      print(jsonDecode(res.body));
       var jsonBody = jsonDecode(res.body)["data"];
       for (var rating in jsonBody) {
         setState(() {
@@ -268,7 +235,6 @@ class MealUI extends State<MealState> {
   }
 
   Future rateStar(int menuSeq, int star) async {
-//    print(date);
     http.Response res = await postWithToken('${currentHost}/meals/rating/star', body: {
       "menuTime": _menuTime,
       "menuDate": formatDate(DateTime.now(), [yyyy, '', mm, '', dd]),
@@ -276,7 +242,6 @@ class MealUI extends State<MealState> {
         {"menuSeq": menuSeq, "star": star}
       ]
     });
-    print('포스트');
     print(res.statusCode);
     if (res.statusCode == 200) {
       print('포스트 성공');
@@ -289,7 +254,6 @@ class MealUI extends State<MealState> {
 
   @override
   void dispose() {
-    print("disposed!!!!!!!!!!!!!!!");
     try {
       bannerAd?.dispose();
     } on Exception {}
@@ -303,21 +267,13 @@ class MealUI extends State<MealState> {
 
   @override
   Widget build(BuildContext context) {
-//    print(fs.s1());
     fs = FontSize(context);
     MealStatus mealStatus = Provider.of<MealStatus>(context);
-
-    print("!!!!!!!!1");
-//    print(_mealList);
-
-//    print(getWidgetSize(_underMenuKey));
-
     return WillPopScope(
       onWillPop: () async {
         showCustomDialog(
             context: context,
             title: "앱을 종료할까요?",
-//          content : null,
             cancelButtonText: "취소",
             confirmButtonText: "나가기",
             cancelButtonAction: () {
@@ -325,7 +281,6 @@ class MealUI extends State<MealState> {
               Future.delayed(Duration(milliseconds: 500), () {
                 if (bannerAd != null) bannerAd.dispose();
                 bannerAd = null;
-                print("dssssssssss");
               });
             },
             confirmButtonAction: () {
@@ -369,11 +324,6 @@ class MealUI extends State<MealState> {
                             size: MediaQuery.of(context).size,
                           ),
                         ),
-//                  Positioned(
-//                    top: MediaQuery.of(context).size.height - 75 - 20,
-//                    left: MediaQuery.of(context).size.width / 2 - 75,
-//                    child: Image.asset(getEmoji("cold"), width: 150, height:150),
-//                  ),
                         Container(
                           child: CustomPaint(
                             painter: BuchaePainter(),
@@ -387,10 +337,6 @@ class MealUI extends State<MealState> {
 
                         double halfCircleVerticalRadius = MediaQuery.of(context).size.height * 0.15 / 1.4;
                         double halfCircleHorizontalRadius = MediaQuery.of(context).size.width * 0.3 / 1.4;
-
-//                        print(math.sin(degreeToRadian(t))* (s == 70 ? 230 : 210));
-
-//                        print(math.cos(30  * math.pi / 180));
                         return AnimatedPositioned(
                           child: GestureDetector(
                             behavior: HitTestBehavior.translucent,
@@ -399,19 +345,11 @@ class MealUI extends State<MealState> {
                                   duration: Duration(milliseconds: 500), curve: Curves.ease);
                             },
                             child: Container(
-//                        color: Colors.blue,
                               child: Image.asset(
                                 getEmoji(tab),
                               ),
                             ),
                           ),
-//                    margin: EdgeInsets.only(
-//                      top:
-//                      _nowTab == 0 ? MediaQuery.of(context).size.height*0.79 : MediaQuery.of(context).size.height * 0.85,
-//                      left: _nowTab == 0
-//                          ? MediaQuery.of(context).size.width * 0.5 - 33
-//                          : MediaQuery.of(context).size.width * 0.5 - 80,
-//                    ),
                           top: MediaQuery.of(context).size.height * 1 -
                               math.sin(degreeToRadian(t)) * halfCircleVerticalRadius -
                               s -
@@ -425,26 +363,6 @@ class MealUI extends State<MealState> {
                           curve: Curves.ease,
                         );
                       }).toList(),
-//                  AnimatedContainer(
-//                    child: GestureDetector(
-//                      onTap: () {
-//                        btnController.animateToPage(1);
-//                      },
-//                      child: Image.asset(
-//                        getEmoji("calendar"),
-//                        width: _nowTab == 0 ? 50 : 70,
-//                      ),
-//                    ),
-//                    margin: EdgeInsets.only(
-//                      top:
-//                      _nowTab == 0 ? MediaQuery.of(context).size.height * 0.85 : MediaQuery.of(context).size.height * 0.78,
-//                      left: _nowTab == 0
-//                          ? MediaQuery.of(context).size.width * 0.5 + 30
-//                          : MediaQuery.of(context).size.width * 0.5 - 33,
-//                    ),
-//                    duration: Duration(milliseconds: 400),
-//                    curve: Curves.ease,
-//                  ),
                 ),
               ),
               CarouselSlider(
@@ -460,7 +378,6 @@ class MealUI extends State<MealState> {
                         _nowTab = index;
                         if (_nowTab == 1 && !_iscalled) {
                           mealStatus.setFavoriteListWithRange();
-                          // mealStatus.setDayList(dayList);
                           setState(() {
                             _iscalled = true;
                           });
@@ -474,7 +391,6 @@ class MealUI extends State<MealState> {
                     child: SingleChildScrollView(
                       physics: BouncingScrollPhysics(),
                       child: Container(
-//                    color: Colors.blue,
                         width: MediaQuery.of(context).size.width,
                         child: Column(
                           children: <Widget>[
@@ -539,7 +455,6 @@ class MealUI extends State<MealState> {
                             Container(
                               key: _containerKey,
                               width: MediaQuery.of(context).size.width,
-//                          height: 500,
                               child: Stack(
                                 alignment: Alignment.topCenter,
                                 children: <Widget>[
@@ -553,7 +468,6 @@ class MealUI extends State<MealState> {
                                                   ] +
                                                   (_mealList).map<Widget>((menuData) {
                                                     String menuName = menuData["menu_name"];
-                                                    print('덩기덕 쿵덕');
                                                     return _buildMealItem(
                                                         menuData["menu_name"], menuData["alg"], _mealList.indexOf(menuData));
                                                   }).toList() +
@@ -605,7 +519,6 @@ class MealUI extends State<MealState> {
                     ),
                   ),
                   Container(
-//                height : MediaQuery.of(context).size.height,
                     child: FractionallySizedBox(
                       heightFactor: 0.8,
                       alignment: Alignment.topCenter,
@@ -613,8 +526,6 @@ class MealUI extends State<MealState> {
                         physics: BouncingScrollPhysics(),
                         child: Container(
                             width: MediaQuery.of(context).size.width,
-//                  color: Colors.blue,
-//                  height: 150,
                             child: Column(
                               children: <Widget>[
                                 SizedBox(
@@ -648,7 +559,6 @@ class MealUI extends State<MealState> {
                   ),
                   Container(
                       child: Container(
-//                height : MediaQuery.of(context).size.height,
                     child: FractionallySizedBox(
                       heightFactor: 0.8,
                       alignment: Alignment.topCenter,
@@ -656,8 +566,6 @@ class MealUI extends State<MealState> {
                         physics: BouncingScrollPhysics(),
                         child: Container(
                           width: MediaQuery.of(context).size.width,
-//                  color: Colors.blue,
-//                  height: 150,
                           child: Setting(),
                         ),
                       ),
@@ -780,7 +688,6 @@ class MealUI extends State<MealState> {
               ),
               color: primaryYellow,
               onPressed: () {
-                print(index is int);
                 Navigator.push(
                     context, MaterialPageRoute(builder: (context) => MealSurvey(DateTime.now(), index, _mealList[index])));
               },
@@ -862,7 +769,6 @@ class MealUI extends State<MealState> {
                         child: InkWell(
                           borderRadius: BorderRadius.all(Radius.circular(100)),
                           onTap: () {
-//                      int i = ratingEmojiList.indexOf(x);
                           },
                           child: Container(
                             padding: EdgeInsets.all(2),
@@ -886,9 +792,6 @@ class MealUI extends State<MealState> {
   Widget _buildDDayList() {
     MealStatus mealStatus = Provider.of<MealStatus>(context);
     var keys = mealStatus.dayList.keys.toList();
-
-    print(keys);
-
     int i = 0;
 
     keys.sort();
@@ -898,7 +801,6 @@ class MealUI extends State<MealState> {
             .where((x) {
               DateTime dParsed = DateTime.parse(x);
               var dday = dParsed.difference(now).inDays;
-              print(dday);
               return dday >= 0;
             })
             .toList()
@@ -907,26 +809,15 @@ class MealUI extends State<MealState> {
               for (var time in mealStatus.dayList[x].keys) {
                 menuSet.addAll(mealStatus.dayList[x][time]);
               }
-
-              print(x);
               return _buildDDayListItem(x, menuSet.toList(), i++);
             })
             .toList());
-
-    return ListView(
-        children: keys.map((x) {
-      return _buildDDayListItem(x, mealStatus.dayList[x], i++);
-      ;
-    }).toList());
   }
 
   Widget _buildDDayListItem(String date, List menus, index) {
-    print(menus);
-
     DateTime dParsed = DateTime.parse(date);
     var now = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     int dday = dParsed.difference(now).inDays;
-//    print(dday);
     if (dday < 0)
       return Container(
         width: 0,
@@ -985,10 +876,7 @@ class MealUI extends State<MealState> {
 
   // api 가져오는 지역
   Future getNowMealMenu() async {
-    print(_menuTime);
-
     Timer(const Duration(milliseconds: 7000), () {
-      print('이거 되긴 되냐');
       if (!_getMealDataSuccess) {
         setState(() {
           _getNowMealFail = true;
@@ -1003,20 +891,14 @@ class MealUI extends State<MealState> {
     );
     print(res.statusCode);
     if (res.statusCode == 200) {
-      print('안녕');
-      print(jsonDecode(res.body));
       List<dynamic> jsonBody = jsonDecode(res.body)["data"];
-      print("ss");
-      print(jsonBody);
       setState(() {
         if (jsonBody != null) {
           _getMealDataSuccess = true;
           _mealList = jsonBody;
-          print("aaaaaaa");
         } else {
           _getMealDataSuccess = true;
           _mealList = null;
-          print("aaaaaaabbbbbbbbbbbbb");
         }
       });
 
@@ -1029,7 +911,6 @@ class MealUI extends State<MealState> {
   Future getDayMealMenu() async {
     var storage = FlutterSecureStorage();
     var isSaveMenuStorage = await storage.read(key: "isSaveMenuStorage");
-    print('이거 되긴 되냐');
     if (!_getMealDataSuccess) {
       setState(() {
         _getNowMealFail = true;
@@ -1037,7 +918,6 @@ class MealUI extends State<MealState> {
     } else {
       _getNowMealFail = false;
     }
-    print((await getUserInfo()));
 
     var schoolId = (await getUserInfo())["school"]["schoolId"];
     var formattedDate = formatDate(DateTime.now(), [yyyy, '', mm, '', dd]);
@@ -1046,7 +926,6 @@ class MealUI extends State<MealState> {
     if (isSaveMenuStorage == "true") {
       sqlRes = await DBHelper.select(
           "meals", "WHERE schoolID= $schoolId and menuDate ='$formattedDate' and menuTime ='$_menuTime'");
-      print(sqlRes);
     }
 
     if (sqlRes == null || sqlRes.length == 0) {
@@ -1054,11 +933,7 @@ class MealUI extends State<MealState> {
           '${currentHost}/meals/v2/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}&menuTime=$_menuTime');
       print(res.statusCode);
       if (res.statusCode == 200) {
-        print('안녕');
-        print(jsonDecode(res.body));
         List<dynamic> jsonBody = jsonDecode(res.body)["data"];
-        print("ss");
-        print(jsonBody);
 
         setState(() {
           if (jsonBody != null) {
@@ -1104,30 +979,19 @@ class MealUI extends State<MealState> {
           setState(() {
             _mealList.add({"menu_name": menuName, "alg": menuAlgList});
           });
-
-          print(menuAlgList);
         }
-
-//        _mealList = sqlRes[0]["menus"].split("~");
       });
     }
 
     setState(() {
       _getMealDataSuccess = true;
     });
-
-//    DBHelper.insert("meals", {
-//      "schoolId": schoolId,
-//      "menuDate": formattedDate,
-//      "menus" : "aa/ss/sssdf"
-//    });
   }
 
   Future getSelectedMealMenu(year, month) async {
     http.Response res = await getWithToken('${currentHost}/meals/rating/favorite?year=${year}&month=${month}');
     print(res.statusCode);
     if (res.statusCode == 200) {
-      print(jsonDecode(res.body));
       Map<dynamic, dynamic> jsonBody = jsonDecode(res.body)["data"];
       setState(() {
         if (jsonBody != null) {
@@ -1158,10 +1022,6 @@ class HalfCirclePainter extends CustomPainter {
     final x = size.width;
     final y = size.height;
     Path path = new Path();
-    //path.moveTo(x*0.2, y);
-    //path.lineTo(x*0.8, y);
-    //path.lineTo(, y);
-
     path.arcTo(Rect.fromLTWH(x * 0.2, y * 0.85, x * 0.6, y * 0.3), degToRad(0), degToRad(-180), true);
     canvas.drawPath(path, paint);
   }
@@ -1185,10 +1045,6 @@ class BuchaePainter extends CustomPainter {
     final x = size.width;
     final y = size.height;
     Path path = new Path();
-    //path.moveTo(x*0.2, y);
-    //path.lineTo(x*0.8, y);
-    //path.lineTo(, y);
-
     path.arcTo(Rect.fromLTWH(x * 0.34, y * 0.87, x * 0.33, y * 0.2), degToRad(-60), degToRad(-60), true);
     canvas.drawPath(path, paint);
   }
@@ -1212,10 +1068,6 @@ class InnerHalfCirclePainter extends CustomPainter {
     final x = size.width;
     final y = size.height;
     Path path = new Path();
-    //path.moveTo(x*0.2, y);
-    //path.lineTo(x*0.8, y);
-    //path.lineTo(, y);
-
     path.arcTo(Rect.fromLTWH(x * 0.37, y * 0.93, x * 0.275, y * 0.15), degToRad(0), degToRad(-180), true);
     canvas.drawPath(path, paint);
   }
