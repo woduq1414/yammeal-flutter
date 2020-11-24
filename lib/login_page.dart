@@ -54,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
     // adMob.dispose();
 
 
-
+    AdManager.hideBanner();
 
 
   }
@@ -185,6 +185,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildTextFields() {
+    final node = FocusScope.of(context);
     return Builder(
       builder: (context) {
         return Container(
@@ -192,18 +193,25 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               children: <Widget>[
                 TextField(
+
                   controller: _idController,
                   maxLines: 1,
                   inputFormatters: [
                     LengthLimitingTextInputFormatter(40),
                   ],
+                  style: TextStyle(
+                    height: 1
+                  ),
+                  onEditingComplete: () => node.nextFocus(),
                   decoration: InputDecoration(
                     hintText: '이메일',
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(50),
                     ),
-                    contentPadding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                    contentPadding: EdgeInsets.fromLTRB(20, 12, 0, 12),
+
+                    isDense: true,
                   ),
                 ),
                 SizedBox(
@@ -215,6 +223,7 @@ class _LoginPageState extends State<LoginPage> {
                   inputFormatters: [
                     LengthLimitingTextInputFormatter(40),
                   ],
+                  onSubmitted: (_) => node.unfocus(),
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: '비밀번호',
@@ -222,7 +231,9 @@ class _LoginPageState extends State<LoginPage> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(50),
                     ),
-                    contentPadding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                    contentPadding: EdgeInsets.fromLTRB(20, 12, 0, 12),
+
+                    isDense: true,
                   ),
                 ),
                 SizedBox(

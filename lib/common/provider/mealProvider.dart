@@ -139,6 +139,7 @@ class MealStatus with ChangeNotifier {
     var res = await getWithToken(
       '${currentHost}/meals/v2/rating/favorite?startDate=${startDate}&endDate=${endDate}',
     );
+    print('${currentHost}/meals/v2/rating/favorite?startDate=${startDate}&endDate=${endDate}');
     print(res.statusCode);
     if (res.statusCode == 200) {
       print(jsonDecode(res.body));

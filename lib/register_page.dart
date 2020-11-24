@@ -487,10 +487,26 @@ class NameRegisterPage extends StatelessWidget {
                             return;
                           }
 
+
+                          userStatus.setInputData("schoolCode", "");
+                          userStatus.setInputData("schoolName", "");
+                          userStatus.setInputData("schoolId", "");
+                          userStatus.setInputData("schoolGrade", null);
+                          userStatus.setInputData("schoolClass", null);
+//                          userStatus.setInputData("schoolGrade", 1);
+                          userStatus.setIsSchoolCodeVerified(false);
+
+                          userStatus.setClassData("");
+
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => SchoolCodeRegisterPage()),
+                            MaterialPageRoute(builder: (context) => SchoolInfoRegisterPage()),
                           );
+
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(builder: (context) => SchoolCodeRegisterPage()),
+                          // );
                         },
                         textColor: Colors.white,
                         primeColor: primaryRedDark,
@@ -728,10 +744,10 @@ class _SchoolInfoRegisterPageState extends State<SchoolInfoRegisterPage> {
                                                           ),
                                                         ),
                                                         Material(
-                                                          borderRadius: BorderRadius.all(Radius.circular(500)),
-                                                          color: Colors.grey[200],
+                                                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                                                          color: primaryRed.withOpacity(0.8),
                                                           child: InkWell(
-                                                            borderRadius: BorderRadius.all(Radius.circular(500)),
+                                                            borderRadius: BorderRadius.all(Radius.circular(5)),
                                                             onTap: () async {
                                                               var searchResult =
                                                                   await userStatus.searchSchoolName(_controller.text);
@@ -739,9 +755,10 @@ class _SchoolInfoRegisterPageState extends State<SchoolInfoRegisterPage> {
                                                             child: Container(
                                                                 padding: EdgeInsets.all(5),
                                                                 decoration: BoxDecoration(
-                                                                  borderRadius: BorderRadius.all(Radius.circular(500)),
+
+                                                                  borderRadius: BorderRadius.all(Radius.circular(5)),
                                                                 ),
-                                                                child: Icon(Icons.search)),
+                                                                child: Icon(Icons.search,  color: Colors.white,)),
                                                           ),
                                                         )
                                                       ],
@@ -770,17 +787,18 @@ class _SchoolInfoRegisterPageState extends State<SchoolInfoRegisterPage> {
                                                                             padding: EdgeInsets.all(5),
                                                                             child: Column(
                                                                               crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              mainAxisAlignment: MainAxisAlignment.center,
                                                                               children: <Widget>[
                                                                                 Text(
                                                                                   school["schoolName"],
                                                                                   style: TextStyle(
-                                                                                      fontSize: 18,
-                                                                                      fontWeight: FontWeight.bold),
+                                                                                      fontSize: fs.s6,
+                                                                                  ),
                                                                                 ),
                                                                                 SizedBox(height: 10),
                                                                                 Text(school["schoolAddress"],
                                                                                     style: TextStyle(
-                                                                                      fontSize: 14,
+                                                                                      fontSize: fs.s7,
                                                                                     ))
                                                                               ],
                                                                             ),
@@ -1061,7 +1079,7 @@ class _SchoolInfoRegisterPageState extends State<SchoolInfoRegisterPage> {
 성명 :정재엽
 직책 :책임자
 직급 :책임자
-연락처 :01034081188, jjy37777@naver.com, -
+연락처 : -, jjy37777@naver.com, -
 ※ 개인정보 보호 담당부서로 연결됩니다.
 
 ▶ 개인정보 보호 담당부서

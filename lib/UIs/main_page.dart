@@ -225,15 +225,24 @@ class MealUI extends State<MealState> {
       String menuTime;
 
       print(menuTimeList);
+      print(menuTimeList);
+      print(menuTimeList);
+      print(menuTimeList);
 
       if (menuTimeList.contains("조식") && now.isBefore(morningEnd)) {
         menuTime = "조식";
       } else if (menuTimeList.contains("석식") && now.isAfter(lunchEnd)) {
         print("tjrtlr!!");
         menuTime = "석식";
-      } else if (menuTimeList.contains("중식")){
+      } else if (menuTimeList.contains("중식")) {
         menuTime = "중식";
       }
+
+      if(menuTimeList.length == 1){
+        menuTime = menuTimeList[0];
+      }
+
+
 
       setState(() {
         _menuTime = menuTime;
@@ -623,9 +632,16 @@ class MealUI extends State<MealState> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Image.asset(
-                                      getEmoji("calendar"),
-                                      width: 50,
+                                    GestureDetector(
+                                      onTap: () {
+                                        print("DD");
+                                        AdManager.hideBanner();
+
+                                      },
+                                      child: Image.asset(
+                                        getEmoji("calendar"),
+                                        width: 50,
+                                      ),
                                     ),
                                     SizedBox(width: 5),
                                     Text('내 급식표',
@@ -720,10 +736,7 @@ class MealUI extends State<MealState> {
                 myAlgList.length > 0
                     ? Row(
                         children: [
-                          Icon(
-                              Icons.assignment_late,
-                              color: primaryYellow
-                          ),
+                          Icon(Icons.assignment_late, color: primaryYellow),
                           SizedBox(
                             width: 3,
                           )
@@ -782,7 +795,7 @@ class MealUI extends State<MealState> {
               onPressed: () {
                 print(index is int);
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => MealSurvey(DateTime.now(), index, _mealList[index])));
+                    context, MaterialPageRoute(builder: (context) => MealSurvey(DateTime.now(), index, _mealList[index]["menu_name"], menuTime: _menuTime,)));
               },
             )),
       ),
