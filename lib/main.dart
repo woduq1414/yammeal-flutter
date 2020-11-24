@@ -42,34 +42,16 @@ class MyHttpOverrides extends HttpOverrides{
 
 void main() async{
   HttpOverrides.global = new MyHttpOverrides();
-  // Crashlytics.instance.enableInDevMode = true;
-  // // Pass all uncaught errors from the framework to Crashlytics.
-  // FlutterError.onError = Crashlytics.instance.recordFlutterError;
-
-  // Crashlytics.instance.crash();
-
-
-
   return runApp(KakaoLoginTest()) ;
 }
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 class KakaoLoginTest extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
 
-//    fs = FontSize(context);
-
-
     KakaoContext.clientId = '39d6c43a0a346cca6ebc7b2dbb8e4353';
-
-//    var storage = FlutterSecureStorage();
-//    String token = await storage.read(key: "token");
-
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return MultiProvider(
-
-
         providers: [
           ChangeNotifierProvider<UserStatus>(create: (_) => UserStatus()),
           ChangeNotifierProvider<MealStatus>(create: (_) => MealStatus()),
@@ -101,29 +83,3 @@ class KakaoLoginTest extends StatelessWidget {
         ));
   }
 }
-
-//
-//class LoginDone extends StatelessWidget {
-//  Future<bool> _getUser() async {
-//    try {
-//      User user = await UserApi.instance.me();
-//      print(user.toString());
-//    } on KakaoAuthException catch (e) {
-//    } catch (e) {
-//    }
-//  }
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    _getUser();
-//
-//    return Scaffold(
-//      body: SafeArea(
-//        child: Center(
-//          child: Text('Login Success!'),
-//        ),
-//      ),
-//    );
-//  }
-//}
-

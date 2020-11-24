@@ -1,10 +1,8 @@
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:meal_flutter/common/widgets/dialog.dart';
 import 'main_page.dart';
-import 'login_UI.dart';
 import 'dart:math' as Math;
 import "../common/color.dart";
 void main() => runApp(MyApp());
@@ -168,7 +166,6 @@ class MainPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(50),
                     ),
                     onPressed: () {
-                      print("pressed");
                     },
                   ),
                 ),

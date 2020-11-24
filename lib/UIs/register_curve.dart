@@ -58,8 +58,6 @@ class Painter1 extends CustomPainter {
     path.moveTo(0, h);
     path.lineTo(0, h * 0.81);
     path.cubicTo(w * 0.5, h * 0.7, w*0.9, h*0.85, w, h * 0.9);
-    //path.quadraticBezierTo(w * 0.7, h * 0.7, w, h * 0.9);
-    //path.quadraticBezierTo(w, h * 0.9, w * 1.3, h * 0.9);
     path.lineTo(w, h);
     path.lineTo(0, h);
     canvas.drawPath(path, paint);

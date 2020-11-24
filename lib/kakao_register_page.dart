@@ -1,16 +1,12 @@
+
 import 'package:flutter/material.dart';
-
-import 'common/provider/userProvider.dart';
-
-import './common/widgets/appbar.dart';
-import './common/color.dart';
-import './common/ip.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 
+import './common/color.dart';
 import './common/provider/userProvider.dart';
+import './common/widgets/appbar.dart';
+import 'common/provider/userProvider.dart';
 import 'common/widgets/appbar.dart';
 
 class KakaoRegisterPage extends StatefulWidget {
@@ -247,29 +243,14 @@ class _KakaoRegisterPageState extends State<KakaoRegisterPage> {
 
                       bool registerResult = await userStatus.registerWithKakao();
                       if(registerResult == true){
-                        print("!!!!!!!!!!!!11");
                         bool loginResult = await userStatus.loginWithKakao();
-
-//                        if(loginResult == true){
-//                          goMainPage();
-//                        }else{
-//
-//                        }
-
                         setState(() {
                           _inAsyncCall = false;
                         });
-
-
                       }
-
-
                       setState(() {
                         _inAsyncCall = false;
                       });
-
-
-//                    request.register(id, pw, name);
                     },
 
                     child: Container(
@@ -291,15 +272,6 @@ class _KakaoRegisterPageState extends State<KakaoRegisterPage> {
       ),
     );
   }
-
-
-//
-//  void goMainPage() {
-//    Navigator.push(
-//      context,
-//      FadeRoute(page: MainPage()),
-//    );
-//  }
 
 }
 

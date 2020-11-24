@@ -1,24 +1,19 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:kakao_flutter_sdk/auth.dart';
 import 'package:kakao_flutter_sdk/user.dart';
-import 'package:http/http.dart' as http;
 import 'package:meal_flutter/common/widgets/loading.dart';
 import 'package:meal_flutter/register_page.dart';
+import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 
 import './common/provider/userProvider.dart';
 import 'common/route_transition.dart';
-import 'kakao_register_page.dart';
-
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-
-import 'package:path/path.dart';
-
-import 'package:async/async.dart';
 
 
 class TestPage extends StatefulWidget {
@@ -74,7 +69,6 @@ class _TestPageState extends State<TestPage> {
                   fontSize: 25,
                 ),
                 decoration: InputDecoration(
-//                        border: InputBorder.none,
                   hintText: "아이디",
                   contentPadding: EdgeInsets.fromLTRB(0, 10.0, 0, 8.0),
 
@@ -93,7 +87,6 @@ class _TestPageState extends State<TestPage> {
                   fontSize: 25,
                 ),
                 decoration: InputDecoration(
-//                        border: InputBorder.none,
                   hintText: "비밀번호",
                   contentPadding: EdgeInsets.fromLTRB(0, 10.0, 0, 8.0),
 
@@ -118,8 +111,6 @@ class _TestPageState extends State<TestPage> {
                   onPressed: () async {
                     UserStatus userStatus = Provider.of<UserStatus>(context);
                     userStatus.setIsKakao(false);
-//                  goKakaoRegisterPage();
-
                     goRegisterPage();
 
                   }
@@ -131,16 +122,10 @@ class _TestPageState extends State<TestPage> {
                   onPressed: () async {
                     UserStatus userStatus = Provider.of<UserStatus>(context);
                     userStatus.setIsKakao(true);
-//                  goKakaoRegisterPage();
                     userStatus.setIsLoading(true);
                     bool loginResult = await userStatus.loginWithKakao();
-
-                    print("login 성공");
-
                     userStatus.setIsLoading(false);
                     if(loginResult == true){
-//                      userStatus.loginWithKakao();
-                      print("login 성공");
                     }else{
                       goKakaoRegisterPage();
                     }
@@ -170,23 +155,13 @@ class _TestPageState extends State<TestPage> {
 
                   setState(() {
                     _image = File(pickedFile.path);
-//                    _image = temp;
                   });
 
                 },
               ),
-
-//              Center(
-//                child: _image == null
-//                    ? Text('No image selected.')
-//                    : Image.file(_image, height : 100,),
-//              ),
-
               RaisedButton(
                 child: Text("업로드"),
                 onPressed: () async {
-
-
                   // open a byteStream
                   var stream = new http.ByteStream(DelegatingStream.typed(_image.openRead()));
                   // get file length
@@ -212,8 +187,6 @@ class _TestPageState extends State<TestPage> {
 
                   request.headers['authorization'] = await getToken();
                   request.headers['authorization'] = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7ImlkIjoicXdlMTIzNEBuYXZlci5jb20iLCJuaWNrbmFtZSI6Ilx1YzVjNFx1YzkwMFx1YzJkZHNzOCIsInNjaG9vbCI6eyJzY2hvb2xOYW1lIjoiXHVkNTVjXHVhZDZkXHViNTE0XHVjOWMwXHVkMTM4XHViYmY4XHViNTE0XHVjNWI0XHVhY2UwXHViNGYxXHVkNTU5XHVhZDUwIiwic2Nob29sSWQiOjc1MzA1NjAsInNjaG9vbEdyYWRlIjoxLCJzY2hvb2xDbGFzcyI6OH19LCJleHAiOjE2MDA1NzE0MDB9.IoCJK7gClWneKtyMf8NLXvTncFz5vRdu_pNNke3jixY";
-
-//                  print(await getToken());
                   // send request to upload image
                   await request.send().then((response) async {
                     // listen for response
@@ -224,20 +197,6 @@ class _TestPageState extends State<TestPage> {
                   }).catchError((e) {
                     print(e);
                   });
-
-//                  final res = await http.post
-//                    (
-//                    "http://127.0.0.1:5000/api/board/meal",
-//                    body : {
-//                      "imageFile" : _image,
-//                      "jsonRequestData" : {
-//                        "menuDate" : "20191219",
-//                        "title" : "제목입니다zz.",
-//                        "content" : "우리 학교 급식zz 꿀맛 ㄹㅇㅋㅋㅋ"
-//                      },
-//                    },
-//                    headers: {},
-//                  );
                 }
               ),
 
@@ -246,11 +205,5 @@ class _TestPageState extends State<TestPage> {
         ),
       ),
     );
-
-
   }
-
-
-
-
 }

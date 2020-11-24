@@ -103,8 +103,6 @@ class _MealSurveyState extends State<MealSurvey> {
       getMenuAvgStar(context);
       getMenuAvgAnswer();
     });
-
-    print(_questions);
   }
 
   getIsQuestionAnswered() async {
@@ -113,14 +111,11 @@ class _MealSurveyState extends State<MealSurvey> {
 
     if (res.statusCode == 200) {
       Map<String, dynamic> jsonBody = jsonDecode(res.body)["data"];
-      print(jsonBody);
       setState(() {
         _isQuestionAnswered = true;
         _questions = jsonBody;
       });
       btnController.animateToPage(1, duration: Duration(milliseconds: 500), curve: Curves.ease);
-      // showRateStarSheet(context, true);
-
       setState(() {
         _selectedTabIndex = 1;
       });
@@ -177,7 +172,6 @@ class _MealSurveyState extends State<MealSurvey> {
                     viewportFraction: 1,
                     onPageChanged: (index, CarouselPageChangedReason c) {
                       if (index == 0) {
-                        print("@!#!@#");
                         if (_isGetAvgStar == false) {
                           getMenuAvgStar(context);
                         }
@@ -188,7 +182,6 @@ class _MealSurveyState extends State<MealSurvey> {
                     }),
                 items: <Widget>[
                   Align(
-//                  alignment: Alignment.center,
                     child: Container(
                         child: _isQuestionAnswered
                             ? Stack(
@@ -283,8 +276,6 @@ class _MealSurveyState extends State<MealSurvey> {
                                                 onPressed: () async {
                                                   MealStatus mealStatus = Provider.of<MealStatus>(context);
                                                   double avgStar = -1;
-
-                                                  //if (_isCalled) {
                                                   for (int i = 0; i < _avgRatings.length; i++) {
                                                     if (_avgRatings[i]["menuSeq"] == menuSeq) {
                                                       // menuName = _avgRatings[i]["menuName"];
@@ -328,10 +319,7 @@ class _MealSurveyState extends State<MealSurvey> {
                           SizedBox(
                             height: fs.getHeightRatioSize(0.02),
                           ),
-
                           _bulidMenuInfo(),
-
-                          // SizedBox(height: 100,)
                         ],
                       ),
                     ),
@@ -374,9 +362,6 @@ class _MealSurveyState extends State<MealSurvey> {
   Widget _buildQuestionItem(item, {int defaultVal}) {
     return Column(
       children: <Widget>[
-//        SizedBox(
-//          height: fs.getHeightRatioSize(0.1),
-//        ),
         SizedBox(
           height: fs.getHeightRatioSize(0.0),
         ),
@@ -438,18 +423,13 @@ class _MealSurveyState extends State<MealSurvey> {
   }
 
   Widget _bulidMenuInfo() {
-    //String menuName = '';
     double avgStar = -1;
-
-    //if (_isCalled) {
     for (int i = 0; i < _avgRatings.length; i++) {
       if (_avgRatings[i]["menuSeq"] == menuSeq) {
-        // menuName = _avgRatings[i]["menuName"];
         avgStar = _avgRatings[i]["averageStar"].toDouble();
         break;
       }
     }
-    //}
     return Container(
       width: fs.getWidthRatioSize(0.9),
       // height: fs.getHeightRatioSize(0.6),
@@ -575,9 +555,7 @@ class _MealSurveyState extends State<MealSurvey> {
         await getWithToken('$currentHost/meals/rating/question?menuDate=${formatDate(date, [yyyy, '', mm, '', dd])}&menuTime=${menuTime}');
     print(res.statusCode);
     if (res.statusCode == 200) {
-      //print(jsonDecode(res.body));
       List<dynamic> jsonBody = jsonDecode(res.body)["data"];
-//      print(jsonBody);
       setState(() {
         if (jsonBody != null) {
           for (int i = 0; i < jsonBody.length; i++) {
@@ -588,7 +566,6 @@ class _MealSurveyState extends State<MealSurvey> {
           }
           setState(() {
             _questions = menuQ;
-//            print(menuQ);
           });
         } else {}
       });
@@ -604,31 +581,19 @@ class _MealSurveyState extends State<MealSurvey> {
     http.Response res =
         await getWithToken('$currentHost/meals/rating/star?menuDate=${formatDate(date, [yyyy, '', mm, '', dd])}&menuTime=${menuTime}');
     print(res.statusCode);
-    print(10000000000000000 + res.statusCode);
     if (res.statusCode == 200) {
       List<dynamic> jsonBody = jsonDecode(res.body)["data"];
-//      print(jsonBody);
       setState(() {
         if (jsonBody != null) {
           setState(() {
             _avgRatings = jsonBody;
-            print(jsonBody);
             double avgStar = -1;
-
-            //if (_isCalled) {
             for (int i = 0; i < _avgRatings.length; i++) {
               if (_avgRatings[i]["menuSeq"] == menuSeq) {
-                // menuName = _avgRatings[i]["menuName"];
                 avgStar = _avgRatings[i]["averageStar"].toDouble();
                 break;
               }
             }
-
-            if (avgStar == -1) {
-              // showRateStarSheet(context, true);
-            }
-
-//            print(_avgRatings);
           });
         } else {}
       });
@@ -649,12 +614,10 @@ class _MealSurveyState extends State<MealSurvey> {
 
     if (res.statusCode == 200) {
       List<dynamic> jsonBody = jsonDecode(res.body)["data"]["answers"];
-      print(jsonBody);
       setState(() {
         if (jsonBody != null) {
           setState(() {
             _avgAnswers = jsonBody;
-//            print(_avgRatings);
           });
         } else {}
       });
@@ -671,13 +634,10 @@ class _MealSurveyState extends State<MealSurvey> {
   Future postAnswer(context) async {
     MealStatus mealStatus = Provider.of<MealStatus>(context);
     mealStatus.setIsLoading(true);
-
-    print('여기 들어오긴 오냐');
     http.Response res = await postWithToken('$currentHost/meals/rating/answer', body: {
       "menuDate": formatDate(date, [yyyy, '', mm, '', dd]), "menuTime" : menuTime,
       "menu": {"menuSeq": menuSeq, "questions": _transferData}
     });
-    print('포스트');
     print(res.statusCode);
 
     mealStatus.setIsLoading(false);
@@ -696,8 +656,6 @@ class _MealSurveyState extends State<MealSurvey> {
 
   submitAnswer(context) async {
     var temp = [];
-    print("길이 ${_nowQuestions.length}");
-    for (int i = 0; i < _nowQuestions.length; i++) print(_nowQuestions[i]);
     for (int j = 0; j < _nowQuestions.length; j++) {
       temp.add({"questionSeq": _nowQuestions[j], "answer": _currentValue[(_nowQuestions[j]).toString()].round()});
     }
@@ -705,8 +663,6 @@ class _MealSurveyState extends State<MealSurvey> {
       _transferData = temp;
     });
 
-    print("dkdkdkdk");
-    print(_transferData);
     if (await postAnswer(context) == true) {
       setState(() {
         _questions["answers"] = _questions["questions"];
@@ -778,7 +734,6 @@ class _MealSurveyState extends State<MealSurvey> {
                               onTap: () async {
                                 int star = ratingEmojiList.indexOf(x) + 1;
                                 Future rateStar(int menuSeq, int star) async {
-//    print(date);
                                   http.Response res = await postWithToken('${currentHost}/meals/rating/star', body: {
                                     "menuTime" : menuTime,
                                     "menuDate": formatDate(date, [yyyy, '', mm, '', dd]),
@@ -786,7 +741,6 @@ class _MealSurveyState extends State<MealSurvey> {
                                       {"menuSeq": menuSeq, "star": star}
                                     ]
                                   });
-                                  print('포스트');
                                   print(res.statusCode);
                                   if (res.statusCode == 200) {
                                     print('포스트 성공');
@@ -845,10 +799,6 @@ class _MealSurveyState extends State<MealSurvey> {
                       )
                     ],
                   )
-
-//                                                  SizedBox(height : 70)
-
-//                    )
                 ],
               ),
             );

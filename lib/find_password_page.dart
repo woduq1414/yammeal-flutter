@@ -1,20 +1,13 @@
-import 'package:date_format/date_format.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:meal_flutter/UIs/login_UI.dart';
 import 'package:meal_flutter/UIs/main_page.dart';
-
-import 'common/provider/userProvider.dart';
-
-import './common/widgets/appbar.dart';
-import './common/color.dart';
-import './common/ip.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 
+import './common/color.dart';
 import './common/provider/userProvider.dart';
+import './common/widgets/appbar.dart';
+import 'common/provider/userProvider.dart';
 import 'common/widgets/appbar.dart';
 import 'common/widgets/dialog.dart';
 import 'common/widgets/loading.dart';
@@ -102,7 +95,6 @@ class IdInputPage extends StatelessWidget {
 
                           bool mailResult = await userStatus.verifyMail();
                           if (mailResult) {
-                            print("OK");
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => VerifyCodeInputPage()),
@@ -205,7 +197,6 @@ class VerifyCodeInputPage extends StatelessWidget {
 
                             bool verifyResult = await userStatus.verifyMailCode();
                             if (verifyResult) {
-                              print("OK");
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => PasswordInputPage()),
