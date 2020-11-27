@@ -203,6 +203,11 @@ class MealUI extends State<MealState> {
         menuTime = "중식";
       }
 
+      if(menuTimeList.length == 1){
+        menuTime = menuTimeList[0];
+      }
+
+
       setState(() {
         _menuTime = menuTime;
       });

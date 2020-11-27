@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -12,6 +11,7 @@ import 'common/provider/userProvider.dart';
 import 'common/widgets/appbar.dart';
 import 'common/widgets/dialog.dart';
 import 'common/widgets/loading.dart';
+import 'first_page.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldState>();
 final scaffoldKey2 = GlobalKey<ScaffoldState>();
@@ -49,20 +49,18 @@ class _SetAllergyPageState extends State<SetAllergyPage> {
   getAlgFromStorage() async {
     var storage = FlutterSecureStorage();
     var saved_list = await storage.read(key: "algList");
-    if(saved_list == null){
+    if (saved_list == null) {
       return;
     }
-    for(var i in saved_list.split(",")){
+    for (var i in saved_list.split(",")) {
       setState(() {
         checked_alg[int.parse(i)] = true;
       });
     }
   }
 
-
   @override
   void initState() {
-
     getAlgFromStorage();
   }
 
@@ -83,11 +81,10 @@ class _SetAllergyPageState extends State<SetAllergyPage> {
 
     return WillPopScope(
       onWillPop: () async {
-
         showCustomDialog(
             context: context,
             title: "돌아가시겠어요?",
-            content : "저장하지 않으면 적용되지 않습니다.",
+            content: "저장하지 않으면 적용되지 않습니다.",
             cancelButtonText: "취소",
             confirmButtonText: "나가기",
             cancelButtonAction: () {
@@ -99,8 +96,7 @@ class _SetAllergyPageState extends State<SetAllergyPage> {
             });
 
         return true;
-      }
-      ,
+      },
       child: LoadingModal(
         child: Scaffold(
             key: scaffoldKey,
@@ -109,24 +105,24 @@ class _SetAllergyPageState extends State<SetAllergyPage> {
                 var storage = FlutterSecureStorage();
 
                 List<int> temp = [];
-                for(int i = 0 ; i < checked_alg.length ; i ++){
-                  if(checked_alg[i] == true){
+                for (int i = 0; i < checked_alg.length; i++) {
+                  if (checked_alg[i] == true) {
                     temp.add(i);
                   }
                 }
 
                 storage.write(key: "algList", value: temp.join(","));
 
-                Navigator.pop(context);
                 showCustomAlert(
                   context: context,
                   isSuccess: true,
                   title: "저장 완료!",
                   duration: Duration(seconds: 1),
                 );
-    
-
-
+                Future.delayed(const Duration(milliseconds: 1200), () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => FirstPage()));
+                });
               },
             ),
             body: Container(
@@ -166,8 +162,6 @@ class _SetAllergyPageState extends State<SetAllergyPage> {
                               });
                             },
                             child: Container(
-
-
                               padding: EdgeInsets.only(left: 5, right: 5),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

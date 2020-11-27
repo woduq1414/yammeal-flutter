@@ -5,13 +5,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:meal_flutter/UIs/servey_page.dart';
 import 'package:meal_flutter/common/asset_path.dart';
 import 'package:meal_flutter/common/color.dart';
 import 'package:meal_flutter/common/func.dart';
 import 'package:meal_flutter/common/ip.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:meal_flutter/common/push.dart';
+import 'package:meal_flutter/common/routes.dart';
 import 'package:meal_flutter/common/widgets/appbar.dart';
+import 'package:meal_flutter/common/widgets/dialog.dart';
 import 'package:meal_flutter/common/widgets/loading.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
@@ -20,7 +23,9 @@ import 'package:swipedetector/swipedetector.dart';
 import "../common/db.dart";
 import '../common/font.dart';
 import '../common/provider/mealProvider.dart';
-import '../common/routes.dart'rovider/provider.dart';
+import 'package:confetti/confetti.dart';
+import 'package:vibration/vibration.dart';
+// import '../common/routes.dart'rovider/provider.dart';
 
 import "../common/db.dart";
 
@@ -88,13 +93,26 @@ class MealDetail extends State<MealDetailState> {
     }
   }
 
+  ConfettiController _controllerCenter = ConfettiController(
+    duration: const Duration(seconds: 5),
+  );
+
   @override
   void initState() {
     super.initState();
+    // _controllerCenter = ConfettiController(duration: const Duration(seconds: 10));
+
     getAlgFromStorage();
 
     getDayMealMenu();
   }
+
+  //
+  // @override
+  // void dispose() {
+  //   _controllerCenter.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -132,15 +150,60 @@ class MealDetail extends State<MealDetailState> {
         child: LoadingMealModal(
           child: Scaffold(
             backgroundColor: Color(0xffFFBB00),
-            body: Column(children: [
-              Flexible(child: _buildBody(d)),
-              Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 60,
-                  margin: EdgeInsets.only(
-                    bottom: 0,
-                  ))
-            ]),
+            body: Stack(
+              children: [
+                Column(children: [
+                  Flexible(child: _buildBody(d)),
+                  Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: 60,
+                      margin: EdgeInsets.only(
+                        bottom: 0,
+                      )),
+                ]),
+                Center(
+                  child: ConfettiWidget(
+                    blastDirectionality: BlastDirectionality.explosive,
+                    confettiController: _controllerCenter,
+                    particleDrag: 0.05,
+                    emissionFrequency: 0.05,
+                    numberOfParticles: 10,
+                    gravity: 0.05,
+                    shouldLoop: false,
+                    colors: [
+                      Colors.green,
+                      Colors.red,
+                      Colors.yellow,
+                      Colors.blue,
+                    ],
+                  ),
+                ),
+
+                // ConfettiWidget(
+                //     confettiController: _controllerCenter,
+                //     blastDirectionality: BlastDirectionality.explosive, // don't specify a direction, blast randomly
+                //     shouldLoop: true, // start again as soon as the animation is finished
+                //     colors: const [
+                //       Colors.green,
+                //       Colors.blue,
+                //       Colors.pink,
+                //       Colors.orange,
+                //       Colors.purple
+                //     ],
+                //     maxBlastForce: 5, // set a lower max blast force
+                //     minBlastForce: 2, // set a lower min blast force
+                //     emissionFrequency: 0.05,
+                //     numberOfParticles: 50, // a lot of particles at once
+                //     gravity: 1// manually specify the colors to be used
+                // ),
+                // GestureDetector(
+                //     onTap: (){
+                //
+                //       print("SDF");
+                //       _controllerCenter.play();},
+                //     child: Text("SDSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfFsdf")),
+              ],
+            ),
           ),
         ),
       ),
@@ -149,17 +212,31 @@ class MealDetail extends State<MealDetailState> {
 
   Widget _buildBody(DateTime date) {
     DateTime d = date;
+    MealStatus mealStatus = Provider.of<MealStatus>(context);
+    return SingleChildScrollView(
+      child: Column(
+        children: <Widget>[
+          SizedBox(
+            height: fs.getHeightRatioSize(0.08),
+          ),
+          Center(
+            child: InkWell(
+                onLongPress: () {
+                  if (d.month == 12 && d.day == 19) {
+                    print("DFSD");
+                    _controllerCenter.play();
+                    Vibration.vibrate(duration: 1000);
+                    showCustomAlert(
+                      width: 1000,
+                      context: context,
+                      isSuccess: false,
+                      title: "저의 생일을 축하해주셔서\n감사합니다 🎉",
+                      duration: Duration(seconds: 1),
+                    );
 
-    return Builder(
-      builder: (context) {
-        MealStatus mealStatus = Provider.of<MealStatus>(context);
-        return SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              SizedBox(
-                height: fs.getHeightRatioSize(0.08),
-              ),
-              Center(
+                  }
+                },
+
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                   decoration: BoxDecoration(
@@ -173,67 +250,65 @@ class MealDetail extends State<MealDetailState> {
                         ")",
                     style: TextStyle(fontSize: fs.s3, color: Colors.white),
                   ),
-                ),
-              ),
-              SizedBox(
-                height: 5,
-              ),
-              Center(
-                child: GestureDetector(
-                  onTap: () {
-                    List<String> menuTimeList = ["조식", "중식", "석식"];
-                    Navigator.of(context).pushReplacement(SlideUpRoute(
-                        page: MealDetailState(
-                      d,
-                      menuTime: menuTimeList[(menuTimeList.indexOf(menuTime) + 1) % menuTimeList.length],
-                    )));
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: primaryRed,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    child: Text(
-                      menuTime,
-                      style: TextStyle(fontSize: fs.s6, color: Colors.white),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 5,
-              ),
-              if (!_isLoading)
-                _mealList != null
-                    ? Column(
-                        children: _mealList.map<Widget>((menuData) {
-                        String menuName = menuData["menu_name"];
-
-                        return _buildMenuItem(
-                            menuName,
-                            menuData["alg"],
-                            mealStatus.dayList.containsKey(formatDate(d, [yyyy, '', mm, '', dd])) &&
-                                mealStatus.dayList[formatDate(d, [yyyy, '', mm, '', dd])].containsKey(menuTime) &&
-                                mealStatus.dayList[formatDate(d, [yyyy, '', mm, '', dd])][menuTime].contains(menuName),
-                            d,
-                            _mealList.indexOf(menuData));
-                      }).toList())
-                    : Container(
-                        child: Text(
-                          "급식 정보가 없습니다.",
-                          style: TextStyle(
-                            fontSize: fs.s5,
-                            color: Colors.white,
-                          ),
-                        ),
-                      )
-              else
-                Container(margin: EdgeInsets.only(top: 10), child: CustomLoading()),
-            ],
+                )),
           ),
-        );
-      },
+          SizedBox(
+            height: 5,
+          ),
+          Center(
+            child: GestureDetector(
+              onTap: () {
+                List<String> menuTimeList = ["조식", "중식", "석식"];
+                Navigator.of(context).pushReplacement(SlideUpRoute(
+                    page: MealDetailState(
+                  d,
+                  menuTime: menuTimeList[(menuTimeList.indexOf(menuTime) + 1) % menuTimeList.length],
+                )));
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: primaryRed,
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                child: Text(
+                  menuTime,
+                  style: TextStyle(fontSize: fs.s6, color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          if (!_isLoading)
+            _mealList != null
+                ? Column(
+                    children: _mealList.map<Widget>((menuData) {
+                    String menuName = menuData["menu_name"];
+
+                    return _buildMenuItem(
+                        menuName,
+                        menuData["alg"],
+                        mealStatus.dayList.containsKey(formatDate(d, [yyyy, '', mm, '', dd])) &&
+                            mealStatus.dayList[formatDate(d, [yyyy, '', mm, '', dd])].containsKey(menuTime) &&
+                            mealStatus.dayList[formatDate(d, [yyyy, '', mm, '', dd])][menuTime].contains(menuName),
+                        d,
+                        _mealList.indexOf(menuData));
+                  }).toList())
+                : Container(
+                    child: Text(
+                      "급식 정보가 없습니다.",
+                      style: TextStyle(
+                        fontSize: fs.s5,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
+          else
+            Container(margin: EdgeInsets.only(top: 10), child: CustomLoading()),
+        ],
+      ),
     );
   }
 

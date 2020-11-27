@@ -15,8 +15,11 @@ import 'package:provider/provider.dart';
 import 'package:yaml/yaml.dart';
 
 import "../common/ip.dart";
+import '../find_all_favorite.dart';
+import '../firebase.dart';
+import '../first_page.dart';
 import '../login_page.dart';
-import '../set_allergy_page.dart'kage:webview_flutter/webview_flutter.dart';
+// import '../set_allergy_page.dart'kage:webview_flutter/webview_flutter.dart';
 import 'package:package_info/package_info.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'main_page.dart';
@@ -435,8 +438,16 @@ class _SettingState extends State<Setting> {
 
 
                                                   mealStatus.setMenuTimeList(_mealTimeList.join("/"));
-                                                  Navigator.of(context).pop();
-                                                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => FirstPage()));
+                                                  showCustomAlert(
+                                                    context: context,
+                                                    isSuccess: true,
+                                                    title: "저장 완료!",
+                                                    duration: Duration(seconds: 1),
+                                                  );
+                                                  Future.delayed(const Duration(milliseconds: 1200), () {
+                                                    Navigator.of(context).pop();
+                                                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => FirstPage()));
+                                                  });
                                                 },
                                                 child: Text(
                                                   '저장',
@@ -528,7 +539,7 @@ class _SettingState extends State<Setting> {
 
                             AdManager.hideBanner();
                             await Navigator.push(context, MaterialPageRoute(builder: (context) => FindAllFavoritePage()));
-                            AdManager.showBanner();
+                            // AdManager.showBanner();
 
                             mealStatus.setFavoriteListWithRange();
 
@@ -612,7 +623,7 @@ class _SettingState extends State<Setting> {
                           onPressed: () async {
                             AdManager.hideBanner();
                             await Navigator.push(context, MaterialPageRoute(builder: (context) => SetAllergyPage()));
-                            AdManager.showBanner();
+                            // AdManager.showBanner();
                           },
                           child: Text(
                             "설정",

@@ -16,6 +16,7 @@ import './common/provider/userProvider.dart';
 import 'common/widgets/appbar.dart';
 import 'common/widgets/dialog.dart';
 import 'common/widgets/loading.dart';
+import 'first_page.dart';
 import 'login_page.dart';
 
 import "common/func.dart";
@@ -92,6 +93,10 @@ class _FindAllFavoritePageState extends State<FindAllFavoritePage> {
     MealStatus mealStatus = Provider.of<MealStatus>(context);
     return WillPopScope(
       onWillPop: () async {
+
+        Navigator.of(context).pop();
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => FirstPage()));
+
         return true;
       },
       child: ModalProgressHUD(

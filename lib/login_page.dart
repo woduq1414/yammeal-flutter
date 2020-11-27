@@ -16,7 +16,6 @@ import 'common/color.dart';
 import 'common/font.dart';
 import 'common/widgets/dialog.dart';
 import 'find_password_page.dart';
-import 'firebas;
 
 import 'common/widgets/dialog.dart';
 import 'find_password_page.dart';
@@ -115,16 +114,13 @@ class _LoginPageState extends State<LoginPage> {
                       SizedBox(
                         height: 10,
                       ),
-                      GestureDetector(
-                        onTap: (){Ads.showBannerAd(state: this);},
-                        child: Container(
-                          child: Text(
-                            "YAMMEAL",
-                            style: TextStyle(
-                              fontSize: fs.s2,
-                              fontWeight: Font.bold,
-                              letterSpacing: 8,
-                            ),
+                      Container(
+                        child: Text(
+                          "YAMMEAL",
+                          style: TextStyle(
+                            fontSize: fs.s2,
+                            fontWeight: Font.bold,
+                            letterSpacing: 8,
                           ),
                         ),
                       ),

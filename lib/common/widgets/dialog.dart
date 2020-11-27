@@ -42,7 +42,7 @@ void showCustomAlert({
                 SizedBox(height: 15),
                 Text(
                   title,
-                  style: TextStyle(fontSize: 24),
+                  style: TextStyle(fontSize: 24), textAlign: TextAlign.center,
                 )
               ],
             ),
