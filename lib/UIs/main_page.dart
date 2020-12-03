@@ -694,7 +694,7 @@ class MealUI extends State<MealState> {
               color: primaryYellow,
               onPressed: () {
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => MealSurvey(DateTime.now(), index, _mealList[index])));
+                    context, MaterialPageRoute(builder: (context) => MealSurvey(DateTime.now(), index, _mealList[index]["menu_name"], menuTime: _menuTime,)));
               },
             )),
       ),

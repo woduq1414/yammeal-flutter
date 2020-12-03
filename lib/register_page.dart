@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import './common/color.dart';
 import './common/provider/userProvider.dart';
 import './common/widgets/appbar.dart';
+import 'common/font.dart';
 import 'common/provider/userProvider.dart';
 import 'common/widgets/appbar.dart';
 import 'common/widgets/loading.dart';
@@ -413,9 +414,11 @@ class SchoolInfoRegisterPage extends StatefulWidget {
 class _SchoolInfoRegisterPageState extends State<SchoolInfoRegisterPage> {
   final _controller = TextEditingController();
   bool _isConsent = false;
-
+  FontSize fs;
   Widget build(BuildContext context) {
     UserStatus userStatus = Provider.of<UserStatus>(context);
+    fs = FontSize(context);
+
 
     return LoadingModal(
       child: Scaffold(
@@ -524,6 +527,7 @@ class _SchoolInfoRegisterPageState extends State<SchoolInfoRegisterPage> {
                                                         return !userStatus.isSearchingSchool
                                                             ? ListView(
                                                                 children: userStatus.schoolSearchList.map((school) {
+                                                                  print(school);
                                                                 return Material(
                                                                     child: InkWell(
                                                                         onTap: () {
@@ -537,7 +541,7 @@ class _SchoolInfoRegisterPageState extends State<SchoolInfoRegisterPage> {
                                                                           Navigator.pop(context);
                                                                         },
                                                                         child: Container(
-                                                                          height: 70,
+                                                                          height: 80,
                                                                           child: Container(
                                                                             padding: EdgeInsets.all(5),
                                                                             child: Column(
@@ -545,13 +549,13 @@ class _SchoolInfoRegisterPageState extends State<SchoolInfoRegisterPage> {
                                                                               mainAxisAlignment: MainAxisAlignment.center,
                                                                               children: <Widget>[
                                                                                 Text(
-                                                                                  school["schoolName"],
+                                                                                  school["schoolName"] != null ?  school["schoolName"] : "",
                                                                                   style: TextStyle(
                                                                                       fontSize: fs.s6,
                                                                                   ),
                                                                                 ),
                                                                                 SizedBox(height: 10),
-                                                                                Text(school["schoolAddress"],
+                                                                                Text(school["schoolAddress"] != null ?  school["schoolAddress"] : "",
                                                                                     style: TextStyle(
                                                                                       fontSize: fs.s7,
                                                                                     ))
