@@ -51,7 +51,7 @@ dependencies:
   month_picker_dialog: ^0.3.3
   shake: ^0.1.0
   ads: ^0.6.1
-
+  firebase_crashlytics: ^0.1.2+4
 #  firebase_crashlytics: 0.2.3
 
 
