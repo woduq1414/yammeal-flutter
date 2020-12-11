@@ -182,6 +182,7 @@ class MealUI extends State<MealState> {
   @override
   void initState() {
     pm = PushManager();
+    AdManager.init();
     AdManager.showBanner();
     super.initState();
     getAlgFromStorage();
@@ -747,12 +748,12 @@ class MealUI extends State<MealState> {
                                 mealStatus.setRatingStarList(index, star);
                               });
 
-                              Future.delayed(Duration(milliseconds: 600), () {
-                                setState(() {
-                                  _bubbleOpened = false;
-                                  _openInfo = false;
-                                });
-                              });
+                              // Future.delayed(Duration(milliseconds: 600), () {
+                              //   setState(() {
+                              //     _bubbleOpened = false;
+                              //     _openInfo = false;
+                              //   });
+                              // });
 
                               var rateResult = await rateStar(index, star);
                             },

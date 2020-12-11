@@ -233,10 +233,8 @@ class MealDetail extends State<MealDetailState> {
                       title: "저의 생일을 축하해주셔서\n감사합니다 🎉",
                       duration: Duration(seconds: 1),
                     );
-
                   }
                 },
-
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                   decoration: BoxDecoration(
@@ -256,28 +254,67 @@ class MealDetail extends State<MealDetailState> {
             height: 5,
           ),
           Center(
-            child: GestureDetector(
-              onTap: () {
-                List<String> menuTimeList = ["조식", "중식", "석식"];
-                Navigator.of(context).pushReplacement(SlideUpRoute(
-                    page: MealDetailState(
-                  d,
-                  menuTime: menuTimeList[(menuTimeList.indexOf(menuTime) + 1) % menuTimeList.length],
-                )));
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: primaryRed,
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
-                child: Text(
-                  menuTime,
-                  style: TextStyle(fontSize: fs.s6, color: Colors.white),
+              child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              GestureDetector(
+                  onTap: () {
+                    List<String> menuTimeList = ["조식", "중식", "석식"];
+                    Navigator.of(context).pushReplacement(SlideUpRoute(
+                        page: MealDetailState(
+                      d,
+                      menuTime: menuTimeList[(menuTimeList.indexOf(menuTime) - 1) % menuTimeList.length],
+                    )));
+                  },
+                  child: Icon(
+                    Icons.chevron_left,
+                    size: fs.s3,
+                    color: Colors.white,
+                  )),
+              SizedBox(
+                width: 5,
+              ),
+              GestureDetector(
+                onTap: () {
+                  List<String> menuTimeList = ["조식", "중식", "석식"];
+                  Navigator.of(context).pushReplacement(SlideUpRoute(
+                      page: MealDetailState(
+                    d,
+                    menuTime: menuTimeList[(menuTimeList.indexOf(menuTime) + 1) % menuTimeList.length],
+                  )));
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: primaryRed,
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                  child: Text(
+                    menuTime,
+                    style: TextStyle(fontSize: fs.s6, color: Colors.white),
+                  ),
                 ),
               ),
-            ),
-          ),
+              SizedBox(
+                width: 5,
+              ),
+              GestureDetector(
+                onTap: () {
+                  List<String> menuTimeList = ["조식", "중식", "석식"];
+                  Navigator.of(context).pushReplacement(SlideUpRoute(
+                      page: MealDetailState(
+                        d,
+                        menuTime: menuTimeList[(menuTimeList.indexOf(menuTime) + 1) % menuTimeList.length],
+                      )));
+                },
+                child: Icon(
+                  Icons.chevron_right,
+                  size: fs.s3,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          )),
           SizedBox(
             height: 5,
           ),

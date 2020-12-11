@@ -204,7 +204,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     onPressed: () async {
                       UserStatus userStatus = Provider.of<UserStatus>(context);
-                      bool loginResult = await userStatus.loginDefault(_idController.text, _passwordController.text);
+                      bool loginResult = await userStatus.loginDefault(_idController.text.trim(), _passwordController.text.trim());
                       if (loginResult == true) {
                         goMainPage();
                       }else{

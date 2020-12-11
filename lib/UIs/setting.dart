@@ -541,7 +541,8 @@ class _SettingState extends State<Setting> {
                             await Navigator.push(context, MaterialPageRoute(builder: (context) => FindAllFavoritePage()));
                             // AdManager.showBanner();
 
-                            mealStatus.setFavoriteListWithRange();
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => FirstPage()));
 
                           },
                           child: Text(

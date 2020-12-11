@@ -55,3 +55,8 @@ bool isSameDate(DateTime a, DateTime b){
     return false;
   }
 }
+
+
+DateTime strToDate(String s){
+  return DateTime(int.parse(s.substring(0, 4)), int.parse(s.substring(4, 6)),int.parse(s.substring(6, 8)));
+}

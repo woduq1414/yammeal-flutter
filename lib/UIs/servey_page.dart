@@ -85,12 +85,16 @@ class _MealSurveyState extends State<MealSurvey> {
   var _nowQuestions = [];
   var _transferData = [];
 
+
+  var _similarMenuList = [];
+
+
   bool _isGetAvgStar = false;
   bool _isGetAvgAnswer = false;
   bool _postIsEnd = false;
   int changedStar;
   bool _isQuestionAnswered = false;
-
+  bool _isGetSimilarMenuList = false;
   @override
   void initState() {
     super.initState();
@@ -102,6 +106,7 @@ class _MealSurveyState extends State<MealSurvey> {
 
       getMenuAvgStar(context);
       getMenuAvgAnswer();
+      getSimilarMenuList();
     });
   }
 
@@ -319,7 +324,7 @@ class _MealSurveyState extends State<MealSurvey> {
                           SizedBox(
                             height: fs.getHeightRatioSize(0.02),
                           ),
-                          _bulidMenuInfo(),
+                          _bulidMenuInfo(context),
                         ],
                       ),
                     ),
@@ -422,7 +427,7 @@ class _MealSurveyState extends State<MealSurvey> {
     );
   }
 
-  Widget _bulidMenuInfo() {
+  Widget _bulidMenuInfo(context) {
     double avgStar = -1;
     for (int i = 0; i < _avgRatings.length; i++) {
       if (_avgRatings[i]["menuSeq"] == menuSeq) {
@@ -540,14 +545,158 @@ class _MealSurveyState extends State<MealSurvey> {
                         )
               : CustomLoading(),
           SizedBox(
-            height: 20,
-          )
+            height: 10,
+          ),
+          Divider(),
+          _isGetSimilarMenuList ?
+          (
+          _similarMenuList.length > 0?
+          Container(
+            alignment: Alignment.center,
+            child: Column(
+              // crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  "비슷한 메뉴들 : ",
+                  style: TextStyle(fontSize: fs.s6),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                buildSimilarMenuList(context)
+              ]
+
+            ),
+          ) : Container()
+          ) : CustomLoading(),
+          SizedBox(height: 10,)
         ],
       ),
     );
   }
 
+
+  Widget buildSimilarMenuList(context){
+
+    var sameMenuListTemp = _similarMenuList.where((menuData){
+      return menuData["menu"] == meal;
+    }).toList();
+    var similarMenuListTemp = _similarMenuList.where((menuData){
+      return menuData["menu"] != meal;
+    }).toList();
+
+    return Column(
+      // mainAxisSize: MainAxisSize.min,
+      // crossAxisAlignment: CrossAxisAlignment.center,
+      children: (sameMenuListTemp + similarMenuListTemp).map((menuData) {
+        return Container(
+          margin: EdgeInsets.only(bottom: 5),
+          child: Material(
+            color: primaryYellow,
+            child: InkWell(
+              splashColor: primaryYellow,
+              onTap: () {
+                print(menuData);
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) =>
+                    MealSurvey( strToDate(menuData["menuDate"]), menuData["menuSeq"], menuData["menu"], menuTime: menuData["menuTime"],)));
+
+              },
+              child: Container(
+
+                width: fs.getWidthRatioSize(0.9),
+                decoration: BoxDecoration(
+
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: fs.s8,vertical: 5),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+
+                          children: <Widget>[
+                            Text(
+                              '${menuData["menu"]}',
+                              style: TextStyle(fontSize: fs.s5, color: primaryRedDark),
+                            ),
+                            SizedBox(height: 5),
+                            Row(
+                              children: <Widget>[
+                                Text(
+                                  '${menuData["menuDate"]}',
+                                  style: TextStyle(fontSize: fs.s7),
+                                ),
+                                Text( " | ", style : TextStyle(fontSize: fs.s7)),
+                                Text(
+                                  '${menuData["menuTime"]}',
+                                  style: TextStyle(fontSize: fs.s7),
+                                ),
+
+                              ],
+                            )
+
+                          ],
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: fs.s8, vertical: fs.s8),
+                      child: Icon(Icons.chevron_right, color: Colors.white, size: fs.s3,),
+                    )
+                  ],
+                )
+              ),
+            ),
+          ),
+        );
+      }).toList()
+    );
+  }
+  // +  similarMenuListTemp.map((menuData) {
+  // return Column(
+  // children: <Widget>[
+  // Text(
+  // '${menuData["menu"]}',
+  // style: TextStyle(fontSize: fs.s6),
+  // ),
+  //
+  // ],
+  // );
+  // }).toList()
   //api 가져오기
+
+
+
+
+
+  Future getSimilarMenuList() async {
+    var menuQ = {};
+
+    http.Response res =
+    await getWithToken('$currentHost/meals/menu/similar?menuDate=${formatDate(date, [yyyy, '', mm, '', dd])}&menuTime=${menuTime}&menuSeq=${menuSeq}');
+    print(res.statusCode);
+    // print( jsonDecode(res.body));
+    if (res.statusCode == 200) {
+      var jsonBody = jsonDecode(res.body)["data"];
+      setState(() {
+        _similarMenuList = jsonBody["menus"];
+      });
+
+    } else {
+      setState(() {
+        _similarMenuList = [];
+      });
+    }
+
+    setState(() {
+      _isGetSimilarMenuList = true;
+    });
+  }
+
+
+
   Future getQuestion() async {
     var menuQ = {};
 
