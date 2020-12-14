@@ -213,8 +213,8 @@ class MealUI extends State<MealState> {
         _menuTime = menuTime;
       });
 
-      getNowMealMenu();
-      mealStatus.getMyRatedStar(_menuTime);
+      getNowMealMenu(menuTime);
+      mealStatus.getMyRatedStar(menuTime);
     });
   }
 
@@ -437,11 +437,15 @@ class MealUI extends State<MealState> {
                                         _menuTime = menuTimeList[
                                             (menuTimeList.indexOf(_menuTime) + 1 + menuTimeList.length) %
                                                 menuTimeList.length];
+
+                                        _bubbleOpened = false;
+                                        _openInfo = false;
+
                                         _getMealDataSuccess = false;
 
                                         _iscalled = false;
 
-                                        getNowMealMenu();
+                                        getNowMealMenu(_menuTime);
                                         mealStatus.getMyRatedStar(_menuTime);
                                       });
                                     },
@@ -881,7 +885,17 @@ class MealUI extends State<MealState> {
   }
 
   // api 가져오는 지역
-  Future getNowMealMenu() async {
+  Future getNowMealMenu(String menuTime) async {
+    print(menuTime);
+    print(menuTime);
+    print(menuTime);
+    print(menuTime);
+    print(menuTime);
+    print(menuTime);print(menuTime);
+    print(menuTime);
+    print(menuTime);
+
+
     Timer(const Duration(milliseconds: 7000), () {
       if (!_getMealDataSuccess) {
         setState(() {
@@ -893,7 +907,7 @@ class MealUI extends State<MealState> {
     });
 
     http.Response res = await getWithToken(
-      '${currentHost}/meals/v2/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}&menuTime=${_menuTime}',
+      '${currentHost}/meals/v2/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}&menuTime=${menuTime}',
     );
     print(res.statusCode);
     if (res.statusCode == 200) {
