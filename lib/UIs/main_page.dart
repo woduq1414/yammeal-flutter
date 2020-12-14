@@ -180,32 +180,47 @@ class MealUI extends State<MealState> {
   }
 
   @override
-  void initState() {
+  void initState () {
     pm = PushManager();
     AdManager.init();
     AdManager.showBanner();
     super.initState();
     getAlgFromStorage();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       MealStatus mealStatus = Provider.of<MealStatus>(context);
 
-      List menuTimeList = mealStatus.menuTimeList;
+      //List menuTimeList = mealStatus.menuTimeList;
+      var storage = FlutterSecureStorage();
+      String menuTimeList = await storage.read(key: "menuTimeList");
+      List menuTimeListList;
+      if (menuTimeList != null) {
+        menuTimeListList = menuTimeList.split("/");
+        // notifyListeners();
+      } else {
+        menuTimeListList = ["조식", "중식", "석식"];
+        // notifyListeners();
+        storage.write(key: "menuTimeList", value: "조식/중식/석식");
+      }
+
+
+      print("메뉴타임리스트");
+      print(menuTimeListList);
       DateTime now = DateTime.now();
       DateTime morningEnd = DateTime(now.year, now.month, now.day, 9, 0, 0);
       DateTime lunchEnd = DateTime(now.year, now.month, now.day, 14, 30, 0);
 
       String menuTime;
 
-      if (menuTimeList.contains("조식") && now.isBefore(morningEnd)) {
+      if (menuTimeListList.contains("조식") && now.isBefore(morningEnd)) {
         menuTime = "조식";
-      } else if (menuTimeList.contains("석식") && now.isAfter(lunchEnd)) {
+      } else if (menuTimeListList.contains("석식") && now.isAfter(lunchEnd)) {
         menuTime = "석식";
-      } else if (menuTimeList.contains("중식")){
+      } else if (menuTimeListList.contains("중식")){
         menuTime = "중식";
       }
 
-      if(menuTimeList.length == 1){
-        menuTime = menuTimeList[0];
+      if(menuTimeListList.length == 1){
+        menuTime = menuTimeListList[0];
       }
 
 
@@ -213,6 +228,8 @@ class MealUI extends State<MealState> {
         _menuTime = menuTime;
       });
 
+      print('겟나우밀 바로 위인데... 밀타임 : ');
+      print(menuTime);
       getNowMealMenu(menuTime);
       mealStatus.getMyRatedStar(menuTime);
     });
@@ -886,15 +903,7 @@ class MealUI extends State<MealState> {
 
   // api 가져오는 지역
   Future getNowMealMenu(String menuTime) async {
-    print(menuTime);
-    print(menuTime);
-    print(menuTime);
-    print(menuTime);
-    print(menuTime);
-    print(menuTime);print(menuTime);
-    print(menuTime);
-    print(menuTime);
-
+    print('밀타임 : '+ menuTime);
 
     Timer(const Duration(milliseconds: 7000), () {
       if (!_getMealDataSuccess) {
