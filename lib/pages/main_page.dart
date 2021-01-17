@@ -35,6 +35,7 @@ import 'meal_detail_page.dart';
 GlobalKey _containerKey = GlobalKey();
 FontSize fs;
 
+// Custiom widget for Layout
 class CustomStack extends Stack {
   CustomStack({children}) : super(children: children);
 
@@ -49,6 +50,7 @@ class CustomStack extends Stack {
   }
 }
 
+//Custom class for layout
 class CustomRenderStack extends RenderStack {
   CustomRenderStack({alignment, textDirection, fit, overflow})
       : super(alignment: alignment, textDirection: textDirection, fit: fit);
@@ -102,32 +104,28 @@ Size getWidgetSize(GlobalKey key) {
 BannerAd bannerAd;
 
 class MealUI extends State<MealState> {
-  int _selectedIndex = 0;
-  double _selectedTop = 0;
-  bool _openInfo = false;
-  int _nowTab = 0;
-  var _mealList = [];
-  bool _getMealDataSuccess = false;
-  var dayList = {};
+  int _selectedIndex = 0; // 첫 화면 메뉴 리스트에서 선택(터치)된 메뉴의 인덱스
+  double _selectedTop = 0; // 선택된 메뉴의 margin-top 저장, 말풍선 위치 조정에 사용
+  bool _openInfo = false; // 말풍선 열리면 true, 아니면 false
+  int _nowTab = 0; // 현재 페이지 인덱스
+  var _mealList = []; // api에서 메뉴 리스트 받아와 저장
+  bool _getMealDataSuccess = false; // 데이터 받아오기 성공시 true
+  var dayList = {}; // api에서 즐겨찾기한 메뉴 리스트 저장
   bool _iscalled = false;
   AdManager AdM = AdManager();
-  CarouselController btnController = CarouselController();
+  CarouselController btnController = CarouselController(); // 아래 원판 터치시 페이지 이동시킬 때 사용
   bool _bubbleOpened = false;
-  bool _getNowMealFail = false;
+  bool _getNowMealFail = false; // 데이터 받아오기 실패시 true
 
-  String _menuTime;
+  String _menuTime; // 조식/중식/석식 구분
 
-  String tmp;
+  var tabList = ["soup", "calendar", "setting"]; // 아래 원판 아이콘 리스트
 
-  var tabList = ["soup", "calendar", "setting"];
-
-  var ratingEmojiList = ["spice", "cold", "soso", "good", "love"];
-
-  int _count = 1;
+  var ratingEmojiList = ["spice", "cold", "soso", "good", "love"]; // 별점 아이콘 리스트
 
   PushManager pm;
 
-  List<int> _ratingStarList = [
+  List<int> _ratingStarList = [ // 메뉴별 별점 리스트
     0,
     0,
     0,
@@ -164,8 +162,8 @@ class MealUI extends State<MealState> {
     0
   ];
 
-  List<bool> checkedAlg = List.generate(20, (_) => false);
-
+  List<bool> checkedAlg = List.generate(20, (_) => false); // 사용자 알러지 정보 저장
+  // 알러지 정보 가져오기
   getAlgFromStorage() async {
     var storage = FlutterSecureStorage();
     var saved_list = await storage.read(key: "algList");
@@ -186,25 +184,21 @@ class MealUI extends State<MealState> {
     // AdManager.showBanner();
     super.initState();
     getAlgFromStorage();
+
+    // 조식/중식/석식 결정해서 api 호출
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       MealStatus mealStatus = Provider.of<MealStatus>(context);
 
-      //List menuTimeList = mealStatus.menuTimeList;
       var storage = FlutterSecureStorage();
       String menuTimeList = await storage.read(key: "menuTimeList");
       List menuTimeListList;
       if (menuTimeList != null) {
         menuTimeListList = menuTimeList.split("/");
-        // notifyListeners();
       } else {
         menuTimeListList = ["조식", "중식", "석식"];
-        // notifyListeners();
         storage.write(key: "menuTimeList", value: "조식/중식/석식");
       }
 
-
-      print("메뉴타임리스트");
-      print(menuTimeListList);
       DateTime now = DateTime.now();
       DateTime morningEnd = DateTime(now.year, now.month, now.day, 9, 0, 0);
       DateTime lunchEnd = DateTime(now.year, now.month, now.day, 14, 30, 0);
@@ -223,32 +217,30 @@ class MealUI extends State<MealState> {
         menuTime = menuTimeListList[0];
       }
 
-
       setState(() {
         _menuTime = menuTime;
       });
 
-      print('겟나우밀 바로 위인데... 밀타임 : ');
-      print(menuTime);
       getNowMealMenu(menuTime);
       mealStatus.getMyRatedStar(menuTime);
     });
   }
 
+  // 별점 평가 결과 가져오기
   Future getMyRatedStar() async {
-    http.Response res = await getWithToken('${currentHost}/meals/rating/star/my?menuDate=${formatDate(DateTime.now(), [
+    http.Response res = await getWithToken('$currentHost/meals/rating/star/my?menuDate=${formatDate(DateTime.now(), [
       yyyy,
       '',
       mm,
       '',
       dd
-    ])}&menuTime=${_menuTime}');
+    ])}&menuTime=$_menuTime');
     print(res.statusCode);
     if (res.statusCode == 200) {
       var jsonBody = jsonDecode(res.body)["data"];
       for (var rating in jsonBody) {
         setState(() {
-          _ratingStarList[rating["menuSeq"]] = rating["star"];
+          _ratingStarList[rating["menuSeq"]] = rating["star"]; // map 형태로 state에 저장
         });
       }
       return;
@@ -257,6 +249,7 @@ class MealUI extends State<MealState> {
     }
   }
 
+  // 별점 평가 api
   Future rateStar(int menuSeq, int star) async {
     http.Response res = await postWithToken('${currentHost}/meals/rating/star', body: {
       "menuTime": _menuTime,
@@ -284,13 +277,14 @@ class MealUI extends State<MealState> {
     super.dispose();
   }
 
+  // 60분법 -> 라디안
   double degreeToRadian(double f) {
     return f * math.pi / 180;
   }
 
   @override
   Widget build(BuildContext context) {
-    fs = FontSize(context);
+    fs = FontSize(context); // 반응형 fontSize 제공
     MealStatus mealStatus = Provider.of<MealStatus>(context);
     return WillPopScope(
       onWillPop: () async {
@@ -332,7 +326,6 @@ class MealUI extends State<MealState> {
                 ),
               ),
               Container(
-//            key: _underMenuKey,
                 child: CustomStack(
                   children: <Widget>[
                         Container(
@@ -354,7 +347,7 @@ class MealUI extends State<MealState> {
                           ),
                         )
                       ] +
-                      tabList.map<Widget>((tab) {
+                      tabList.map<Widget>((tab) { // 하단 반원 아래 아이콘 위치 조정
                         var t = 90 + (_nowTab - tabList.indexOf(tab)) * 40.0;
                         var s = _nowTab == tabList.indexOf(tab) ? 70.0 : 50.0;
 
@@ -395,7 +388,7 @@ class MealUI extends State<MealState> {
                     autoPlay: false,
                     height: MediaQuery.of(context).size.height,
                     viewportFraction: 1,
-                    onPageChanged: (index, CarouselPageChangedReason c) {
+                    onPageChanged: (index, CarouselPageChangedReason c) { // 페이지 바뀌었을 때
                       MealStatus mealStatus = Provider.of<MealStatus>(context);
                       setState(() {
                         _nowTab = index;
@@ -494,7 +487,6 @@ class MealUI extends State<MealState> {
                                                     )
                                                   ] +
                                                   (_mealList).map<Widget>((menuData) {
-                                                    String menuName = menuData["menu_name"];
                                                     return _buildMealItem(
                                                         menuData["menu_name"], menuData["alg"], _mealList.indexOf(menuData));
                                                   }).toList() +
@@ -607,6 +599,7 @@ class MealUI extends State<MealState> {
     );
   }
 
+  // 메뉴 위젯
   Widget _buildMealItem(String mealName, List<dynamic> menuAlgList, int index) {
     List<String> allAlgList = [
       "난류(가금류)",
@@ -643,7 +636,6 @@ class MealUI extends State<MealState> {
     GlobalKey _key = GlobalKey();
     return Container(
         key: _key,
-        //height: 40,
         child: Column(
           children: <Widget>[
             SizedBox(
@@ -690,6 +682,7 @@ class MealUI extends State<MealState> {
         ));
   }
 
+  //메뉴 터치시 나오는 자세히 말풍선 위젯
   Widget _buildBelowItemInfo(int index) {
     return AnimatedOpacity(
       child: AnimatedContainer(
@@ -725,6 +718,7 @@ class MealUI extends State<MealState> {
     );
   }
 
+  // 메뉴 터치시 위에 나오는 별점 말풍선
   Widget _buildUpperItemInfo(int index) {
     MealStatus mealStatus = Provider.of<MealStatus>(context);
     return AnimatedOpacity(
@@ -768,14 +762,6 @@ class MealUI extends State<MealState> {
                               setState(() {
                                 mealStatus.setRatingStarList(index, star);
                               });
-
-                              // Future.delayed(Duration(milliseconds: 600), () {
-                              //   setState(() {
-                              //     _bubbleOpened = false;
-                              //     _openInfo = false;
-                              //   });
-                              // });
-
                               var rateResult = await rateStar(index, star);
                             },
                             child: Container(
@@ -816,6 +802,7 @@ class MealUI extends State<MealState> {
     );
   }
 
+  // 디데이 리스트 위젯
   Widget _buildDDayList() {
     MealStatus mealStatus = Provider.of<MealStatus>(context);
     var keys = mealStatus.dayList.keys.toList();
@@ -828,7 +815,7 @@ class MealUI extends State<MealState> {
             .where((x) {
               DateTime dParsed = DateTime.parse(x);
               var dday = dParsed.difference(now).inDays;
-              return dday >= 0;
+              return dday >= 0; // 디데이 남은 일 수가 0이상인지 확인
             })
             .toList()
             .map((x) {
@@ -845,16 +832,12 @@ class MealUI extends State<MealState> {
     DateTime dParsed = DateTime.parse(date);
     var now = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     int dday = dParsed.difference(now).inDays;
-    if (dday < 0)
-      return Container(
-        width: 0,
-        height: 0,
-      ); // 개선 여지 매우 큼.
+
     return Builder(
       builder: (context) {
         MealStatus mealStatus = Provider.of<MealStatus>(context);
         return GestureDetector(
-          onTap: () async {
+          onTap: () async { // 터치시 즐겨찾기 페이지로 이동
             await Navigator.push(context, MaterialPageRoute(builder: (context) => MealDetailState(dParsed)));
             mealStatus.setFavoriteListWithRange();
           },
@@ -901,11 +884,10 @@ class MealUI extends State<MealState> {
     );
   }
 
-  // api 가져오는 지역
-  Future getNowMealMenu(String menuTime) async {
-    print('밀타임 : '+ menuTime);
 
-    Timer(const Duration(milliseconds: 7000), () {
+  Future getNowMealMenu(String menuTime) async {
+
+    Timer(const Duration(milliseconds: 7000), () { // 불러오는데 7초 이상 걸리면 불러오기 실패 처리
       if (!_getMealDataSuccess) {
         setState(() {
           _getNowMealFail = true;
@@ -916,7 +898,7 @@ class MealUI extends State<MealState> {
     });
 
     http.Response res = await getWithToken(
-      '${currentHost}/meals/v2/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}&menuTime=${menuTime}',
+      '$currentHost/meals/v2/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}&menuTime=$menuTime',
     );
     print(res.statusCode);
     if (res.statusCode == 200) {
@@ -937,88 +919,9 @@ class MealUI extends State<MealState> {
     }
   }
 
-  Future getDayMealMenu() async {
-    var storage = FlutterSecureStorage();
-    var isSaveMenuStorage = await storage.read(key: "isSaveMenuStorage");
-    if (!_getMealDataSuccess) {
-      setState(() {
-        _getNowMealFail = true;
-      });
-    } else {
-      _getNowMealFail = false;
-    }
-
-    var schoolId = (await getUserInfo())["school"]["schoolId"];
-    var formattedDate = formatDate(DateTime.now(), [yyyy, '', mm, '', dd]);
-
-    var sqlRes;
-    if (isSaveMenuStorage == "true") {
-      sqlRes = await DBHelper.select(
-          "meals", "WHERE schoolID= $schoolId and menuDate ='$formattedDate' and menuTime ='$_menuTime'");
-    }
-
-    if (sqlRes == null || sqlRes.length == 0) {
-      http.Response res = await getWithToken(
-          '${currentHost}/meals/v2/menu?menuDate=${formatDate(DateTime.now(), [yyyy, '', mm, '', dd])}&menuTime=$_menuTime');
-      print(res.statusCode);
-      if (res.statusCode == 200) {
-        List<dynamic> jsonBody = jsonDecode(res.body)["data"];
-
-        setState(() {
-          if (jsonBody != null) {
-            _mealList = jsonBody;
-
-            if (isSaveMenuStorage == "true") {
-              String menu_str = "";
-              for (var menu in _mealList) {
-                menu_str += menu["menu_name"];
-                menu_str += ";";
-                menu_str += menu["alg"].join("^");
-
-                if (menu != _mealList[_mealList.length - 1]) {
-                  menu_str += "~";
-                }
-              }
-
-              DBHelper.insert(
-                  "meals", {"schoolId": schoolId, "menuDate": formattedDate, "menus": menu_str, "menuTime": _menuTime});
-            }
-          } else {
-            _mealList = null;
-          }
-        });
-      } else {}
-    } else {
-      setState(() {
-        String menus_data = sqlRes[0]["menus"];
-
-        for (var menu_data in menus_data.split("~")) {
-          String menuName = menu_data.split(";")[0];
-          List<int> menuAlgList = [];
-          if (menu_data.split(";").length >= 2) {
-            menuAlgList = menu_data.split(";")[1].split("^").map((x) {
-              if (x != "") {
-                return int.parse(x);
-              } else {
-                return null;
-              }
-            }).toList();
-          }
-
-          setState(() {
-            _mealList.add({"menu_name": menuName, "alg": menuAlgList});
-          });
-        }
-      });
-    }
-
-    setState(() {
-      _getMealDataSuccess = true;
-    });
-  }
-
+  // 즐겨찾기 메뉴 리스트 불러오기
   Future getSelectedMealMenu(year, month) async {
-    http.Response res = await getWithToken('${currentHost}/meals/rating/favorite?year=${year}&month=${month}');
+    http.Response res = await getWithToken('$currentHost/meals/rating/favorite?year=$year&month=$month');
     print(res.statusCode);
     if (res.statusCode == 200) {
       Map<dynamic, dynamic> jsonBody = jsonDecode(res.body)["data"];
@@ -1038,8 +941,7 @@ class MealUI extends State<MealState> {
   }
 }
 
-// CustompPainter 지역
-
+// 곡선 도형 만들기
 class HalfCirclePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

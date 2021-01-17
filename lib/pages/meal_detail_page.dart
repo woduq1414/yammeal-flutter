@@ -13,7 +13,6 @@ import 'package:meal_flutter/common/ip.dart';
 import 'package:meal_flutter/common/provider/userProvider.dart';
 import 'package:meal_flutter/common/push.dart';
 import 'package:meal_flutter/common/routes.dart';
-import 'package:meal_flutter/common/widgets/appbar.dart';
 import 'package:meal_flutter/common/widgets/dialog.dart';
 import 'package:meal_flutter/common/widgets/loading.dart';
 import 'package:provider/provider.dart';
@@ -25,9 +24,6 @@ import 'package:meal_flutter/common/font.dart';
 import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:confetti/confetti.dart';
 import 'package:vibration/vibration.dart';
-// import 'package:meal_flutter/common/common/routes.dart'rovider/provider.dart';
-
-import 'package:meal_flutter/common/db.dart';
 
 FontSize fs;
 
@@ -35,7 +31,7 @@ class MealDetailState extends StatefulWidget {
   DateTime d;
   String menuTime;
 
-  MealDetailState(DateTime d, {String menuTime}) {
+  MealDetailState(DateTime d, {String menuTime}) { // 날짜, 아침/점심/저녁 받아오기
     this.d = d;
     if (menuTime == null) {
       this.menuTime = "중식";
@@ -56,8 +52,8 @@ class MealDetail extends State<MealDetailState> {
   var _ratedStarList = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
 
   MealDetail(DateTime d, String menuTime) {
-    this.d = d;
-    this.menuTime = menuTime;
+    this.d = d; // 날짜
+    this.menuTime = menuTime; // 아침/점심/저녁
   }
 
   var _mealList = [];
@@ -66,6 +62,7 @@ class MealDetail extends State<MealDetailState> {
 
   List<bool> checkedAlg = List.generate(20, (_) => false);
 
+  // 알러지 정보 받아오기
   getAlgFromStorage() async {
     var storage = FlutterSecureStorage();
     var saved_list = await storage.read(key: "algList");
@@ -79,9 +76,10 @@ class MealDetail extends State<MealDetailState> {
     }
   }
 
+  // 평가한 별점 정보 받아오기
   getRatedStarList() async {
     http.Response res = await getWithToken(
-        '${currentHost}/meals/rating/star/my?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}&menuTime=${menuTime}');
+        '$currentHost/meals/rating/star/my?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}&menuTime=$menuTime');
     print(res.statusCode);
     if (res.statusCode == 200) {
       List<dynamic> jsonBody = jsonDecode(res.body)["data"];
@@ -100,19 +98,11 @@ class MealDetail extends State<MealDetailState> {
   @override
   void initState() {
     super.initState();
-    // _controllerCenter = ConfettiController(duration: const Duration(seconds: 10));
 
     getAlgFromStorage();
 
     getDayMealMenu();
   }
-
-  //
-  // @override
-  // void dispose() {
-  //   _controllerCenter.dispose();
-  //   super.dispose();
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -178,30 +168,6 @@ class MealDetail extends State<MealDetailState> {
                     ],
                   ),
                 ),
-
-                // ConfettiWidget(
-                //     confettiController: _controllerCenter,
-                //     blastDirectionality: BlastDirectionality.explosive, // don't specify a direction, blast randomly
-                //     shouldLoop: true, // start again as soon as the animation is finished
-                //     colors: const [
-                //       Colors.green,
-                //       Colors.blue,
-                //       Colors.pink,
-                //       Colors.orange,
-                //       Colors.purple
-                //     ],
-                //     maxBlastForce: 5, // set a lower max blast force
-                //     minBlastForce: 2, // set a lower min blast force
-                //     emissionFrequency: 0.05,
-                //     numberOfParticles: 50, // a lot of particles at once
-                //     gravity: 1// manually specify the colors to be used
-                // ),
-                // GestureDetector(
-                //     onTap: (){
-                //
-                //       print("SDF");
-                //       _controllerCenter.play();},
-                //     child: Text("SDSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfSDFsdfFsdf")),
               ],
             ),
           ),
@@ -223,7 +189,6 @@ class MealDetail extends State<MealDetailState> {
             child: InkWell(
                 onLongPress: () {
                   if (d.month == 12 && d.day == 19) {
-                    print("DFSD");
                     _controllerCenter.play();
                     Vibration.vibrate(duration: 1000);
                     showCustomAlert(
@@ -349,6 +314,7 @@ class MealDetail extends State<MealDetailState> {
     );
   }
 
+  // 메뉴들 위젯 반환
   Widget _buildMenuItem(String menu, List<dynamic> menuAlgList, bool dd, DateTime d, int index) {
     List<String> allAlgList = [
       "난류(가금류)",
@@ -371,6 +337,7 @@ class MealDetail extends State<MealDetailState> {
       "조개류"
     ];
 
+    // 알러지 정보 받아오기
     List<String> myAlgList = [];
     for (int algId in menuAlgList) {
       if (algId == null || !(1 <= algId && algId <= allAlgList.length)) {
@@ -580,7 +547,7 @@ class MealDetail extends State<MealDetailState> {
 
     if (sqlRes == null || sqlRes.length == 0) {
       http.Response res = await getWithToken(
-          '${currentHost}/meals/v2/menu?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}&menuTime=$menuTime');
+          '$currentHost/meals/v2/menu?menuDate=${formatDate(d, [yyyy, '', mm, '', dd])}&menuTime=$menuTime');
       print(res.statusCode);
       if (res.statusCode == 200) {
         List<dynamic> jsonBody = jsonDecode(res.body)["data"];
