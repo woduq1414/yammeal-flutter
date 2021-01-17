@@ -8,12 +8,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:kakao_flutter_sdk/auth.dart';
 import 'package:kakao_flutter_sdk/user.dart';
 import 'package:meal_flutter/common/widgets/loading.dart';
-import 'package:meal_flutter/register_page.dart';
+import 'package:meal_flutter/pages/register_page.dart';
 import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 
-import './common/provider/userProvider.dart';
-import 'common/route_transition.dart';
+import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:meal_flutter/common/route_transition.dart';
 
 
 class TestPage extends StatefulWidget {

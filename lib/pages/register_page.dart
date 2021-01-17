@@ -1,16 +1,18 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:meal_flutter/UIs/main_page.dart';
+import 'package:meal_flutter/pages/main_page.dart';
 import 'package:provider/provider.dart';
 
-import './common/color.dart';
-import './common/provider/userProvider.dart';
-import './common/widgets/appbar.dart';
-import 'common/font.dart';
-import 'common/provider/userProvider.dart';
-import 'common/widgets/appbar.dart';
-import 'common/widgets/loading.dart';
+import 'package:meal_flutter/common/color.dart';
+import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:meal_flutter/common/widgets/appbar.dart';
+import 'package:meal_flutter/common/font.dart';
+import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:meal_flutter/common/widgets/appbar.dart';
+import 'package:meal_flutter/common/widgets/loading.dart';
+
+import 'package:meal_flutter/common/widgets/under_next_button.dart';
 
 final registerScaffoldKey1 = GlobalKey<ScaffoldState>();
 final registerScaffoldKey2 = GlobalKey<ScaffoldState>();
@@ -89,7 +91,7 @@ class IdRegisterPage extends StatelessWidget {
                   ],
                 ),
                 Positioned(
-                    child: NextButton(
+                    child: UnderNextButton(
                         text: "다음",
                         onTap: () async {
                           userStatus.inputData["id"] = _controller.text;
@@ -170,7 +172,7 @@ class PwRegisterPage extends StatelessWidget {
                 ],
               ),
               Positioned(
-                  child: NextButton(
+                  child: UnderNextButton(
                       text: "다음",
                       onTap: () {
                         userStatus.inputData["password"] = _controller.text;
@@ -239,7 +241,7 @@ class NameRegisterPage extends StatelessWidget {
                   ],
                 ),
                 Positioned(
-                    child: NextButton(
+                    child: UnderNextButton(
                         text: "다음",
                         onTap: () async {
                           userStatus.inputData["nickname"] = _controller.text;
@@ -339,7 +341,7 @@ class SchoolCodeRegisterPage extends StatelessWidget {
                 Positioned(
                     child: Column(
                       children: <Widget>[
-                        NextButton(
+                        UnderNextButton(
                           text: "학교 인증 코드를 몰라요",
                           onTap: () {
                             userStatus.setInputData("schoolCode", "");
@@ -363,7 +365,7 @@ class SchoolCodeRegisterPage extends StatelessWidget {
                         SizedBox(
                           height: 10,
                         ),
-                        NextButton(
+                        UnderNextButton(
                             text: "다음",
                             onTap: () async {
                               var verifySchoolCodeResult = await userStatus.verifySchoolCode();
@@ -681,7 +683,7 @@ class _SchoolInfoRegisterPageState extends State<SchoolInfoRegisterPage> {
                 Positioned(
                     child: Column(
                       children: <Widget>[
-                        NextButton(
+                        UnderNextButton(
                             text: "확인",
                             onTap: () async {
                               bool isConsent = false;
@@ -887,7 +889,7 @@ class _SchoolInfoRegisterPageState extends State<SchoolInfoRegisterPage> {
                                                       ))
                                                 ]),
 
-                                            NextButton(
+                                            UnderNextButton(
                                                 text: "완료",
                                                 onTap: () async {
 
@@ -949,62 +951,4 @@ class _SchoolInfoRegisterPageState extends State<SchoolInfoRegisterPage> {
   }
 }
 
-class NextButton extends StatelessWidget {
-  String text;
 
-  double textSize;
-
-  var onTap;
-  Color textColor;
-  Color primeColor;
-  double borderRadius;
-
-  bool isRaised;
-
-  var disabled;
-
-  NextButton(
-      {this.text,
-      this.onTap,
-      this.textColor,
-      this.primeColor,
-      this.isRaised = true,
-      this.borderRadius = 10,
-      this.textSize = 18,
-      this.disabled});
-
-  @override
-  Widget build(BuildContext context) {
-    if (disabled == null) {
-      disabled = () {
-        return false;
-      };
-    }
-
-    return Material(
-      color: isRaised ? (!disabled() ? primeColor : Colors.grey) : Colors.white,
-      borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-      child: InkWell(
-        borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-        onTap: !disabled() ? onTap : null,
-        child: Container(
-          height: 50,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            border: !isRaised
-                ? Border.all(
-                    color: !disabled() ? primeColor : Colors.grey,
-                    width: 1,
-                  )
-                : null,
-            borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-          ),
-          child: Text(
-            text,
-            style: TextStyle(fontSize: textSize, color: textColor),
-          ),
-        ),
-      ),
-    );
-  }
-}

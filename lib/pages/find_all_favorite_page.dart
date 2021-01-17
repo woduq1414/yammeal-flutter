@@ -1,25 +1,26 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'common/font.dart';
-import 'common/provider/mealProvider.dart';
-import 'common/provider/userProvider.dart';
+import 'package:meal_flutter/common/font.dart';
 
-import './common/widgets/appbar.dart';
-import './common/color.dart';
-import './common/ip.dart';
+import 'package:meal_flutter/common/provider/mealProvider.dart';
+import 'package:meal_flutter/common/provider/userProvider.dart';
+
+import 'package:meal_flutter/common/widgets/appbar.dart';
+import 'package:meal_flutter/common/color.dart';
+import 'package:meal_flutter/common/ip.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 
-import './common/provider/userProvider.dart';
-import 'common/widgets/appbar.dart';
-import 'common/widgets/dialog.dart';
-import 'common/widgets/loading.dart';
+import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:meal_flutter/common/widgets/appbar.dart';
+import 'package:meal_flutter/common/widgets/dialog.dart';
+import 'package:meal_flutter/common/widgets/loading.dart';
 import 'first_page.dart';
 import 'login_page.dart';
 
-import "common/func.dart";
+import 'package:meal_flutter/common/func.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldState>();
 final scaffoldKey2 = GlobalKey<ScaffoldState>();

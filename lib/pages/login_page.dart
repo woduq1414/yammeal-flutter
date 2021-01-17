@@ -5,21 +5,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:meal_flutter/common/widgets/loading.dart';
-import 'package:meal_flutter/find_email_page.dart';
-import 'package:meal_flutter/register_page.dart';
+import 'package:meal_flutter/pages/find_email_page.dart';
+import 'package:meal_flutter/pages/register_page.dart';
 import 'package:provider/provider.dart';
 
-import './common/provider/userProvider.dart';
-import './common/route_transition.dart';
-import 'UIs/main_page.dart';
-import 'common/color.dart';
-import 'common/font.dart';
-import 'common/widgets/dialog.dart';
+import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:meal_flutter/common/route_transition.dart';
+import 'main_page.dart';
+import 'package:meal_flutter/common/color.dart';
+import 'package:meal_flutter/common/font.dart';
+import 'package:meal_flutter/common/widgets/dialog.dart';
 import 'find_password_page.dart';
 
-import 'common/widgets/dialog.dart';
+import 'package:meal_flutter/common/widgets/dialog.dart';
 import 'find_password_page.dart';
-import 'firebase.dart';
+import 'package:meal_flutter/common/firebase.dart';
 import 'test_page.dart';
 
 FontSize fs;

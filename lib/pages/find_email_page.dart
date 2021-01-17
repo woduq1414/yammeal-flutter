@@ -3,12 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import './common/color.dart';
-import './common/provider/userProvider.dart';
-import './common/widgets/appbar.dart';
-import 'common/provider/userProvider.dart';
-import 'common/widgets/appbar.dart';
-import 'common/widgets/loading.dart';
+import 'package:meal_flutter/common/color.dart';
+import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:meal_flutter/common/widgets/appbar.dart';
+import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:meal_flutter/common/widgets/appbar.dart';
+import 'package:meal_flutter/common/widgets/loading.dart';
 import 'login_page.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldState>();

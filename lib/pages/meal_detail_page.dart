@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:meal_flutter/UIs/servey_page.dart';
+import 'package:meal_flutter/pages/survey_page.dart';
 import 'package:meal_flutter/common/asset_path.dart';
 import 'package:meal_flutter/common/color.dart';
 import 'package:meal_flutter/common/func.dart';
@@ -20,14 +20,14 @@ import 'package:provider/provider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
 import 'package:swipedetector/swipedetector.dart';
 
-import "../common/db.dart";
-import '../common/font.dart';
-import '../common/provider/mealProvider.dart';
+import 'package:meal_flutter/common/db.dart';
+import 'package:meal_flutter/common/font.dart';
+import 'package:meal_flutter/common/provider/mealProvider.dart';
 import 'package:confetti/confetti.dart';
 import 'package:vibration/vibration.dart';
-// import '../common/routes.dart'rovider/provider.dart';
+// import 'package:meal_flutter/common/common/routes.dart'rovider/provider.dart';
 
-import "../common/db.dart";
+import 'package:meal_flutter/common/db.dart';
 
 FontSize fs;
 

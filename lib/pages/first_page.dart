@@ -5,11 +5,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:meal_flutter/common/color.dart';
 import 'package:meal_flutter/common/font.dart';
 import 'package:meal_flutter/common/widgets/loading.dart';
-import 'package:meal_flutter/login_page.dart';
+import 'package:meal_flutter/pages/login_page.dart';
 
-import './common/provider/userProvider.dart';
-import 'UIs/main_page.dart';
-import 'common/route_transition.dart';
+import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'main_page.dart';
+import 'package:meal_flutter/common/route_transition.dart';
 
 class FirstPage extends StatefulWidget {
   @override

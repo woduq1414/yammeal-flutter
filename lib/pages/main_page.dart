@@ -13,8 +13,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:meal_flutter/UIs/servey_page.dart';
-import 'package:meal_flutter/UIs/setting.dart';
+import 'package:meal_flutter/pages/survey_page.dart';
+import 'package:meal_flutter/pages/setting_page.dart';
 import 'package:meal_flutter/common/asset_path.dart';
 import 'package:meal_flutter/common/db.dart';
 import "package:meal_flutter/common/font.dart";
@@ -27,10 +27,10 @@ import 'package:meal_flutter/common/widgets/loading.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_bubble/speech_bubble.dart';
 
-import "../common/color.dart";
-import '../firebase.dart';
-import 'meal_calendar.dart';
-import 'meal_detail.dart';
+import 'package:meal_flutter/common/color.dart';
+import 'package:meal_flutter/common/firebase.dart';
+import '../common/widgets/meal_calendar.dart';
+import 'meal_detail_page.dart';
 
 GlobalKey _containerKey = GlobalKey();
 FontSize fs;
@@ -183,7 +183,7 @@ class MealUI extends State<MealState> {
   void initState () {
     pm = PushManager();
     AdManager.init();
-    AdManager.showBanner();
+    // AdManager.showBanner();
     super.initState();
     getAlgFromStorage();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {

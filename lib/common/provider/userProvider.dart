@@ -9,9 +9,9 @@ import 'package:kakao_flutter_sdk/user.dart';
 
 import 'dart:convert';
 
-import '../../login_page.dart';
-import '../../main.dart';
-import '../ip.dart';
+import 'package:meal_flutter/pages/login_page.dart';
+import 'package:meal_flutter/main.dart';
+import 'package:meal_flutter/common/ip.dart';
 
 Map<String, dynamic> parseJwtPayLoad(String token) {
   final parts = token.split('.');

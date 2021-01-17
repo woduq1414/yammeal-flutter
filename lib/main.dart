@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:meal_flutter/common/color.dart';
+import 'package:meal_flutter/pages/first_page.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -20,13 +21,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 
 import './common/provider/userProvider.dart';
-import 'UIs/main_page.dart';
-import 'UIs/servey_page.dart';
-import 'common/route_transition.dart';
 
-import 'login_page.dart';
-import 'first_page.dart';
-import 'kakao_register_page.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -269,6 +264,7 @@ class _MyAppState extends State<MyApp> {
         ],
         child: MaterialApp(
           navigatorKey: navigatorKey,
+          debugShowCheckedModeBanner: false,
           title: 'YAMMEAL',
           theme: ThemeData(
               fontFamily: "GmarketSans",

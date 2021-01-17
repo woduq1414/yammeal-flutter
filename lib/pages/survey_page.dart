@@ -17,7 +17,7 @@ import 'package:meal_flutter/common/widgets/dialog.dart';
 import 'package:meal_flutter/common/widgets/loading.dart';
 import 'package:path/path.dart';
 import 'package:provider/provider.dart';
-import 'main_page.dart';
+import 'package:meal_flutter/pages/main_page.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class MealSurvey extends StatefulWidget {
@@ -138,6 +138,8 @@ class _MealSurveyState extends State<MealSurvey> {
   @override
   Widget build(BuildContext context) {
     fs = FontSize(context);
+    MealStatus mealStatus = Provider.of<MealStatus>(context);
+
 
     return WillPopScope(
       onWillPop: () async {
@@ -279,7 +281,7 @@ class _MealSurveyState extends State<MealSurvey> {
                                                   borderRadius: BorderRadius.circular(50),
                                                 ),
                                                 onPressed: () async {
-                                                  MealStatus mealStatus = Provider.of<MealStatus>(context);
+
                                                   double avgStar = -1;
                                                   for (int i = 0; i < _avgRatings.length; i++) {
                                                     if (_avgRatings[i]["menuSeq"] == menuSeq) {

@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
-import './common/color.dart';
-import './common/provider/userProvider.dart';
-import './common/widgets/appbar.dart';
-import 'common/font.dart';
-import 'common/provider/userProvider.dart';
-import 'common/widgets/appbar.dart';
-import 'common/widgets/dialog.dart';
-import 'common/widgets/loading.dart';
+import 'package:meal_flutter/common/color.dart';
+import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:meal_flutter/common/widgets/appbar.dart';
+import 'package:meal_flutter/common/font.dart';
+import 'package:meal_flutter/common/provider/userProvider.dart';
+import 'package:meal_flutter/common/widgets/appbar.dart';
+import 'package:meal_flutter/common/widgets/dialog.dart';
+import 'package:meal_flutter/common/widgets/loading.dart';
 import 'first_page.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldState>();

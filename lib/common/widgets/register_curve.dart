@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import "../common/color.dart";
+import '../color.dart';
 class RegisterPageUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
