@@ -903,6 +903,7 @@ class MealUI extends State<MealState> {
     print(res.statusCode);
     if (res.statusCode == 200) {
       List<dynamic> jsonBody = jsonDecode(res.body)["data"];
+      print(jsonBody);
       setState(() {
         if (jsonBody != null) {
           _getMealDataSuccess = true;

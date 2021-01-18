@@ -1,3 +1,6 @@
+
+
+import 'package:meal_flutter/common/widgets/dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -66,12 +69,11 @@ class UserStatus with ChangeNotifier {
 //  KakaoContext.clientId = '39d6c43a0a346cca6ebc7b2dbb8e4353';
 
   String tempToken = "";
+  String tempRefreshToken = "";
   bool isLoading = false;
-  
+
   bool isConsent = false;
-  
-  
-  
+
   bool isLogined = false;
   Map<String, dynamic> userInfo = {"nickname": ""};
 
@@ -84,7 +86,7 @@ class UserStatus with ChangeNotifier {
     "schoolId": "",
     "schoolGrade": 1,
     "schoolClass": 1,
-    "verifyCode" : -1
+    "verifyCode": -1
   };
 
   bool isSchoolCodeVerified = false;
@@ -97,10 +99,9 @@ class UserStatus with ChangeNotifier {
   String filteredMail = "";
 
   void setIsConsent(value) {
-    isConsent= value;
+    isConsent = value;
     notifyListeners();
   }
-
 
   void setIsKakao(value) {
     isKakao = value;
@@ -122,32 +123,24 @@ class UserStatus with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> verifyMail() async{
+  Future<bool> verifyMail() async {
     final res = await POST(
-      url:
-      "${currentHost}/students/password-reset/check-mail",
-      body: {
-        "id" : inputData["id"]
-      },
+      url: "${currentHost}/students/password-reset/check-mail",
+      body: {"id": inputData["id"]},
     );
 
     if (res.statusCode == 200) {
       print("success");
       return true;
     } else {
-
       print("failed");
       print(res.body);
       return false;
     }
   }
 
-
-  Future<int> findMail() async{
-    final res = await GET(
-      url:
-      "${currentHost}/students/id-hint?nickname=${inputData["nickname"]}"
-    );
+  Future<int> findMail() async {
+    final res = await GET(url: "${currentHost}/students/id-hint?nickname=${inputData["nickname"]}");
 
     if (res.statusCode == 200) {
       print("success");
@@ -155,22 +148,18 @@ class UserStatus with ChangeNotifier {
       filteredMail = resData["data"];
       return 200;
     } else {
-
       print("failed");
       print(res.body);
       return res.statusCode;
     }
   }
 
-
-
-  Future<bool> verifyMailCode() async{
+  Future<bool> verifyMailCode() async {
     final res = await POST(
-      url:
-      "${currentHost}/students/password-reset/check-code",
+      url: "${currentHost}/students/password-reset/check-code",
       body: {
-        "code" : inputData["verifyCode"],
-        "id" : inputData["id"],
+        "code": inputData["verifyCode"],
+        "id": inputData["id"],
       },
     );
 
@@ -178,24 +167,22 @@ class UserStatus with ChangeNotifier {
       print("success");
       Map<String, dynamic> resData = jsonDecode(res.body);
       tempToken = resData["accessToken"];
+      tempRefreshToken = resData["refreshToken"];
       return true;
     } else {
-
       print("failed");
       print(res.body);
       return false;
     }
   }
 
-
-  Future<bool> changePassword() async{
+  Future<bool> changePassword() async {
     isLoading = true;
     notifyListeners();
     final res = await http.put(
-      "${currentHost}/students/password-reset", body: jsonEncode({
-      "password" : inputData["password"]
-    }),
-      headers:  {"Content-Type": "application/json", "Authorization" : "Bearer " + tempToken},
+      "${currentHost}/students/password-reset",
+      body: jsonEncode({"password": inputData["password"]}),
+      headers: {"Content-Type": "application/json", "Authorization": "Bearer " + tempToken},
     );
     isLoading = false;
     notifyListeners();
@@ -205,6 +192,7 @@ class UserStatus with ChangeNotifier {
       Map<String, dynamic> resData = jsonDecode(res.body);
       var storage = FlutterSecureStorage();
       storage.write(key: "token", value: tempToken);
+      storage.write(key: "refreshToken", value: tempRefreshToken);
 
       isLogined = true;
       userInfo = parseJwtPayLoad(tempToken)["data"];
@@ -212,14 +200,11 @@ class UserStatus with ChangeNotifier {
       notifyListeners();
       return true;
     } else {
-
       print("failed");
       print(res.body);
       return false;
     }
   }
-
-
 
   void setInputData(key, value) {
     inputData[key] = value;
@@ -228,34 +213,24 @@ class UserStatus with ChangeNotifier {
 
   var classData = {};
 
-
   void setClassData(schoolId) async {
-
-    if(schoolId == ""){
+    if (schoolId == "") {
       classData = {};
       setInputData("schoolGrade", null);
       setInputData("schoolClass", null);
       notifyListeners();
     }
 
-
-    final res = await GET(url : "${currentHost}/schools/class?schoolId=${schoolId}");
-    if (res.statusCode == 200){
+    final res = await GET(url: "${currentHost}/schools/class?schoolId=${schoolId}");
+    if (res.statusCode == 200) {
       Map<String, dynamic> resData = jsonDecode(res.body);
       classData = resData["data"];
       setInputData("schoolGrade", null);
       setInputData("schoolClass", null);
-
-    }else{
-
-    }
+    } else {}
 
     notifyListeners();
   }
-
-
-
-
 
   void setIsSchoolCodeVerified(value) {
     isSchoolCodeVerified = value;
@@ -277,8 +252,6 @@ class UserStatus with ChangeNotifier {
     notifyListeners();
   }
 
-
-
   Future<dynamic> GET({String url}) async {
     isLoading = true;
     notifyListeners();
@@ -294,9 +267,9 @@ class UserStatus with ChangeNotifier {
   Future<dynamic> POST({String url, dynamic body}) async {
     isLoading = true;
     notifyListeners();
-    final res = await http.post
-      (
-      url,body: jsonEncode(body),
+    final res = await http.post(
+      url,
+      body: jsonEncode(body),
       headers: {"Content-Type": "application/json"},
     );
     isLoading = false;
@@ -305,39 +278,34 @@ class UserStatus with ChangeNotifier {
     return res;
   }
 
-
   Future<bool> checkIdDuplicate() async {
     isLoading = true;
     notifyListeners();
-    final res = await GET(url : "${currentHost}/students/check-duplicate/id/${inputData["id"]}");
+    final res = await GET(url: "${currentHost}/students/check-duplicate/id/${inputData["id"]}");
     isLoading = false;
     notifyListeners();
 
-    if (res.statusCode == 200){
+    if (res.statusCode == 200) {
       return true;
-    }else{
+    } else {
       return false;
     }
-
   }
 
   Future<bool> checkNicknameDuplicate() async {
     final res = await GET(
-      url : "${currentHost}/students/check-duplicate/nickname/${inputData["nickname"]}",
+      url: "${currentHost}/students/check-duplicate/nickname/${inputData["nickname"]}",
     );
-    if (res.statusCode == 200){
+    if (res.statusCode == 200) {
       return true;
-    }else{
+    } else {
       return false;
     }
-
   }
-
 
   Future<dynamic> verifySchoolCode() async {
     final res = await GET(
-      url :
-      "${currentHost}/schools/code-verify/${inputData["schoolCode"]}",
+      url: "${currentHost}/schools/code-verify/${inputData["schoolCode"]}",
     );
 
     if (res.statusCode == 200) {
@@ -352,13 +320,10 @@ class UserStatus with ChangeNotifier {
   }
 
   Future<dynamic> searchSchoolName(search) async {
-
     setIsSearchingSchool(true);
 
-
     final res = await GET(
-      url:
-      "${currentHost}/schools?schoolName=${search}",
+      url: "${currentHost}/schools?schoolName=${search}",
     );
     setIsSearchingSchool(false);
 
@@ -379,11 +344,7 @@ class UserStatus with ChangeNotifier {
       notifyListeners();
       return null;
     }
-
-
-
   }
-
 
   bool _isKakaoTalkInstalled;
 
@@ -412,26 +373,22 @@ class UserStatus with ChangeNotifier {
     }
   }
 
-
   Future<bool> registerDefault() async {
     var param = {
-      "id" : inputData["id"],
-      "password" : inputData["password"],
+      "id": inputData["id"],
+      "password": inputData["password"],
       "nickname": inputData["nickname"],
       "schoolCode": inputData["schoolCode"],
       "schoolId": inputData["schoolId"],
       "schoolGrade": inputData["schoolGrade"],
       "schoolClass": inputData["schoolClass"]
     };
-    if(param["schoolCode"] == ""){
+    if (param["schoolCode"] == "") {
       param.remove("schoolCode");
     }
 
-
-
-
     final res = await POST(
-      url : "${currentHost}/students",
+      url: "${currentHost}/students",
       body: param,
     );
 
@@ -445,10 +402,7 @@ class UserStatus with ChangeNotifier {
     }
   }
 
-
-
   Future<bool> registerWithKakao() async {
-
     setIsLoading(true);
 
     var code;
@@ -463,7 +417,6 @@ class UserStatus with ChangeNotifier {
 
     print(token);
 
-
     var param = {
       "nickname": inputData["nickname"],
       "schoolCode": inputData["schoolCode"],
@@ -474,15 +427,13 @@ class UserStatus with ChangeNotifier {
 
     param["accessToken"] = token.accessToken;
     param.remove("schoolName");
-    if(param["schoolCode"] == ""){
+    if (param["schoolCode"] == "") {
       param.remove("schoolCode");
     }
 
-
     print(inputData);
     final res = await POST(
-      url:
-      "${currentHost}/auth/kakao/register",
+      url: "${currentHost}/auth/kakao/register",
       body: param,
 //      headers: {"Content-Type": "application/json"},
     );
@@ -491,19 +442,16 @@ class UserStatus with ChangeNotifier {
       print("success");
       return true;
     } else {
-
       print("failed");
       print(res.body);
       return false;
     }
-
   }
 
-  Future<bool> loginDefault(id ,pw) async {
+  Future<bool> loginDefault(id, pw) async {
     final res = await POST(
-      url:
-      "${currentHost}/auth",
-      body: {"id" : id, "password" : pw},
+      url: "${currentHost}/auth",
+      body: {"id": id, "password": pw},
 //      headers: {"Content-Type": "application/json"},
     );
     Map<String, dynamic> resData = jsonDecode(res.body);
@@ -516,6 +464,7 @@ class UserStatus with ChangeNotifier {
       case 200:
         var storage = FlutterSecureStorage();
         storage.write(key: "token", value: resData["accessToken"]);
+        storage.write(key: "refreshToken", value: resData["refreshToken"]);
 
         isLogined = true;
         userInfo = parseJwtPayLoad(resData["accessToken"])["data"];
@@ -525,8 +474,6 @@ class UserStatus with ChangeNotifier {
         break;
     }
   }
-
-
 
   Future<bool> loginWithKakao() async {
     try {
@@ -542,13 +489,10 @@ class UserStatus with ChangeNotifier {
       print(code);
       print(token.accessToken);
 
-
       final res = await POST(
-        url :
-        "${currentHost}/auth/kakao/login",
+        url: "${currentHost}/auth/kakao/login",
         body: {"accessToken": token.accessToken},
 //        headers: {"Content-Type": "application/json"},
-
       );
       Map<String, dynamic> resData = jsonDecode(res.body);
       switch (res.statusCode) {
@@ -560,7 +504,7 @@ class UserStatus with ChangeNotifier {
         case 200:
           var storage = FlutterSecureStorage();
           storage.write(key: "token", value: resData["accessToken"]);
-
+          storage.write(key: "refreshToken", value: resData["refreshToken"]);
           isLogined = true;
           userInfo = parseJwtPayLoad(resData["accessToken"])["data"];
           print("성공");
@@ -573,32 +517,12 @@ class UserStatus with ChangeNotifier {
     }
   }
 
-  Future<bool> login(String id, String pw) async {
-    final res = await POST(url : "${currentHost}/User/login", body: {"id": id, "password": pw});
-    print(res.body);
-    Map<String, dynamic> data = jsonDecode(res.body);
-    if (data["status"] != 200) {
-      return false;
-    }
-    var token = res.headers["set-cookie"].split("user=")[1].split(";")[0];
-    print(token);
 
-    var storage = FlutterSecureStorage();
-    storage.write(key: "token", value: token);
-
-    isLogined = true;
-    userInfo = parseJwtPayLoad(token)["data"];
-
-    notifyListeners();
-//  print();
-    return true;
-  }
 
   Future<bool> kakaoLogin(Map<String, dynamic> data) async {
     print(data);
     final res = await POST(
-      url :
-      "${currentHost}/auth/kakao/login",
+      url: "${currentHost}/auth/kakao/login",
       body: data,
     );
 
@@ -659,18 +583,21 @@ class UserStatus with ChangeNotifier {
     print(token);
     notifyListeners();
   }
-
-
-
-
-
-
 }
 
 getToken() async {
   final storage = new FlutterSecureStorage();
   var token = await storage.read(key: "token");
-  if(token == null){
+  if (token == null) {
+    return "";
+  }
+  return "Bearer " + token;
+}
+
+getRefreshToken() async {
+  final storage = new FlutterSecureStorage();
+  var token = await storage.read(key: "refreshToken");
+  if (token == null) {
     return "";
   }
   return "Bearer " + token;
@@ -683,147 +610,142 @@ getUserInfo() async {
 }
 
 
+refreshTokenExpired() {
+  var storage = FlutterSecureStorage();
+
+
+
+  navigatorKey.currentState.popUntil((route) => route.isFirst);
+
+  navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
+//    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+
+  showCustomDialog(
+      context: navigatorKey.currentState.overlay.context,
+      title: "로그인 만료!",
+      content: "번거로우시겠지만 다시 로그인해주세요!",
+      cancelButtonText: null,
+      confirmButtonText: "확인",
+      confirmButtonAction: () {
+        Navigator.pop(navigatorKey.currentState.overlay.context);
+      }
+  );
+
+  storage.write(key: "token", value: "");
+  storage.write(key: "refreshToken", value: "");
+  return false;
+}
+
+
+
+Future<bool> verifyToken() async {
+  var storage = FlutterSecureStorage();
+  String token = await getToken();
+  print(token);
+
+  int exp;
+  try {
+    exp = parseJwtPayLoad(token)["exp"];
+  } on Exception {
+    navigatorKey.currentState.popUntil((route) => route.isFirst);
+
+    navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
+//    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    var storage = FlutterSecureStorage();
+    storage.write(key: "token", value: "");
+    return false;
+  }
+  print(exp);
+
+  int now = DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000;
+
+  print(now);
+  if (exp < now) {
+    var refreshToken = await getRefreshToken();
+    final res = await http.post(
+      "${currentHost}/auth/refresh",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": refreshToken,
+      },
+    );
+
+    if (res.statusCode == 200) {
+      Map<String, dynamic> resData = jsonDecode(res.body);
+      storage.write(key: "token", value: resData["accessToken"]);
+      token = resData["accessToken"];
+
+      return true;
+    }else{
+     refreshTokenExpired();
+    }
+
+
+  }
+
+  return true;
+}
 
 
 postWithToken(url, {body}) async {
+
+  if(! await verifyToken()){
+    return null;
+  }
+
   var storage = FlutterSecureStorage();
   String token = await getToken();
-  print(token);
-
-  int exp;
-  try {
-    exp = parseJwtPayLoad(token)["exp"];
-  }on Exception{
-    navigatorKey.currentState.popUntil( (route) => route.isFirst);
-
-    navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
-//    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-    var storage = FlutterSecureStorage();
-    storage.write(key: "token", value: "");
-    return;
-  }
-
-  int now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-  if(exp >= now ){
-    final res = await http.post
-      (
-      url,body: jsonEncode(body),
-      headers: {"Content-Type": "application/json",  "Authorization": token,},
-    );
-
-    if(res.statusCode == 401){
-      navigatorKey.currentState.popUntil( (route) => route.isFirst);
-
-      navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
-      return null;
-    }
-
-    return res;
-
-
-
-  }else{
-
-    navigatorKey.currentState.popUntil( (route) => route.isFirst);
-
-    navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
-//    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-    var storage = FlutterSecureStorage();
-    storage.write(key: "token", value: "");
-
-
-  }
-
-
-}
-
- getWithToken(url) async {
-
-  String token = await getToken();
-  print(token);
-
-  int exp;
-  try {
-    exp = parseJwtPayLoad(token)["exp"];
-  }on Exception{
-    navigatorKey.currentState.popUntil( (route) => route.isFirst);
-
-    navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
-//    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-    var storage = FlutterSecureStorage();
-    storage.write(key: "token", value: "");
-    return;
-  }
-  int now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-  if(exp >= now ){
-    final res = await http.get
-      (
-      url,  headers : {
+  final res = await http.post(
+    url,
+    body: jsonEncode(body),
+    headers: {
+      "Content-Type": "application/json",
       "Authorization": token,
-    }
-    );
-    if(res.statusCode == 401){
-      navigatorKey.currentState.popUntil( (route) => route.isFirst);
+    },
+  );
 
-      navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
-      return null;
-    }
-
-    return res;
-  }else{
-
-    navigatorKey.currentState.popUntil( (route) => route.isFirst);
-
-    navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
-//    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-    var storage = FlutterSecureStorage();
-    storage.write(key: "token", value: "");
-
-
+  if (res.statusCode == 401) {
+    refreshTokenExpired();
+    return null;
   }
 
-
+  return res;
 }
 
+getWithToken(url) async {
+  if(! await verifyToken()){
+    return null;
+  }
+  var storage = FlutterSecureStorage();
+  String token = await getToken();
 
+  final res = await http.get(url, headers: {
+    "Authorization": token,
+  });
+
+  if (res.statusCode == 401) {
+    refreshTokenExpired();
+    return null;
+  }
+  return res;
+
+}
 
 deleteWithToken(url) async {
+  if(! await verifyToken()){
+    return null;
+  }
   var storage = FlutterSecureStorage();
   String token = await getToken();
-  print(token);
 
-  int exp;
-  try {
-    exp = parseJwtPayLoad(token)["exp"];
-  }on Exception{
-    navigatorKey.currentState.popUntil( (route) => route.isFirst);
+  final res = await http.delete(url, headers: {
+    "Authorization": token,
+  });
 
-    navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
-//    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-    var storage = FlutterSecureStorage();
-    storage.write(key: "token", value: "");
-    return;
+  if (res.statusCode == 401) {
+    refreshTokenExpired();
+    return null;
   }
-  int now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-  if(exp >= now ){
-    final res = await http.delete
-      (
-        url,  headers : {
-      "Authorization": token,
-    }
-    );
-    return res;
-  }else{
-
-    navigatorKey.currentState.popUntil( (route) => route.isFirst);
-
-    navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => LoginPage()));
-//    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-    var storage = FlutterSecureStorage();
-    storage.write(key: "token", value: "");
-
-
-  }
-
+  return res;
 
 }
