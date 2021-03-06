@@ -5,4 +5,4 @@ class Host {
   static const String vultrAddress = "https://api.yammeal.com/api";
 }
 
-String currentHost = Host.localAddress;
+String currentHost = Host.vultrAddress;

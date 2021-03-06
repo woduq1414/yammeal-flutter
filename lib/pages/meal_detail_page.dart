@@ -115,27 +115,27 @@ class MealDetail extends State<MealDetailState> {
         return true;
       },
       child: SwipeDetector(
-        onSwipeUp: () {
-          Navigator.of(context).pushReplacement(SlideUpRoute(
+        onSwipeRight: () {
+          Navigator.of(context).pushReplacement(SlideRightRoute(
               page: MealDetailState(
             d,
             menuTime: menuTimeList[(menuTimeList.indexOf(menuTime) + 1) % menuTimeList.length],
           )));
         },
-        onSwipeDown: () {
-          Navigator.of(context).pushReplacement(SlideDownRoute(
+        onSwipeLeft: () {
+          Navigator.of(context).pushReplacement(SlideLeftRoute(
               page: MealDetailState(
             d,
             menuTime: menuTimeList[(menuTimeList.indexOf(menuTime) - 1 + menuTimeList.length) % menuTimeList.length],
           )));
         },
-        onSwipeRight: () {
-          DateTime moveDate = widget.d.add(Duration(days: -1));
-          Navigator.of(context).pushReplacement(SlideRightRoute(page: MealDetailState(moveDate)));
-        },
-        onSwipeLeft: () {
+        onSwipeUp: () {
           DateTime moveDate = widget.d.add(Duration(days: 1));
-          Navigator.of(context).pushReplacement(SlideLeftRoute(page: MealDetailState(moveDate)));
+          Navigator.of(context).pushReplacement(SlideUpRoute(page: MealDetailState(moveDate)));
+        },
+        onSwipeDown: () {
+          DateTime moveDate = widget.d.add(Duration(days: -1));
+          Navigator.of(context).pushReplacement(SlideDownRoute(page: MealDetailState(moveDate)));
         },
         child: LoadingMealModal(
           child: Scaffold(
@@ -225,7 +225,7 @@ class MealDetail extends State<MealDetailState> {
               GestureDetector(
                   onTap: () {
                     List<String> menuTimeList = ["조식", "중식", "석식"];
-                    Navigator.of(context).pushReplacement(SlideUpRoute(
+                    Navigator.of(context).pushReplacement(SlideRightRoute(
                         page: MealDetailState(
                       d,
                       menuTime: menuTimeList[(menuTimeList.indexOf(menuTime) - 1) % menuTimeList.length],
@@ -242,7 +242,7 @@ class MealDetail extends State<MealDetailState> {
               GestureDetector(
                 onTap: () {
                   List<String> menuTimeList = ["조식", "중식", "석식"];
-                  Navigator.of(context).pushReplacement(SlideUpRoute(
+                  Navigator.of(context).pushReplacement(SlideLeftRoute(
                       page: MealDetailState(
                     d,
                     menuTime: menuTimeList[(menuTimeList.indexOf(menuTime) + 1) % menuTimeList.length],

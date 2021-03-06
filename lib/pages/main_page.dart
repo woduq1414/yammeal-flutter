@@ -181,7 +181,7 @@ class MealUI extends State<MealState> {
   void initState () {
     pm = PushManager();
     AdManager.init();
-    // AdManager.showBanner();
+    AdManager.showBanner();
     super.initState();
     getAlgFromStorage();
 

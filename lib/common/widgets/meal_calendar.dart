@@ -144,9 +144,9 @@ class MealCalendar extends State<MealCalState> {
                 (!mealStatus.dayList.containsKey(formatDate(date, ['yyyy', '', 'mm', '', 'dd']))
                     ? Image.asset(
                   getEmoji("dishes"),
-                  width: fs.getWidthRatioSize(0.08),
+                  height: fs.getHeightRatioSize(0.04),
                 )
-                    : Image.asset(getEmoji(mealStatus.selectedEmoji), width: fs.getWidthRatioSize(0.08),))
+                    : Image.asset(getEmoji(mealStatus.selectedEmoji), height: fs.getHeightRatioSize(0.042),))
               ],
             ),
           ),
@@ -169,12 +169,12 @@ class MealCalendar extends State<MealCalState> {
                     ? (!mealStatus.dayList.containsKey(formatDate(date, ['yyyy', '', 'mm', '', 'dd']))
                         ? Image.asset(
                             getEmoji("dishes"),
-                            width: fs.getWidthRatioSize(0.08),
+                            height: fs.getHeightRatioSize(0.042),
                           )
-                        : Image.asset(getEmoji(mealStatus.selectedEmoji), width: fs.getWidthRatioSize(0.08),))
+                        : Image.asset(getEmoji(mealStatus.selectedEmoji), height: fs.getHeightRatioSize(0.042),))
                     : ColorFiltered(
                         colorFilter: ColorFilter.mode(Colors.grey[400], BlendMode.modulate),
-                        child: Image.asset(getEmoji("dishes"), width: fs.getWidthRatioSize(0.08),))
+                        child: Image.asset(getEmoji("dishes"), height: fs.getHeightRatioSize(0.042),))
               ],
             ),
           ),
