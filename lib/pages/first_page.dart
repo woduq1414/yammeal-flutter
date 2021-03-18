@@ -25,27 +25,10 @@ class _FirstPageState extends State<FirstPage> {
   var _isLogined = null;
 
   void getIsLogined() async {
-    var storage = FlutterSecureStorage();
-    String token = await getToken();
-    int exp;
 
-    try{
-      exp = parseJwtPayLoad(token)["exp"];
-    }on Exception {
-      setState(() {
-        _isLogined = false;
-        Navigator.push(
-          context,
-          FadeRoute(page: LoginPage()),
-        );
-      });
-      return;
-    }
-
-
-    int now = (DateTime.now().millisecondsSinceEpoch / 1000).toInt();
-
-    if (exp >= now) {
+    if(! await verifyToken()){
+     return null;
+    }else{
       setState(() {
         _isLogined = true;
         Navigator.push(
@@ -53,15 +36,9 @@ class _FirstPageState extends State<FirstPage> {
           FadeRoute(page: MealState()),
         );
       });
-    } else {
-      setState(() {
-        _isLogined = false;
-        Navigator.push(
-          context,
-          FadeRoute(page: LoginPage()),
-        );
-      });
     }
+
+
   }
 
   @override
